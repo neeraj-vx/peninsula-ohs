@@ -3,7 +3,8 @@
 -- =============================================================
 
 -- Extensions (already available in Supabase, but explicit is safe)
-CREATE EXTENSION IF NOT EXISTS "unaccent";
+CREATE EXTENSION IF NOT EXISTS "unaccent"
+;
 
 -- =============================================================
 -- ENUMS
@@ -15,13 +16,15 @@ CREATE TYPE employment_type_enum AS ENUM (
   'contractor',
   'casual',
   'volunteer'
-);
+)
+;
 
 CREATE TYPE audit_action_enum AS ENUM (
   'INSERT',
   'UPDATE',
   'DELETE'
-);
+)
+;
 
 -- =============================================================
 -- ORGANISATIONS
@@ -43,7 +46,8 @@ CREATE TABLE organisations (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- SITES
@@ -65,7 +69,8 @@ CREATE TABLE sites (
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (organisation_id, code)
-);
+)
+;
 
 -- =============================================================
 -- DEPARTMENTS
@@ -85,7 +90,8 @@ CREATE TABLE departments (
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (site_id, code)
-);
+)
+;
 
 -- =============================================================
 -- WORK AREAS
@@ -108,7 +114,8 @@ CREATE TABLE work_areas (
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (department_id, code)
-);
+)
+;
 
 -- =============================================================
 -- TEAMS
@@ -127,7 +134,8 @@ CREATE TABLE teams (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ROLES
@@ -146,7 +154,8 @@ CREATE TABLE roles (
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (organisation_id, name)
-);
+)
+;
 
 -- =============================================================
 -- PERMISSIONS
@@ -160,7 +169,8 @@ CREATE TABLE permissions (
   description text,
   created_at  timestamptz NOT NULL DEFAULT now(),
   UNIQUE (module, action)
-);
+)
+;
 
 -- =============================================================
 -- ROLE PERMISSIONS
@@ -173,7 +183,8 @@ CREATE TABLE role_permissions (
   created_at    timestamptz NOT NULL DEFAULT now(),
   created_by    uuid        REFERENCES auth.users(id),
   UNIQUE (role_id, permission_id)
-);
+)
+;
 
 -- =============================================================
 -- USER PROFILES
@@ -206,17 +217,20 @@ CREATE TABLE user_profiles (
   updated_at            timestamptz           NOT NULL DEFAULT now(),
   created_by            uuid                  REFERENCES auth.users(id),
   UNIQUE (organisation_id, employee_id)
-);
+)
+;
 
 -- Deferred FK: departments.manager_id → user_profiles
 ALTER TABLE departments
   ADD CONSTRAINT fk_department_manager
-  FOREIGN KEY (manager_id) REFERENCES user_profiles(id) ON DELETE SET NULL;
+  FOREIGN KEY (manager_id) REFERENCES user_profiles(id) ON DELETE SET NULL
+;
 
 -- Deferred FK: teams.team_lead_id → user_profiles
 ALTER TABLE teams
   ADD CONSTRAINT fk_team_lead
-  FOREIGN KEY (team_lead_id) REFERENCES user_profiles(id) ON DELETE SET NULL;
+  FOREIGN KEY (team_lead_id) REFERENCES user_profiles(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- USER ROLES
@@ -234,7 +248,8 @@ CREATE TABLE user_roles (
   expires_at      timestamptz,
   is_active       boolean     NOT NULL DEFAULT true,
   UNIQUE (user_id, role_id, organisation_id, site_id)
-);
+)
+;
 
 -- =============================================================
 -- USER SITE ASSIGNMENTS
@@ -250,7 +265,8 @@ CREATE TABLE user_site_assignments (
   assigned_at     timestamptz NOT NULL DEFAULT now(),
   assigned_by     uuid        REFERENCES auth.users(id),
   UNIQUE (user_id, site_id)
-);
+)
+;
 
 -- =============================================================
 -- USER TEAM MEMBERSHIPS
@@ -265,7 +281,8 @@ CREATE TABLE user_team_memberships (
   added_by        uuid        REFERENCES auth.users(id),
   is_active       boolean     NOT NULL DEFAULT true,
   UNIQUE (user_id, team_id)
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENTS
@@ -292,7 +309,8 @@ CREATE TABLE documents (
   created_at       timestamptz NOT NULL DEFAULT now(),
   updated_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT VERSIONS
@@ -311,7 +329,8 @@ CREATE TABLE document_versions (
   uploaded_at    timestamptz NOT NULL DEFAULT now(),
   uploaded_by    uuid        REFERENCES auth.users(id),
   UNIQUE (document_id, version_number)
-);
+)
+;
 
 -- =============================================================
 -- AUDIT LOGS
@@ -333,65 +352,120 @@ CREATE TABLE audit_logs (
   user_agent     text,
   request_id     text,
   created_at     timestamptz      NOT NULL DEFAULT now()
-);
+)
+;
 
 -- Enforce append-only: deny updates and deletes on audit_logs
-CREATE RULE no_update_audit_logs AS ON UPDATE TO audit_logs DO INSTEAD NOTHING;
-CREATE RULE no_delete_audit_logs AS ON DELETE TO audit_logs DO INSTEAD NOTHING;
+CREATE RULE no_update_audit_logs AS ON UPDATE TO audit_logs DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_audit_logs AS ON DELETE TO audit_logs DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- organisations
-CREATE INDEX idx_orgs_is_active        ON organisations(is_active);
-CREATE INDEX idx_orgs_slug             ON organisations(slug);
+CREATE INDEX idx_orgs_is_active        ON organisations(is_active)
+;
+
+CREATE INDEX idx_orgs_slug             ON organisations(slug)
+;
 
 -- sites
-CREATE INDEX idx_sites_org_id          ON sites(organisation_id);
-CREATE INDEX idx_sites_is_active       ON sites(organisation_id, is_active);
+CREATE INDEX idx_sites_org_id          ON sites(organisation_id)
+;
+
+CREATE INDEX idx_sites_is_active       ON sites(organisation_id, is_active)
+;
 
 -- departments
-CREATE INDEX idx_depts_site_id         ON departments(site_id);
-CREATE INDEX idx_depts_org_id          ON departments(organisation_id);
+CREATE INDEX idx_depts_site_id         ON departments(site_id)
+;
+
+CREATE INDEX idx_depts_org_id          ON departments(organisation_id)
+;
 
 -- work_areas
-CREATE INDEX idx_work_areas_dept_id    ON work_areas(department_id);
-CREATE INDEX idx_work_areas_site_id    ON work_areas(site_id);
+CREATE INDEX idx_work_areas_dept_id    ON work_areas(department_id)
+;
+
+CREATE INDEX idx_work_areas_site_id    ON work_areas(site_id)
+;
 
 -- teams
-CREATE INDEX idx_teams_dept_id         ON teams(department_id);
-CREATE INDEX idx_teams_org_id          ON teams(organisation_id);
+CREATE INDEX idx_teams_dept_id         ON teams(department_id)
+;
+
+CREATE INDEX idx_teams_org_id          ON teams(organisation_id)
+;
 
 -- user_profiles
-CREATE INDEX idx_up_org_id             ON user_profiles(organisation_id);
-CREATE INDEX idx_up_primary_site       ON user_profiles(primary_site_id);
-CREATE INDEX idx_up_is_active          ON user_profiles(organisation_id, is_active);
-CREATE INDEX idx_up_display_name       ON user_profiles USING gin(to_tsvector('simple', display_name));
-CREATE INDEX idx_up_email              ON user_profiles(email);
+CREATE INDEX idx_up_org_id             ON user_profiles(organisation_id)
+;
+
+CREATE INDEX idx_up_primary_site       ON user_profiles(primary_site_id)
+;
+
+CREATE INDEX idx_up_is_active          ON user_profiles(organisation_id, is_active)
+;
+
+CREATE INDEX idx_up_display_name       ON user_profiles USING gin(to_tsvector('simple', display_name))
+;
+
+CREATE INDEX idx_up_email              ON user_profiles(email)
+;
 
 -- user_roles
-CREATE INDEX idx_ur_user_id            ON user_roles(user_id);
-CREATE INDEX idx_ur_role_id            ON user_roles(role_id);
-CREATE INDEX idx_ur_org_id             ON user_roles(organisation_id);
+CREATE INDEX idx_ur_user_id            ON user_roles(user_id)
+;
+
+CREATE INDEX idx_ur_role_id            ON user_roles(role_id)
+;
+
+CREATE INDEX idx_ur_org_id             ON user_roles(organisation_id)
+;
 
 -- user_site_assignments
-CREATE INDEX idx_usa_user_id           ON user_site_assignments(user_id);
-CREATE INDEX idx_usa_site_id           ON user_site_assignments(site_id);
+CREATE INDEX idx_usa_user_id           ON user_site_assignments(user_id)
+;
+
+CREATE INDEX idx_usa_site_id           ON user_site_assignments(site_id)
+;
 
 -- user_team_memberships
-CREATE INDEX idx_utm_user_id           ON user_team_memberships(user_id);
-CREATE INDEX idx_utm_team_id           ON user_team_memberships(team_id);
+CREATE INDEX idx_utm_user_id           ON user_team_memberships(user_id)
+;
+
+CREATE INDEX idx_utm_team_id           ON user_team_memberships(team_id)
+;
 
 -- documents
-CREATE INDEX idx_docs_org_id           ON documents(organisation_id);
-CREATE INDEX idx_docs_site_id          ON documents(site_id);
-CREATE INDEX idx_docs_category         ON documents(category);
-CREATE INDEX idx_docs_tags             ON documents USING GIN(tags);
+CREATE INDEX idx_docs_org_id           ON documents(organisation_id)
+;
+
+CREATE INDEX idx_docs_site_id          ON documents(site_id)
+;
+
+CREATE INDEX idx_docs_category         ON documents(category)
+;
+
+CREATE INDEX idx_docs_tags             ON documents USING GIN(tags)
+;
 
 -- audit_logs
-CREATE INDEX idx_al_table_record       ON audit_logs(table_name, record_id);
-CREATE INDEX idx_al_changed_by         ON audit_logs(changed_by);
-CREATE INDEX idx_al_org_id             ON audit_logs(organisation_id);
-CREATE INDEX idx_al_created_at         ON audit_logs(created_at DESC);
-CREATE INDEX idx_al_action             ON audit_logs(action);
+CREATE INDEX idx_al_table_record       ON audit_logs(table_name, record_id)
+;
+
+CREATE INDEX idx_al_changed_by         ON audit_logs(changed_by)
+;
+
+CREATE INDEX idx_al_org_id             ON audit_logs(organisation_id)
+;
+
+CREATE INDEX idx_al_created_at         ON audit_logs(created_at DESC)
+;
+
+CREATE INDEX idx_al_action             ON audit_logs(action)
+;

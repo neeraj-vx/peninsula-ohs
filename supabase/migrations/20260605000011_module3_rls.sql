@@ -12,16 +12,35 @@
 --   active_escalations     → HSE Officer / System Admin monitor
 -- =============================================================
 
-ALTER TABLE notification_templates       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_rules           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_rule_recipients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_preferences     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_schedules       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications                ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_deliveries      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE escalation_chains            ENABLE ROW LEVEL SECURITY;
-ALTER TABLE escalation_steps             ENABLE ROW LEVEL SECURITY;
-ALTER TABLE active_escalations           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_templates       ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notification_rules           ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notification_rule_recipients ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notification_preferences     ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notification_schedules       ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notifications                ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE notification_deliveries      ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE escalation_chains            ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE escalation_steps             ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE active_escalations           ENABLE ROW LEVEL SECURITY
+;
 
 -- =============================================================
 -- NOTIFICATION TEMPLATES
@@ -35,25 +54,29 @@ CREATE POLICY "ntpl_select" ON notification_templates FOR SELECT
   USING (
     organisation_id IS NULL                          -- system template
     OR organisation_id = get_my_organisation_id()    -- org template
-  );
+  )
+;
 
 CREATE POLICY "ntpl_insert" ON notification_templates FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ntpl_update" ON notification_templates FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ntpl_delete" ON notification_templates FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- NOTIFICATION RULES
@@ -62,25 +85,29 @@ CREATE POLICY "ntpl_delete" ON notification_templates FOR DELETE
 -- =============================================================
 
 CREATE POLICY "nr_select" ON notification_rules FOR SELECT
-  USING (organisation_id = get_my_organisation_id());
+  USING (organisation_id = get_my_organisation_id())
+;
 
 CREATE POLICY "nr_insert" ON notification_rules FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "nr_update" ON notification_rules FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "nr_delete" ON notification_rules FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- NOTIFICATION RULE RECIPIENTS
@@ -95,7 +122,8 @@ CREATE POLICY "nrr_select" ON notification_rule_recipients FOR SELECT
       WHERE nr.id = rule_id
         AND nr.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 CREATE POLICY "nrr_insert" ON notification_rule_recipients FOR INSERT
   WITH CHECK (
@@ -105,7 +133,8 @@ CREATE POLICY "nrr_insert" ON notification_rule_recipients FOR INSERT
       WHERE nr.id = rule_id
         AND nr.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 CREATE POLICY "nrr_delete" ON notification_rule_recipients FOR DELETE
   USING (
@@ -115,7 +144,8 @@ CREATE POLICY "nrr_delete" ON notification_rule_recipients FOR DELETE
       WHERE nr.id = rule_id
         AND nr.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 -- =============================================================
 -- NOTIFICATION PREFERENCES
@@ -124,47 +154,56 @@ CREATE POLICY "nrr_delete" ON notification_rule_recipients FOR DELETE
 -- =============================================================
 
 CREATE POLICY "np_select_own" ON notification_preferences FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 CREATE POLICY "np_select_admin" ON notification_preferences FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 CREATE POLICY "np_insert" ON notification_preferences FOR INSERT
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (user_id = auth.uid())
+;
 
 CREATE POLICY "np_update" ON notification_preferences FOR UPDATE
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 CREATE POLICY "np_delete" ON notification_preferences FOR DELETE
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 -- =============================================================
 -- NOTIFICATION SCHEDULES
 -- =============================================================
 
 CREATE POLICY "ns_select" ON notification_schedules FOR SELECT
-  USING (organisation_id = get_my_organisation_id());
+  USING (organisation_id = get_my_organisation_id())
+;
 
 CREATE POLICY "ns_insert" ON notification_schedules FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ns_update" ON notification_schedules FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ns_delete" ON notification_schedules FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- NOTIFICATIONS (INBOX)
@@ -175,13 +214,15 @@ CREATE POLICY "ns_delete" ON notification_schedules FOR DELETE
 -- =============================================================
 
 CREATE POLICY "notif_select_own" ON notifications FOR SELECT
-  USING (recipient_user_id = auth.uid());
+  USING (recipient_user_id = auth.uid())
+;
 
 CREATE POLICY "notif_select_admin" ON notifications FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- Notifications are created only by SECURITY DEFINER functions
 -- (create_notification, fire_escalation_step) — no user INSERT policy.
@@ -190,7 +231,8 @@ CREATE POLICY "notif_select_admin" ON notifications FOR SELECT
 -- via the RPC functions which are SECURITY DEFINER; but we also
 -- allow direct updates so the frontend can optimistically mark-as-read.
 CREATE POLICY "notif_update_own" ON notifications FOR UPDATE
-  USING (recipient_user_id = auth.uid());
+  USING (recipient_user_id = auth.uid())
+;
 
 -- =============================================================
 -- NOTIFICATION DELIVERIES
@@ -207,7 +249,8 @@ CREATE POLICY "nd_select_own" ON notification_deliveries FOR SELECT
       WHERE n.id = notification_id
         AND n.recipient_user_id = auth.uid()
     )
-  );
+  )
+;
 
 CREATE POLICY "nd_select_admin" ON notification_deliveries FOR SELECT
   USING (
@@ -217,32 +260,37 @@ CREATE POLICY "nd_select_admin" ON notification_deliveries FOR SELECT
       WHERE n.id = notification_id
         AND n.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 -- =============================================================
 -- ESCALATION CHAINS
 -- =============================================================
 
 CREATE POLICY "ec_select" ON escalation_chains FOR SELECT
-  USING (organisation_id = get_my_organisation_id());
+  USING (organisation_id = get_my_organisation_id())
+;
 
 CREATE POLICY "ec_insert" ON escalation_chains FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ec_update" ON escalation_chains FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 CREATE POLICY "ec_delete" ON escalation_chains FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- ESCALATION STEPS
@@ -255,7 +303,8 @@ CREATE POLICY "es_select" ON escalation_steps FOR SELECT
       WHERE ec.id = chain_id
         AND ec.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 CREATE POLICY "es_insert" ON escalation_steps FOR INSERT
   WITH CHECK (
@@ -265,7 +314,8 @@ CREATE POLICY "es_insert" ON escalation_steps FOR INSERT
       WHERE ec.id = chain_id
         AND ec.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 CREATE POLICY "es_update" ON escalation_steps FOR UPDATE
   USING (
@@ -275,7 +325,8 @@ CREATE POLICY "es_update" ON escalation_steps FOR UPDATE
       WHERE ec.id = chain_id
         AND ec.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 CREATE POLICY "es_delete" ON escalation_steps FOR DELETE
   USING (
@@ -285,7 +336,8 @@ CREATE POLICY "es_delete" ON escalation_steps FOR DELETE
       WHERE ec.id = chain_id
         AND ec.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;
 
 -- =============================================================
 -- ACTIVE ESCALATIONS
@@ -302,4 +354,5 @@ CREATE POLICY "ae_select_elevated" ON active_escalations FOR SELECT
       WHERE n.id = notification_id
         AND n.organisation_id = get_my_organisation_id()
     )
-  );
+  )
+;

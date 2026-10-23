@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { submitReference } from './actions'
 
 export interface Question {
   id: string
@@ -21,28 +21,7 @@ interface Props {
   questions: Question[]
 }
 
-async function submitReference(requestId: string, answers: Record<string, unknown>): Promise<{ error?: string }> {
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  // Insert responses
-  const rows = Object.entries(answers).map(([questionId, value]) => ({
-    request_id:     requestId,
-    question_id:    questionId,
-    response_value: JSON.stringify(value),
-  }))
-
-  const { error } = await admin.from('bgc_reference_responses').insert(rows)
-  if (error) return { error: error.message }
-
-  // Mark request as completed (use service role via API route for this in production)
-  await admin.from('bgc_reference_requests').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', requestId)
-  return {}
-}
-
-export default function ReferenceQuestionnaireForm({ token, requestId, refereeName, candidateName, positionTitle, questions }: Props) {
+export default function ReferenceQuestionnaireForm({ token, refereeName, candidateName, positionTitle, questions }: Props) {
   const [isPending, startTransition] = useTransition()
   const [answers, setAnswers] = useState<Record<string, unknown>>({})
   const [done, setDone] = useState(false)
@@ -56,7 +35,7 @@ export default function ReferenceQuestionnaireForm({ token, requestId, refereeNa
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const result = await submitReference(requestId, answers)
+      const result = await submitReference(token, answers)
       if (result.error) { setError(result.error); return }
       setDone(true)
     })

@@ -13,7 +13,8 @@ INSERT INTO health_surveillance_types (code, name, description, exposure_hazard,
   ('eye_test',            'Occupational Eye Examination',  'Vision and eye health for screen work or optical hazard exposure.','optical',   24, true, 'eye',        8),
   ('musculoskeletal',     'Musculoskeletal Assessment',    'Functional capacity evaluation for manual handling roles.',        'ergonomic', 24, true, 'activity',   9),
   ('general_fitness',     'General Medical Fitness',       'Broad health check for pre-employment or safety-critical roles.', 'general',   24, true, 'heart',      10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO work_restriction_types (code, name, description, display_order) VALUES
   ('no_heavy_lifting',   'No Heavy Lifting',          'Maximum lifting weight restricted.', 1),
@@ -26,7 +27,8 @@ INSERT INTO work_restriction_types (code, name, description, display_order) VALU
   ('modified_duties',    'Modified Duties',           'Restricted to specified duties only.', 8),
   ('no_lone_working',    'No Lone Working',           'Must be supervised or work in pairs at all times.', 9),
   ('seated_duties_only', 'Seated Duties Only',        'Cannot perform standing or walking duties.', 10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'health.check_due',  'Health Check Due',
@@ -48,7 +50,8 @@ Outcome: {{result}}
 
 Please log in to review the outcome and arrange any necessary follow-up, work restrictions, or RTW planning.',
    '{"check_number":"Check reference","result":"Outcome"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('health_surveillance', 'read_own',       'View own health surveillance records'),
@@ -58,7 +61,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('health_surveillance', 'manage_restrictions', 'Manage work restrictions'),
   ('health_surveillance', 'manage_rtw',     'Create and manage return-to-work plans'),
   ('health_surveillance', 'export',         'Export health surveillance reports')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -90,4 +94,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

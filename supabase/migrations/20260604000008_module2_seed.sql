@@ -28,7 +28,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('row_versions', 'read',   'View row-level version history for any record'),
   ('row_versions', 'export', 'Export row-level version history')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS (Module 2 additions)
@@ -125,4 +126,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

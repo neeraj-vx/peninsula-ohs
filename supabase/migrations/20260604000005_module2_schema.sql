@@ -31,13 +31,15 @@ CREATE TYPE auth_event_type_enum AS ENUM (
   'session_revoked',
   'account_locked',
   'account_unlocked'
-);
+)
+;
 
 CREATE TYPE sso_provider_type_enum AS ENUM (
   'saml',
   'oidc',
   'oauth2'
-);
+)
+;
 
 -- =============================================================
 -- AUTH EVENTS
@@ -61,11 +63,15 @@ CREATE TABLE auth_events (
   failure_reason   text,                 -- populated on failed events
   metadata         jsonb,                -- SSO attributes, MFA method, extra context
   created_at       timestamptz           NOT NULL DEFAULT now()
-);
+)
+;
 
 -- Append-only — no one should mutate the event log
-CREATE RULE no_update_auth_events AS ON UPDATE TO auth_events DO INSTEAD NOTHING;
-CREATE RULE no_delete_auth_events AS ON DELETE TO auth_events DO INSTEAD NOTHING;
+CREATE RULE no_update_auth_events AS ON UPDATE TO auth_events DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_auth_events AS ON DELETE TO auth_events DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- USER SESSIONS
@@ -90,7 +96,8 @@ CREATE TABLE user_sessions (
   revoked_at           timestamptz,
   revoked_by           uuid        REFERENCES auth.users(id),
   revoke_reason        text        -- 'logout','force_logout','expired','admin_revoke'
-);
+)
+;
 
 -- =============================================================
 -- SSO PROVIDERS
@@ -118,7 +125,8 @@ CREATE TABLE sso_providers (
   updated_at          timestamptz            NOT NULL DEFAULT now(),
   created_by          uuid                   REFERENCES auth.users(id),
   UNIQUE (organisation_id, email_domain)
-);
+)
+;
 
 -- =============================================================
 -- USER IDENTITY LINKS
@@ -136,7 +144,8 @@ CREATE TABLE user_identity_links (
   last_sign_in_at      timestamptz,
   created_at           timestamptz NOT NULL DEFAULT now(),
   UNIQUE (sso_provider_id, provider_user_id)
-);
+)
+;
 
 -- =============================================================
 -- ROW VERSIONS
@@ -166,40 +175,75 @@ CREATE TABLE row_versions (
   ip_address       text,
   created_at       timestamptz       NOT NULL DEFAULT now(),
   UNIQUE (table_name, record_id, version_number)
-);
+)
+;
 
 -- Append-only
-CREATE RULE no_update_row_versions AS ON UPDATE TO row_versions DO INSTEAD NOTHING;
-CREATE RULE no_delete_row_versions AS ON DELETE TO row_versions DO INSTEAD NOTHING;
+CREATE RULE no_update_row_versions AS ON UPDATE TO row_versions DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_row_versions AS ON DELETE TO row_versions DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- auth_events
-CREATE INDEX idx_ae_org_id      ON auth_events(organisation_id);
-CREATE INDEX idx_ae_user_id     ON auth_events(user_id);
-CREATE INDEX idx_ae_event_type  ON auth_events(event_type);
-CREATE INDEX idx_ae_created_at  ON auth_events(created_at DESC);
-CREATE INDEX idx_ae_failures    ON auth_events(user_email, created_at DESC) WHERE success = false;
+CREATE INDEX idx_ae_org_id      ON auth_events(organisation_id)
+;
+
+CREATE INDEX idx_ae_user_id     ON auth_events(user_id)
+;
+
+CREATE INDEX idx_ae_event_type  ON auth_events(event_type)
+;
+
+CREATE INDEX idx_ae_created_at  ON auth_events(created_at DESC)
+;
+
+CREATE INDEX idx_ae_failures    ON auth_events(user_email, created_at DESC) WHERE success = false
+;
 
 -- user_sessions
-CREATE INDEX idx_us_user_id     ON user_sessions(user_id);
-CREATE INDEX idx_us_org_id      ON user_sessions(organisation_id);
-CREATE INDEX idx_us_active      ON user_sessions(user_id, is_active) WHERE is_active = true;
-CREATE INDEX idx_us_supa_sid    ON user_sessions(supabase_session_id);
+CREATE INDEX idx_us_user_id     ON user_sessions(user_id)
+;
+
+CREATE INDEX idx_us_org_id      ON user_sessions(organisation_id)
+;
+
+CREATE INDEX idx_us_active      ON user_sessions(user_id, is_active) WHERE is_active = true
+;
+
+CREATE INDEX idx_us_supa_sid    ON user_sessions(supabase_session_id)
+;
 
 -- sso_providers
-CREATE INDEX idx_sso_org_id     ON sso_providers(organisation_id);
-CREATE INDEX idx_sso_domain     ON sso_providers(email_domain) WHERE email_domain IS NOT NULL;
+CREATE INDEX idx_sso_org_id     ON sso_providers(organisation_id)
+;
+
+CREATE INDEX idx_sso_domain     ON sso_providers(email_domain) WHERE email_domain IS NOT NULL
+;
 
 -- user_identity_links
-CREATE INDEX idx_uil_user_id    ON user_identity_links(user_id);
-CREATE INDEX idx_uil_provider   ON user_identity_links(sso_provider_id);
+CREATE INDEX idx_uil_user_id    ON user_identity_links(user_id)
+;
+
+CREATE INDEX idx_uil_provider   ON user_identity_links(sso_provider_id)
+;
 
 -- row_versions
-CREATE INDEX idx_rv_table_rec   ON row_versions(table_name, record_id);
-CREATE INDEX idx_rv_org_id      ON row_versions(organisation_id);
-CREATE INDEX idx_rv_changed_by  ON row_versions(changed_by);
-CREATE INDEX idx_rv_created_at  ON row_versions(created_at DESC);
-CREATE INDEX idx_rv_version     ON row_versions(table_name, record_id, version_number DESC);
+CREATE INDEX idx_rv_table_rec   ON row_versions(table_name, record_id)
+;
+
+CREATE INDEX idx_rv_org_id      ON row_versions(organisation_id)
+;
+
+CREATE INDEX idx_rv_changed_by  ON row_versions(changed_by)
+;
+
+CREATE INDEX idx_rv_created_at  ON row_versions(created_at DESC)
+;
+
+CREATE INDEX idx_rv_version     ON row_versions(table_name, record_id, version_number DESC)
+;

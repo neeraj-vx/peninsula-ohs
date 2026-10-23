@@ -32,7 +32,8 @@ CREATE TABLE asset_types (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- is_operational: when false, the asset cannot be actively assigned/used.
 -- Drives the "locked from use" logic without hard-coding status names.
@@ -46,7 +47,8 @@ CREATE TABLE asset_statuses (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- is_preventive: drives scheduling logic (preventive = schedule-driven)
 CREATE TABLE maintenance_types (
@@ -58,7 +60,8 @@ CREATE TABLE maintenance_types (
   display_order  integer     NOT NULL DEFAULT 0,
   is_active      boolean     NOT NULL DEFAULT true,
   created_at     timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ASSETS
@@ -117,7 +120,8 @@ CREATE TABLE assets (
   created_at                  timestamptz NOT NULL DEFAULT now(),
   updated_at                  timestamptz NOT NULL DEFAULT now(),
   created_by                  uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ASSET OUT-OF-SERVICE EVENTS
@@ -135,7 +139,8 @@ CREATE TABLE asset_out_of_service_events (
   returned_to_service_at   timestamptz,
   resolution_notes         text,
   created_at               timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ASSET MAINTENANCE RECORDS
@@ -173,7 +178,8 @@ CREATE TABLE asset_maintenance_records (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   created_by            uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ASSET MAINTENANCE PARTS
@@ -192,7 +198,8 @@ CREATE TABLE asset_maintenance_parts (
   unit_cost             decimal(10,2),
   supplier              text,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ASSET DOCUMENTS
@@ -209,7 +216,8 @@ CREATE TABLE asset_document_types (
   requires_expiry boolean   NOT NULL DEFAULT false,
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 CREATE TABLE asset_documents (
   id               uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -225,7 +233,8 @@ CREATE TABLE asset_documents (
   notes            text,
   created_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ASSET INCIDENT LINKS
@@ -243,43 +252,74 @@ CREATE TABLE asset_incident_links (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (asset_id, incident_id)
-);
+)
+;
 
 -- =============================================================
 -- ALTER Module 6 tables to link inspections to specific assets
 -- =============================================================
 
 ALTER TABLE inspection_schedules
-  ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE SET NULL;
+  ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE SET NULL
+;
 
 ALTER TABLE inspections
-  ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE SET NULL;
+  ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_assets_org_status    ON assets(organisation_id, status_id);
-CREATE INDEX idx_assets_site_id       ON assets(site_id);
-CREATE INDEX idx_assets_type_id       ON assets(asset_type_id);
-CREATE INDEX idx_assets_number        ON assets(asset_number);
-CREATE INDEX idx_assets_next_insp     ON assets(next_inspection_due) WHERE is_active = true;
-CREATE INDEX idx_assets_next_maint    ON assets(next_maintenance_due) WHERE is_active = true;
-CREATE INDEX idx_assets_operator      ON assets(assigned_operator_id);
+CREATE INDEX idx_assets_org_status    ON assets(organisation_id, status_id)
+;
 
-CREATE INDEX idx_amr_asset_id         ON asset_maintenance_records(asset_id);
-CREATE INDEX idx_amr_type_id          ON asset_maintenance_records(maintenance_type_id);
-CREATE INDEX idx_amr_performed_at     ON asset_maintenance_records(asset_id, performed_at DESC);
+CREATE INDEX idx_assets_site_id       ON assets(site_id)
+;
 
-CREATE INDEX idx_amp_record_id        ON asset_maintenance_parts(maintenance_record_id);
+CREATE INDEX idx_assets_type_id       ON assets(asset_type_id)
+;
 
-CREATE INDEX idx_aoos_asset_id        ON asset_out_of_service_events(asset_id);
+CREATE INDEX idx_assets_number        ON assets(asset_number)
+;
+
+CREATE INDEX idx_assets_next_insp     ON assets(next_inspection_due) WHERE is_active = true
+;
+
+CREATE INDEX idx_assets_next_maint    ON assets(next_maintenance_due) WHERE is_active = true
+;
+
+CREATE INDEX idx_assets_operator      ON assets(assigned_operator_id)
+;
+
+CREATE INDEX idx_amr_asset_id         ON asset_maintenance_records(asset_id)
+;
+
+CREATE INDEX idx_amr_type_id          ON asset_maintenance_records(maintenance_type_id)
+;
+
+CREATE INDEX idx_amr_performed_at     ON asset_maintenance_records(asset_id, performed_at DESC)
+;
+
+CREATE INDEX idx_amp_record_id        ON asset_maintenance_parts(maintenance_record_id)
+;
+
+CREATE INDEX idx_aoos_asset_id        ON asset_out_of_service_events(asset_id)
+;
+
 CREATE INDEX idx_aoos_open            ON asset_out_of_service_events(asset_id)
-                                      WHERE returned_to_service_at IS NULL;
+                                      WHERE returned_to_service_at IS NULL
+;
 
-CREATE INDEX idx_adoc_asset_id        ON asset_documents(asset_id);
+CREATE INDEX idx_adoc_asset_id        ON asset_documents(asset_id)
+;
+
 CREATE INDEX idx_adoc_expiry          ON asset_documents(expiry_date)
-                                      WHERE expiry_date IS NOT NULL;
+                                      WHERE expiry_date IS NOT NULL
+;
 
-CREATE INDEX idx_ail_asset_id         ON asset_incident_links(asset_id);
-CREATE INDEX idx_ail_incident_id      ON asset_incident_links(incident_id);
+CREATE INDEX idx_ail_asset_id         ON asset_incident_links(asset_id)
+;
+
+CREATE INDEX idx_ail_incident_id      ON asset_incident_links(incident_id)
+;

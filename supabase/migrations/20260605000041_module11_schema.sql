@@ -36,7 +36,8 @@ CREATE TABLE permit_types (
   display_order        integer     NOT NULL DEFAULT 0,
   is_active            boolean     NOT NULL DEFAULT true,
   created_at           timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- is_active_work: whether work is actually ongoing at this status
 -- is_terminal: no further transitions allowed
@@ -51,7 +52,8 @@ CREATE TABLE permit_statuses (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- Shared PPE type lookup — used by permits, inspections, incidents
 CREATE TABLE ppe_types (
@@ -63,7 +65,8 @@ CREATE TABLE ppe_types (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMITS
@@ -124,7 +127,8 @@ CREATE TABLE permits (
   created_at          timestamptz NOT NULL DEFAULT now(),
   updated_at          timestamptz NOT NULL DEFAULT now(),
   created_by          uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- PERMIT WORKERS
@@ -141,7 +145,8 @@ CREATE TABLE permit_workers (
   role_on_job     text,
   induction_verified boolean  NOT NULL DEFAULT false,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT HAZARDS
@@ -160,7 +165,8 @@ CREATE TABLE permit_hazards (
   consequence      integer     CHECK (consequence BETWEEN 1 AND 5),
   created_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- PERMIT CONTROL MEASURES
@@ -179,7 +185,8 @@ CREATE TABLE permit_control_measures (
   is_verified      boolean     NOT NULL DEFAULT false,
   verified_by      uuid        REFERENCES auth.users(id),
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT PPE REQUIREMENTS
@@ -194,7 +201,8 @@ CREATE TABLE permit_ppe_requirements (
   specification    text,       -- e.g. 'P2 respirator', 'arc flash rated'
   is_mandatory     boolean     NOT NULL DEFAULT true,
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT APPROVALS
@@ -215,7 +223,8 @@ CREATE TABLE permit_approvals (
   decided_at       timestamptz,
   notified_at      timestamptz,
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT CONDITIONS
@@ -231,7 +240,8 @@ CREATE TABLE permit_conditions (
   verified_by      uuid        REFERENCES auth.users(id),
   verified_at      timestamptz,
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT ISOLATION CERTIFICATES
@@ -255,7 +265,8 @@ CREATE TABLE permit_isolation_certs (
   is_active            boolean     NOT NULL DEFAULT true,
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- PERMIT ASSET LINKS
@@ -270,7 +281,8 @@ CREATE TABLE permit_asset_links (
   notes           text,
   created_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (permit_id, asset_id)
-);
+)
+;
 
 -- =============================================================
 -- PERMIT DOCUMENT LINKS
@@ -285,31 +297,68 @@ CREATE TABLE permit_document_links (
   link_context    text,       -- e.g. 'SWMS', 'risk_assessment', 'procedure'
   created_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (permit_id, document_id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_permits_org_status     ON permits(organisation_id, status_id);
-CREATE INDEX idx_permits_site_id        ON permits(site_id);
-CREATE INDEX idx_permits_applicant      ON permits(applicant_id);
-CREATE INDEX idx_permits_number         ON permits(permit_number);
-CREATE INDEX idx_permits_valid_until    ON permits(valid_until)
-                                        WHERE valid_until IS NOT NULL;
-CREATE INDEX idx_permits_active         ON permits(organisation_id, site_id, valid_from, valid_until);
-CREATE INDEX idx_permits_type_id        ON permits(permit_type_id);
+CREATE INDEX idx_permits_org_status     ON permits(organisation_id, status_id)
+;
 
-CREATE INDEX idx_pw_permit_id           ON permit_workers(permit_id);
-CREATE INDEX idx_pw_user_id             ON permit_workers(user_id);
-CREATE INDEX idx_ph_permit_id           ON permit_hazards(permit_id);
-CREATE INDEX idx_pcm_permit_id          ON permit_control_measures(permit_id);
-CREATE INDEX idx_pppe_permit_id         ON permit_ppe_requirements(permit_id);
-CREATE INDEX idx_papproval_permit_id    ON permit_approvals(permit_id, order_index);
+CREATE INDEX idx_permits_site_id        ON permits(site_id)
+;
+
+CREATE INDEX idx_permits_applicant      ON permits(applicant_id)
+;
+
+CREATE INDEX idx_permits_number         ON permits(permit_number)
+;
+
+CREATE INDEX idx_permits_valid_until    ON permits(valid_until)
+                                        WHERE valid_until IS NOT NULL
+;
+
+CREATE INDEX idx_permits_active         ON permits(organisation_id, site_id, valid_from, valid_until)
+;
+
+CREATE INDEX idx_permits_type_id        ON permits(permit_type_id)
+;
+
+CREATE INDEX idx_pw_permit_id           ON permit_workers(permit_id)
+;
+
+CREATE INDEX idx_pw_user_id             ON permit_workers(user_id)
+;
+
+CREATE INDEX idx_ph_permit_id           ON permit_hazards(permit_id)
+;
+
+CREATE INDEX idx_pcm_permit_id          ON permit_control_measures(permit_id)
+;
+
+CREATE INDEX idx_pppe_permit_id         ON permit_ppe_requirements(permit_id)
+;
+
+CREATE INDEX idx_papproval_permit_id    ON permit_approvals(permit_id, order_index)
+;
+
 CREATE INDEX idx_papproval_approver     ON permit_approvals(approver_id)
-                                        WHERE decision = 'pending';
-CREATE INDEX idx_pcond_permit_id        ON permit_conditions(permit_id);
-CREATE INDEX idx_piso_permit_id         ON permit_isolation_certs(permit_id);
-CREATE INDEX idx_pal_permit_id          ON permit_asset_links(permit_id);
-CREATE INDEX idx_pal_asset_id           ON permit_asset_links(asset_id);
-CREATE INDEX idx_pdl_permit_id          ON permit_document_links(permit_id);
+                                        WHERE decision = 'pending'
+;
+
+CREATE INDEX idx_pcond_permit_id        ON permit_conditions(permit_id)
+;
+
+CREATE INDEX idx_piso_permit_id         ON permit_isolation_certs(permit_id)
+;
+
+CREATE INDEX idx_pal_permit_id          ON permit_asset_links(permit_id)
+;
+
+CREATE INDEX idx_pal_asset_id           ON permit_asset_links(asset_id)
+;
+
+CREATE INDEX idx_pdl_permit_id          ON permit_document_links(permit_id)
+;

@@ -40,7 +40,8 @@ CREATE TABLE document_types (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT STATUSES
@@ -60,7 +61,8 @@ CREATE TABLE document_statuses (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT REVIEW WORKFLOWS
@@ -78,7 +80,8 @@ CREATE TABLE document_review_workflows (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- step_type: reviewer = can comment/approve/reject; approver = final gate
 CREATE TABLE document_review_workflow_steps (
@@ -93,7 +96,8 @@ CREATE TABLE document_review_workflow_steps (
   assigned_role_id uuid       REFERENCES roles(id),
   is_required     boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT VERSION REVIEWS
@@ -114,7 +118,8 @@ CREATE TABLE document_version_reviews (
   notified_at      timestamptz,
   created_at       timestamptz NOT NULL DEFAULT now(),
   UNIQUE (version_id, workflow_step_id)
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT ACKNOWLEDGEMENTS
@@ -134,7 +139,8 @@ CREATE TABLE document_acknowledgements (
   ip_address       text,       -- optional audit trail
   notes            text,
   UNIQUE (version_id, user_id)
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT ACKNOWLEDGEMENT REQUIREMENTS
@@ -162,7 +168,8 @@ CREATE TABLE document_acknowledgement_requirements (
     (required_role_id IS NOT NULL)::int +
     (required_site_id IS NOT NULL)::int = 1
   )
-);
+)
+;
 
 -- =============================================================
 -- DOCUMENT LINKS
@@ -182,7 +189,8 @@ CREATE TABLE document_links (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (document_id, source_type, source_id)
-);
+)
+;
 
 -- =============================================================
 -- ALTER documents table — add structured columns
@@ -198,7 +206,8 @@ ALTER TABLE documents
   ADD COLUMN is_controlled_document boolean NOT NULL DEFAULT false,
   ADD COLUMN published_at       timestamptz,
   ADD COLUMN published_by       uuid        REFERENCES auth.users(id),
-  ADD COLUMN superseded_by_id   uuid        REFERENCES documents(id);
+  ADD COLUMN superseded_by_id   uuid        REFERENCES documents(id)
+;
 
 -- ALTER document_versions — add review state
 ALTER TABLE document_versions
@@ -206,34 +215,65 @@ ALTER TABLE document_versions
                               CHECK (status IN ('draft','in_review','approved','published','rejected','archived')),
   ADD COLUMN rejection_notes  text,
   ADD COLUMN submitted_for_review_at timestamptz,
-  ADD COLUMN submitted_by     uuid        REFERENCES auth.users(id);
+  ADD COLUMN submitted_by     uuid        REFERENCES auth.users(id)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_dt_active           ON document_types(is_active);
-CREATE INDEX idx_ds_active           ON document_statuses(is_active);
-CREATE INDEX idx_drwf_org_id         ON document_review_workflows(organisation_id);
-CREATE INDEX idx_drwfs_workflow_id   ON document_review_workflow_steps(workflow_id, order_index);
+CREATE INDEX idx_dt_active           ON document_types(is_active)
+;
 
-CREATE INDEX idx_dvr_version_id      ON document_version_reviews(version_id);
-CREATE INDEX idx_dvr_reviewer_id     ON document_version_reviews(reviewer_id);
+CREATE INDEX idx_ds_active           ON document_statuses(is_active)
+;
+
+CREATE INDEX idx_drwf_org_id         ON document_review_workflows(organisation_id)
+;
+
+CREATE INDEX idx_drwfs_workflow_id   ON document_review_workflow_steps(workflow_id, order_index)
+;
+
+CREATE INDEX idx_dvr_version_id      ON document_version_reviews(version_id)
+;
+
+CREATE INDEX idx_dvr_reviewer_id     ON document_version_reviews(reviewer_id)
+;
+
 CREATE INDEX idx_dvr_pending         ON document_version_reviews(reviewer_id)
-                                     WHERE decision = 'pending';
+                                     WHERE decision = 'pending'
+;
 
-CREATE INDEX idx_dack_document_id    ON document_acknowledgements(document_id);
-CREATE INDEX idx_dack_user_id        ON document_acknowledgements(user_id);
-CREATE INDEX idx_dack_version_id     ON document_acknowledgements(version_id);
+CREATE INDEX idx_dack_document_id    ON document_acknowledgements(document_id)
+;
 
-CREATE INDEX idx_dackreq_doc_id      ON document_acknowledgement_requirements(document_id);
-CREATE INDEX idx_dackreq_role_id     ON document_acknowledgement_requirements(required_role_id);
-CREATE INDEX idx_dackreq_site_id     ON document_acknowledgement_requirements(required_site_id);
+CREATE INDEX idx_dack_user_id        ON document_acknowledgements(user_id)
+;
 
-CREATE INDEX idx_dlink_doc_id        ON document_links(document_id);
-CREATE INDEX idx_dlink_source        ON document_links(source_type, source_id);
+CREATE INDEX idx_dack_version_id     ON document_acknowledgements(version_id)
+;
 
-CREATE INDEX idx_doc_type_id         ON documents(document_type_id);
-CREATE INDEX idx_doc_status_id       ON documents(status_id);
+CREATE INDEX idx_dackreq_doc_id      ON document_acknowledgement_requirements(document_id)
+;
+
+CREATE INDEX idx_dackreq_role_id     ON document_acknowledgement_requirements(required_role_id)
+;
+
+CREATE INDEX idx_dackreq_site_id     ON document_acknowledgement_requirements(required_site_id)
+;
+
+CREATE INDEX idx_dlink_doc_id        ON document_links(document_id)
+;
+
+CREATE INDEX idx_dlink_source        ON document_links(source_type, source_id)
+;
+
+CREATE INDEX idx_doc_type_id         ON documents(document_type_id)
+;
+
+CREATE INDEX idx_doc_status_id       ON documents(status_id)
+;
+
 CREATE INDEX idx_doc_review_due      ON documents(review_due_date)
-                                     WHERE is_active = true;
+                                     WHERE is_active = true
+;

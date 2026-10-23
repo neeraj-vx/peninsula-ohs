@@ -94,7 +94,8 @@ Please log in to review the feedback and ensure the action is completed by the o
    '{"action_number":"Action reference number","action_title":"Action title"}',
    true)
 
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- =============================================================
 -- NEW PERMISSIONS
@@ -113,7 +114,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('extensions', 'request', 'Request a due date extension for an assigned action'),
   ('extensions', 'review',  'Approve or reject extension requests')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS (Module 5 additions)
@@ -204,4 +206,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

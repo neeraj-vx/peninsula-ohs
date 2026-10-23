@@ -26,7 +26,8 @@ INSERT INTO roles (id, organisation_id, name, description, is_system_role) VALUE
   ('00000000-0000-0000-0000-000000000005', NULL, 'System Admin',
    'Full platform configuration access including user and role management.',
    true)
-ON CONFLICT (organisation_id, name) DO NOTHING;
+ON CONFLICT (organisation_id, name) DO NOTHING
+;
 
 -- =============================================================
 -- PERMISSIONS
@@ -137,7 +138,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('reports',   'export', 'Export reports'),
   ('dashboard', 'read',   'Access executive and operational dashboards')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS
@@ -334,4 +336,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

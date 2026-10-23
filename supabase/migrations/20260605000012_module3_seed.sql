@@ -25,7 +25,7 @@ VALUES
    'You have been invited to {{organisation_name}}',
    'Hi {{first_name}},
 
-You have been invited to join {{organisation_name}} on the EXXIO platform.
+You have been invited to join {{organisation_name}} on the Peninsula OHS platform.
 
 Your account has been created. Please follow the link in your welcome email to set your password and complete setup.
 
@@ -171,11 +171,12 @@ Here is your daily OHS summary for {{organisation_name}} on {{date}}.
 
 {{digest_body}}
 
-Log in to the EXXIO platform to view full details and take action on any outstanding items.',
+Log in to the Peninsula OHS platform to view full details and take action on any outstanding items.',
    '{"first_name":"Recipient first name","organisation_name":"Organisation name","date":"Summary date","digest_body":"Auto-generated summary content"}',
    true)
 
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- =============================================================
 -- NEW PERMISSIONS
@@ -196,7 +197,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('escalations', 'read',   'View escalation chains and active escalations'),
   ('escalations', 'manage', 'Create and edit escalation chains')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS (Module 3 additions)
@@ -290,4 +292,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

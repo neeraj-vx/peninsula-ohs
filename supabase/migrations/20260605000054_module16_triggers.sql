@@ -3,15 +3,24 @@
 -- =============================================================
 
 CREATE TRIGGER trg_sp_updated_at
-  BEFORE UPDATE ON surveillance_programs    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON surveillance_programs    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_whp_updated_at
-  BEFORE UPDATE ON worker_health_profiles   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON worker_health_profiles   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_hcs_updated_at
-  BEFORE UPDATE ON health_check_schedules   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON health_check_schedules   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_hcr_updated_at
-  BEFORE UPDATE ON health_check_records     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON health_check_records     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_rtwp_updated_at
-  BEFORE UPDATE ON return_to_work_plans     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON return_to_work_plans     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- HEALTH CHECK NUMBER — HC-YYYY-NNNNN
@@ -25,11 +34,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_health_check_number
   BEFORE INSERT ON health_check_records
-  FOR EACH ROW EXECUTE FUNCTION generate_health_check_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_health_check_number()
+;
 
 -- =============================================================
 -- RTW PLAN NUMBER — RTW-YYYY-NNNNN
@@ -43,11 +54,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_rtw_number
   BEFORE INSERT ON return_to_work_plans
-  FOR EACH ROW EXECUTE FUNCTION generate_rtw_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_rtw_number()
+;
 
 -- =============================================================
 -- HANDLE HEALTH CHECK RESULT
@@ -117,11 +130,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_health_check_result
   AFTER INSERT ON health_check_records
-  FOR EACH ROW EXECUTE FUNCTION handle_health_check_result();
+  FOR EACH ROW EXECUTE FUNCTION handle_health_check_result()
+;
 
 -- =============================================================
 -- SYNC RESTRICTION FLAG ON WORKER PROFILE
@@ -141,11 +156,13 @@ BEGIN
   WHERE user_id = COALESCE(NEW.user_id, OLD.user_id);
   RETURN COALESCE(NEW, OLD);
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_restriction_flag
   AFTER INSERT OR UPDATE OR DELETE ON worker_work_restrictions
-  FOR EACH ROW EXECUTE FUNCTION sync_worker_restriction_flag();
+  FOR EACH ROW EXECUTE FUNCTION sync_worker_restriction_flag()
+;
 
 -- =============================================================
 -- OVERDUE SCHEDULE MARKING — daily sweep
@@ -163,7 +180,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- UPCOMING CHECK NOTIFICATIONS — daily sweep
@@ -197,4 +215,5 @@ BEGIN
   END LOOP;
   RETURN v_count;
 END;
-$$;
+$$
+;

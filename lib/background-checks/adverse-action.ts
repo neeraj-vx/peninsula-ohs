@@ -4,8 +4,11 @@ const CANADIAN_HOLIDAYS_2026 = [
   '2026-11-11', '2026-12-25', '2026-12-26',
 ]
 
+// All date arithmetic is in UTC so the result doesn't depend on the server's
+// timezone (mixing local getDay() with UTC toISOString() shifted dates by a day
+// in UTC+ zones).
 function isWeekend(date: Date): boolean {
-  const day = date.getDay()
+  const day = date.getUTCDay()
   return day === 0 || day === 6
 }
 
@@ -18,7 +21,7 @@ export function addBusinessDays(startDate: Date, days: number): Date {
   let count = 0
   const d = new Date(startDate)
   while (count < days) {
-    d.setDate(d.getDate() + 1)
+    d.setUTCDate(d.getUTCDate() + 1)
     if (!isWeekend(d) && !isHoliday(d)) count++
   }
   return d

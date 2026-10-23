@@ -14,7 +14,8 @@ INSERT INTO document_types (code, name, description, requires_review, review_cyc
   ('training_material', 'Training Material',           'Induction and training content.', true, 365, 'book', 9),
   ('contractor_doc',    'Contractor Document',         'Contractor-submitted SWMS, insurances, and licences.', false, 365, 'users', 10),
   ('permit_procedure',  'Permit Procedure',            'Procedures referenced in Permits to Work.', true, 365, 'key', 11)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO document_statuses (code, name, description, is_editable, is_live, colour_code, display_order) VALUES
   ('draft',         'Draft',           'Being authored. Not visible to general workers.', true,  false, '#6b7280', 1),
@@ -25,7 +26,8 @@ INSERT INTO document_statuses (code, name, description, is_editable, is_live, co
   ('archived',      'Archived',        'Superseded by a newer version. Read-only.', false, false, '#6b7280', 6),
   ('expired',       'Expired',         'Past its expiry date. Must be reviewed/reissued.', false, false, '#f97316', 7),
   ('superseded',    'Superseded',      'Replaced by a newer document.', false, false, '#6b7280', 8)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'documents.review_requested',   'Document Review Required',
@@ -66,7 +68,8 @@ Expiry Date: {{expiry_date}}
 
 Please log in to review and reissue the document before it expires.',
    '{"document_title":"Document title","expiry_date":"Expiry date"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('documents', 'publish',        'Publish approved document versions'),
@@ -74,7 +77,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('documents', 'acknowledge',    'Acknowledge documents'),
   ('documents', 'manage_workflow','Create and manage document review workflows'),
   ('documents', 'export',         'Export document registers and acknowledgement reports')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -111,4 +115,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

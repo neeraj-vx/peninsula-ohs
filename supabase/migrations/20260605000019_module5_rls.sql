@@ -44,17 +44,27 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
                  OR (is_supervisor() AND (a.site_id IS NULL OR can_access_site(a.site_id)))))
       )
   );
-$$;
+$$
+;
 
 -- =============================================================
 -- ENABLE RLS
 -- =============================================================
 
-ALTER TABLE actions            ENABLE ROW LEVEL SECURITY;
-ALTER TABLE action_comments    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE action_evidence    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE action_extensions  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE action_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE actions            ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE action_comments    ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE action_evidence    ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE action_extensions  ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE action_assignments ENABLE ROW LEVEL SECURITY
+;
 
 -- =============================================================
 -- ACTIONS
@@ -66,7 +76,8 @@ CREATE POLICY "act_select_own" ON actions FOR SELECT
     assigned_to               = auth.uid()
     OR created_by             = auth.uid()
     OR verification_assigned_to = auth.uid()
-  );
+  )
+;
 
 -- Supervisor: all actions at their accessible sites
 CREATE POLICY "act_select_supervisor" ON actions FOR SELECT
@@ -74,14 +85,16 @@ CREATE POLICY "act_select_supervisor" ON actions FOR SELECT
     organisation_id = get_my_organisation_id()
     AND is_supervisor()
     AND (site_id IS NULL OR can_access_site(site_id))
-  );
+  )
+;
 
 -- HSE Officer / Executive / System Admin: full org read
 CREATE POLICY "act_select_elevated" ON actions FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer() OR is_executive())
-  );
+  )
+;
 
 -- Any org member can create a standalone or source-linked action
 CREATE POLICY "act_insert" ON actions FOR INSERT
@@ -93,21 +106,24 @@ CREATE POLICY "act_insert" ON actions FOR INSERT
       OR is_hse_officer()
       OR is_system_admin()
     )
-  );
+  )
+;
 
 -- Assignee can update their own non-terminal actions
 CREATE POLICY "act_update_own" ON actions FOR UPDATE
   USING (
     assigned_to = auth.uid()
     AND status NOT IN ('verified', 'closed', 'cancelled')
-  );
+  )
+;
 
 -- Verifier can update verification fields
 CREATE POLICY "act_update_verifier" ON actions FOR UPDATE
   USING (
     verification_assigned_to = auth.uid()
     AND status IN ('completed', 'verification_pending')
-  );
+  )
+;
 
 -- Supervisor: update all actions at their accessible sites
 CREATE POLICY "act_update_supervisor" ON actions FOR UPDATE
@@ -115,21 +131,24 @@ CREATE POLICY "act_update_supervisor" ON actions FOR UPDATE
     organisation_id = get_my_organisation_id()
     AND is_supervisor()
     AND (site_id IS NULL OR can_access_site(site_id))
-  );
+  )
+;
 
 -- HSE Officer / Admin: full org update
 CREATE POLICY "act_update_elevated" ON actions FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 -- Only System Admin can delete (soft-cancel is the preferred path)
 CREATE POLICY "act_delete" ON actions FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- ACTION COMMENTS
@@ -137,21 +156,24 @@ CREATE POLICY "act_delete" ON actions FOR DELETE
 
 -- Anyone who can see the action can read its comments
 CREATE POLICY "ac_select" ON action_comments FOR SELECT
-  USING (can_access_action(action_id));
+  USING (can_access_action(action_id))
+;
 
 -- Anyone who can see the action can add a comment
 CREATE POLICY "ac_insert" ON action_comments FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND can_access_action(action_id)
-  );
+  )
+;
 
 -- =============================================================
 -- ACTION EVIDENCE
 -- =============================================================
 
 CREATE POLICY "aev_select" ON action_evidence FOR SELECT
-  USING (can_access_action(action_id));
+  USING (can_access_action(action_id))
+;
 
 -- Assignee, supervisor, HSE Officer can upload evidence
 CREATE POLICY "aev_insert" ON action_evidence FOR INSERT
@@ -166,14 +188,16 @@ CREATE POLICY "aev_insert" ON action_evidence FOR INSERT
         OR is_system_admin()
       )
     )
-  );
+  )
+;
 
 -- Only admin can delete evidence
 CREATE POLICY "aev_delete" ON action_evidence FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- ACTION EXTENSIONS
@@ -181,7 +205,8 @@ CREATE POLICY "aev_delete" ON action_evidence FOR DELETE
 
 -- Anyone who can see the action can read its extensions
 CREATE POLICY "aex_select" ON action_extensions FOR SELECT
-  USING (can_access_action(action_id));
+  USING (can_access_action(action_id))
+;
 
 -- Only the current assignee can submit an extension request
 CREATE POLICY "aex_insert" ON action_extensions FOR INSERT
@@ -198,7 +223,8 @@ CREATE POLICY "aex_insert" ON action_extensions FOR INSERT
       SELECT 1 FROM action_extensions ae
       WHERE ae.action_id = action_id AND ae.status = 'pending'
     )
-  );
+  )
+;
 
 -- Supervisor / HSE Officer / Admin can approve or reject
 CREATE POLICY "aex_update" ON action_extensions FOR UPDATE
@@ -210,13 +236,16 @@ CREATE POLICY "aex_update" ON action_extensions FOR UPDATE
       OR is_hse_officer()
       OR (is_supervisor() AND can_access_action(action_id))
     )
-  );
+  )
+;
 
 -- =============================================================
 -- ACTION ASSIGNMENTS (history log — read only for users)
 -- =============================================================
 
 CREATE POLICY "aas_select" ON action_assignments FOR SELECT
-  USING (can_access_action(action_id));
+  USING (can_access_action(action_id))
+;
 
 -- SECURITY DEFINER triggers handle all inserts; no user INSERT policy
+;

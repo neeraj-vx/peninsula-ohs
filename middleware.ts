@@ -54,6 +54,14 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/forgot-password') ||
     pathname.startsWith('/auth')
 
+  // Candidate consent and referee pages are reached by emailed token links;
+  // the token is checked server-side by the page itself
+  const isTokenRoute =
+    pathname.startsWith('/bgc-consent/') ||
+    pathname.startsWith('/bgc-reference/')
+
+  if (isTokenRoute) return supabaseResponse
+
   if (!user && !isAuthRoute) {
     return NextResponse.redirect(new URL('/login', request.url))
   }

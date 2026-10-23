@@ -7,16 +7,20 @@
 -- =============================================================
 
 CREATE TRIGGER trg_risks_updated_at
-  BEFORE UPDATE ON risks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON risks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_risk_controls_updated_at
-  BEFORE UPDATE ON risk_controls FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON risk_controls FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_risk_reviews_updated_at
-  BEFORE UPDATE ON risk_reviews FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON risk_reviews FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_hazard_reports_updated_at
-  BEFORE UPDATE ON hazard_reports FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON hazard_reports FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- REFERENCE NUMBER GENERATION
@@ -30,10 +34,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_risk_number
-  BEFORE INSERT ON risks FOR EACH ROW EXECUTE FUNCTION generate_risk_number();
+  BEFORE INSERT ON risks FOR EACH ROW EXECUTE FUNCTION generate_risk_number()
+;
 
 CREATE OR REPLACE FUNCTION generate_hazard_report_number()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -43,10 +49,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_hazard_report_number
-  BEFORE INSERT ON hazard_reports FOR EACH ROW EXECUTE FUNCTION generate_hazard_report_number();
+  BEFORE INSERT ON hazard_reports FOR EACH ROW EXECUTE FUNCTION generate_hazard_report_number()
+;
 
 CREATE OR REPLACE FUNCTION generate_risk_review_number()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -56,10 +64,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_risk_review_number
-  BEFORE INSERT ON risk_reviews FOR EACH ROW EXECUTE FUNCTION generate_risk_review_number();
+  BEFORE INSERT ON risk_reviews FOR EACH ROW EXECUTE FUNCTION generate_risk_review_number()
+;
 
 -- =============================================================
 -- RISK LEVEL COMPUTATION
@@ -75,7 +85,8 @@ RETURNS text LANGUAGE sql STABLE AS $$
   FROM risk_matrix_thresholds
   WHERE p_score BETWEEN min_score AND max_score
   LIMIT 1;
-$$;
+$$
+;
 
 CREATE OR REPLACE FUNCTION compute_risk_levels()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
@@ -110,11 +121,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_compute_risk_levels
   BEFORE INSERT OR UPDATE ON risks
-  FOR EACH ROW EXECUTE FUNCTION compute_risk_levels();
+  FOR EACH ROW EXECUTE FUNCTION compute_risk_levels()
+;
 
 -- =============================================================
 -- CRITICAL / HIGH RISK NOTIFICATION
@@ -147,11 +160,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_high_risk_created
   AFTER INSERT ON risks
-  FOR EACH ROW EXECUTE FUNCTION notify_high_risk_created();
+  FOR EACH ROW EXECUTE FUNCTION notify_high_risk_created()
+;
 
 -- =============================================================
 -- RISK STATUS CHANGE — notifications + row versioning
@@ -176,11 +191,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_track_risk_status_change
   AFTER UPDATE OF status ON risks
-  FOR EACH ROW EXECUTE FUNCTION track_risk_status_change();
+  FOR EACH ROW EXECUTE FUNCTION track_risk_status_change()
+;
 
 -- =============================================================
 -- REVIEW COMPLETION HANDLER
@@ -246,11 +263,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_risk_review_completed
   BEFORE UPDATE OF status ON risk_reviews
-  FOR EACH ROW EXECUTE FUNCTION handle_risk_review_completed();
+  FOR EACH ROW EXECUTE FUNCTION handle_risk_review_completed()
+;
 
 -- =============================================================
 -- HAZARD REPORT → RISK PROMOTION RPC
@@ -328,7 +347,8 @@ BEGIN
 
   RETURN v_risk_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- BULK OVERDUE REVIEW SWEEP — called by pg_cron daily
@@ -352,7 +372,8 @@ DECLARE v_count integer; BEGIN
 
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- HAZARD REPORT SUBMISSION — NOTIFY SUPERVISOR/HSE
@@ -377,11 +398,13 @@ DECLARE v_site_name text; BEGIN
   );
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_hazard_report_submitted
   AFTER INSERT ON hazard_reports
-  FOR EACH ROW EXECUTE FUNCTION notify_hazard_report_submitted();
+  FOR EACH ROW EXECUTE FUNCTION notify_hazard_report_submitted()
+;
 
 -- =============================================================
 -- ROW VERSIONING
@@ -389,8 +412,10 @@ CREATE TRIGGER trg_notify_hazard_report_submitted
 
 CREATE TRIGGER version_risks
   AFTER INSERT OR UPDATE OR DELETE ON risks
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_risk_reviews
   AFTER INSERT OR UPDATE OR DELETE ON risk_reviews
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

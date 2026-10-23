@@ -23,7 +23,8 @@ CREATE TYPE notification_channel_enum AS ENUM (
   'email',
   'sms',
   'push'
-);
+)
+;
 
 CREATE TYPE notification_status_enum AS ENUM (
   'unread',
@@ -31,7 +32,8 @@ CREATE TYPE notification_status_enum AS ENUM (
   'acknowledged',
   'dismissed',
   'expired'
-);
+)
+;
 
 CREATE TYPE delivery_status_enum AS ENUM (
   'queued',
@@ -41,7 +43,8 @@ CREATE TYPE delivery_status_enum AS ENUM (
   'retrying',
   'cancelled',
   'skipped'          -- user had this channel disabled / no address on file
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION TEMPLATES
@@ -65,7 +68,8 @@ CREATE TABLE notification_templates (
   updated_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id),
   UNIQUE (organisation_id, trigger_event, name)
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION RULES
@@ -90,7 +94,8 @@ CREATE TABLE notification_rules (
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now(),
   created_by           uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION RULE RECIPIENTS
@@ -117,7 +122,8 @@ CREATE TABLE notification_rule_recipients (
   user_id        uuid        REFERENCES auth.users(id) ON DELETE SET NULL,
   site_scoped    boolean     NOT NULL DEFAULT false,
   created_at     timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION PREFERENCES
@@ -143,7 +149,8 @@ CREATE TABLE notification_preferences (
   push_token        text,                    -- FCM / APNS device token
   updated_at        timestamptz              NOT NULL DEFAULT now(),
   UNIQUE (user_id, channel)
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION SCHEDULES
@@ -166,7 +173,8 @@ CREATE TABLE notification_schedules (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATIONS (THE INBOX)
@@ -198,7 +206,8 @@ CREATE TABLE notifications (
   dismissed_at         timestamptz,
   expires_at           timestamptz,
   created_at           timestamptz              NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- NOTIFICATION DELIVERIES (THE OUTBOUND QUEUE)
@@ -223,7 +232,8 @@ CREATE TABLE notification_deliveries (
   provider_message_id text,                    -- SendGrid / Twilio / FCM message ID
   created_at          timestamptz              NOT NULL DEFAULT now(),
   updated_at          timestamptz              NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ESCALATION CHAINS
@@ -240,12 +250,14 @@ CREATE TABLE escalation_chains (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- Deferred FK: notification_rules.escalation_chain_id → escalation_chains
 ALTER TABLE notification_rules
   ADD CONSTRAINT fk_rule_escalation_chain
-  FOREIGN KEY (escalation_chain_id) REFERENCES escalation_chains(id) ON DELETE SET NULL;
+  FOREIGN KEY (escalation_chain_id) REFERENCES escalation_chains(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- ESCALATION STEPS
@@ -265,7 +277,8 @@ CREATE TABLE escalation_steps (
   created_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (chain_id, step_number),
   CHECK (notify_role_id IS NOT NULL OR notify_user_id IS NOT NULL)
-);
+)
+;
 
 -- =============================================================
 -- ACTIVE ESCALATIONS
@@ -286,49 +299,80 @@ CREATE TABLE active_escalations (
   resolved_at         timestamptz,
   resolved_by         uuid        REFERENCES auth.users(id),
   resolution_type     text        CHECK (resolution_type IN ('acknowledged','cancelled','completed'))
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- notification_templates
-CREATE INDEX idx_nt_event        ON notification_templates(trigger_event);
-CREATE INDEX idx_nt_org_id       ON notification_templates(organisation_id);
+CREATE INDEX idx_nt_event        ON notification_templates(trigger_event)
+;
+
+CREATE INDEX idx_nt_org_id       ON notification_templates(organisation_id)
+;
 
 -- notification_rules
-CREATE INDEX idx_nr_org_event    ON notification_rules(organisation_id, trigger_event) WHERE is_active = true;
-CREATE INDEX idx_nr_template     ON notification_rules(template_id);
+CREATE INDEX idx_nr_org_event    ON notification_rules(organisation_id, trigger_event) WHERE is_active = true
+;
+
+CREATE INDEX idx_nr_template     ON notification_rules(template_id)
+;
 
 -- notification_rule_recipients
-CREATE INDEX idx_nrr_rule_id     ON notification_rule_recipients(rule_id);
+CREATE INDEX idx_nrr_rule_id     ON notification_rule_recipients(rule_id)
+;
 
 -- notification_preferences
-CREATE INDEX idx_np_user_id      ON notification_preferences(user_id);
+CREATE INDEX idx_np_user_id      ON notification_preferences(user_id)
+;
 
 -- notification_schedules
-CREATE INDEX idx_ns_next_run     ON notification_schedules(next_run_at) WHERE is_active = true;
-CREATE INDEX idx_ns_org_id       ON notification_schedules(organisation_id);
+CREATE INDEX idx_ns_next_run     ON notification_schedules(next_run_at) WHERE is_active = true
+;
+
+CREATE INDEX idx_ns_org_id       ON notification_schedules(organisation_id)
+;
 
 -- notifications
-CREATE INDEX idx_notif_recipient ON notifications(recipient_user_id, status);
-CREATE INDEX idx_notif_unread    ON notifications(recipient_user_id, created_at DESC) WHERE is_read = false;
-CREATE INDEX idx_notif_org       ON notifications(organisation_id, created_at DESC);
-CREATE INDEX idx_notif_entity    ON notifications(trigger_entity_type, trigger_entity_id);
-CREATE INDEX idx_notif_rule      ON notifications(rule_id);
+CREATE INDEX idx_notif_recipient ON notifications(recipient_user_id, status)
+;
+
+CREATE INDEX idx_notif_unread    ON notifications(recipient_user_id, created_at DESC) WHERE is_read = false
+;
+
+CREATE INDEX idx_notif_org       ON notifications(organisation_id, created_at DESC)
+;
+
+CREATE INDEX idx_notif_entity    ON notifications(trigger_entity_type, trigger_entity_id)
+;
+
+CREATE INDEX idx_notif_rule      ON notifications(rule_id)
+;
 
 -- notification_deliveries
 CREATE INDEX idx_nd_queue        ON notification_deliveries(status, next_attempt_at)
-                                 WHERE status IN ('queued','retrying');
-CREATE INDEX idx_nd_notif_id     ON notification_deliveries(notification_id);
-CREATE INDEX idx_nd_channel      ON notification_deliveries(channel, status);
+                                 WHERE status IN ('queued','retrying')
+;
+
+CREATE INDEX idx_nd_notif_id     ON notification_deliveries(notification_id)
+;
+
+CREATE INDEX idx_nd_channel      ON notification_deliveries(channel, status)
+;
 
 -- escalation_chains
-CREATE INDEX idx_ec_org_id       ON escalation_chains(organisation_id);
+CREATE INDEX idx_ec_org_id       ON escalation_chains(organisation_id)
+;
 
 -- escalation_steps
-CREATE INDEX idx_es_chain_id     ON escalation_steps(chain_id, step_number);
+CREATE INDEX idx_es_chain_id     ON escalation_steps(chain_id, step_number)
+;
 
 -- active_escalations
-CREATE INDEX idx_ae2_next_esc    ON active_escalations(next_escalation_at) WHERE is_active = true;
-CREATE INDEX idx_ae2_notif_id    ON active_escalations(notification_id);
+CREATE INDEX idx_ae2_next_esc    ON active_escalations(next_escalation_at) WHERE is_active = true
+;
+
+CREATE INDEX idx_ae2_notif_id    ON active_escalations(notification_id)
+;

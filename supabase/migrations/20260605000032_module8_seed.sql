@@ -13,7 +13,8 @@ INSERT INTO asset_types (code, name, description, icon, display_order) VALUES
   ('first_aid',       'First Aid Equipment',          'Defibrillators, first aid kits, stretchers, and emergency response equipment.', 'heart', 8),
   ('it_comms',        'IT / Communications',          'Radios, computers, CCTV systems, and communications infrastructure.', 'wifi', 9),
   ('environmental',   'Environmental Equipment',      'Spill containment, water treatment, emissions monitoring, and waste management equipment.', 'leaf', 10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO asset_statuses (code, name, description, colour_code, is_operational, display_order) VALUES
   ('operational',        'Operational',         'Available and fit for use.',                                '#22c55e', true,  1),
@@ -23,7 +24,8 @@ INSERT INTO asset_statuses (code, name, description, colour_code, is_operational
   ('out_of_service',     'Out of Service',      'Flagged unsafe — locked from use until returned to service.', '#ef4444', false, 5),
   ('on_loan',            'On Loan',             'Temporarily assigned to another site or party.',           '#8b5cf6', false, 6),
   ('decommissioned',     'Decommissioned',      'Permanently retired from service.',                        '#6b7280', false, 7)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO maintenance_types (code, name, description, is_preventive, display_order) VALUES
   ('preventive',  'Preventive Maintenance', 'Scheduled maintenance to prevent failure.', true,  1),
@@ -33,7 +35,8 @@ INSERT INTO maintenance_types (code, name, description, is_preventive, display_o
   ('emergency',   'Emergency Repair',       'Urgent repair to restore service.',         false, 5),
   ('overhaul',    'Major Overhaul',         'Comprehensive rebuild or major refurbishment.', false, 6),
   ('upgrade',     'Modification / Upgrade', 'Engineering modification or capability upgrade.', false, 7)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO asset_document_types (code, name, requires_expiry, display_order) VALUES
   ('manual',           'Operators Manual',          false, 1),
@@ -44,7 +47,8 @@ INSERT INTO asset_document_types (code, name, requires_expiry, display_order) VA
   ('inspection_report','Inspection Report',         false, 6),
   ('registration',     'Registration / Licence',    true,  7),
   ('calibration_cert', 'Calibration Certificate',   true,  8)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- Notification templates
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
@@ -64,7 +68,8 @@ Log in to review the asset record and assign corrective maintenance.',
    'Inspection overdue: {{asset_name}}',
    'The scheduled inspection for {{asset_name}} ({{asset_number}}) is overdue. Please arrange an inspection as soon as possible.',
    '{"asset_number":"Asset reference","asset_name":"Asset name"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- Permissions
 INSERT INTO permissions (module, action, description) VALUES
@@ -77,7 +82,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('maintenance', 'create', 'Log maintenance records'),
   ('maintenance', 'read',   'View maintenance history'),
   ('maintenance', 'update', 'Edit maintenance records')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -113,4 +119,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

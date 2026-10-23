@@ -37,7 +37,8 @@ CREATE TABLE health_surveillance_types (
   display_order    integer     NOT NULL DEFAULT 0,
   is_active        boolean     NOT NULL DEFAULT true,
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE TABLE work_restriction_types (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -46,7 +47,8 @@ CREATE TABLE work_restriction_types (
   description   text,
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 -- =============================================================
 -- SURVEILLANCE PROGRAMS
@@ -65,7 +67,8 @@ CREATE TABLE surveillance_programs (
   created_at       timestamptz NOT NULL DEFAULT now(),
   updated_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- A program can require workers based on role, site, department, or individual.
 -- Exactly one of (role_id, site_id, department_id, user_id) should be set;
@@ -84,7 +87,8 @@ CREATE TABLE surveillance_program_links (
     (role_id IS NOT NULL)::int + (site_id IS NOT NULL)::int +
     (department_id IS NOT NULL)::int + (user_id IS NOT NULL)::int = 1
   )
-);
+)
+;
 
 -- Required tests within a program. A program can require multiple tests.
 CREATE TABLE surveillance_program_tests (
@@ -95,7 +99,8 @@ CREATE TABLE surveillance_program_tests (
   baseline_required    boolean     NOT NULL DEFAULT true,
   notes                text,
   created_at           timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- WORKER HEALTH PROFILES
@@ -115,7 +120,8 @@ CREATE TABLE worker_health_profiles (
   notes               text,       -- non-clinical notes (e.g. "enrolled 2026-01")
   created_at          timestamptz NOT NULL DEFAULT now(),
   updated_at          timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- HEALTH CHECK SCHEDULES
@@ -138,7 +144,8 @@ CREATE TABLE health_check_schedules (
   reminder_sent_at     timestamptz,
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- HEALTH CHECK RECORDS
@@ -182,12 +189,14 @@ CREATE TABLE health_check_records (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   recorded_by           uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- Deferred FK for schedule's completed_check_id
 ALTER TABLE health_check_schedules
   ADD CONSTRAINT fk_completed_check
-  FOREIGN KEY (completed_check_id) REFERENCES health_check_records(id) ON DELETE SET NULL;
+  FOREIGN KEY (completed_check_id) REFERENCES health_check_records(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- WORKER WORK RESTRICTIONS
@@ -210,7 +219,8 @@ CREATE TABLE worker_work_restrictions (
   notes                text,
   created_at           timestamptz NOT NULL DEFAULT now(),
   created_by           uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RETURN TO WORK PLANS
@@ -232,7 +242,8 @@ CREATE TABLE return_to_work_plans (
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now(),
   created_by        uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 CREATE TABLE return_to_work_plan_steps (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -248,33 +259,62 @@ CREATE TABLE return_to_work_plan_steps (
   is_completed  boolean     NOT NULL DEFAULT false,
   notes         text,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_spl_program_id        ON surveillance_program_links(program_id);
-CREATE INDEX idx_spl_user_id           ON surveillance_program_links(user_id);
-CREATE INDEX idx_spl_role_id           ON surveillance_program_links(role_id);
-CREATE INDEX idx_spt_program_id        ON surveillance_program_tests(program_id);
+CREATE INDEX idx_spl_program_id        ON surveillance_program_links(program_id)
+;
 
-CREATE INDEX idx_whp_user_id           ON worker_health_profiles(user_id);
-CREATE INDEX idx_whp_org_status        ON worker_health_profiles(organisation_id, overall_status);
+CREATE INDEX idx_spl_user_id           ON surveillance_program_links(user_id)
+;
 
-CREATE INDEX idx_hcs_user_id           ON health_check_schedules(user_id, due_date);
+CREATE INDEX idx_spl_role_id           ON surveillance_program_links(role_id)
+;
+
+CREATE INDEX idx_spt_program_id        ON surveillance_program_tests(program_id)
+;
+
+CREATE INDEX idx_whp_user_id           ON worker_health_profiles(user_id)
+;
+
+CREATE INDEX idx_whp_org_status        ON worker_health_profiles(organisation_id, overall_status)
+;
+
+CREATE INDEX idx_hcs_user_id           ON health_check_schedules(user_id, due_date)
+;
+
 CREATE INDEX idx_hcs_org_due           ON health_check_schedules(organisation_id, due_date)
-                                       WHERE is_completed = false;
+                                       WHERE is_completed = false
+;
+
 CREATE INDEX idx_hcs_overdue           ON health_check_schedules(organisation_id)
-                                       WHERE is_overdue = true AND is_completed = false;
+                                       WHERE is_overdue = true AND is_completed = false
+;
 
-CREATE INDEX idx_hcr_user_id           ON health_check_records(user_id, check_date DESC);
-CREATE INDEX idx_hcr_org_result        ON health_check_records(organisation_id, result);
-CREATE INDEX idx_hcr_number            ON health_check_records(check_number);
+CREATE INDEX idx_hcr_user_id           ON health_check_records(user_id, check_date DESC)
+;
 
-CREATE INDEX idx_wwr_user_id           ON worker_work_restrictions(user_id) WHERE is_active = true;
-CREATE INDEX idx_wwr_org_active        ON worker_work_restrictions(organisation_id) WHERE is_active = true;
+CREATE INDEX idx_hcr_org_result        ON health_check_records(organisation_id, result)
+;
 
-CREATE INDEX idx_rtwp_user_id          ON return_to_work_plans(user_id);
-CREATE INDEX idx_rtwp_org_status       ON return_to_work_plans(organisation_id, status);
-CREATE INDEX idx_rtwps_plan_id         ON return_to_work_plan_steps(plan_id, step_number);
+CREATE INDEX idx_hcr_number            ON health_check_records(check_number)
+;
+
+CREATE INDEX idx_wwr_user_id           ON worker_work_restrictions(user_id) WHERE is_active = true
+;
+
+CREATE INDEX idx_wwr_org_active        ON worker_work_restrictions(organisation_id) WHERE is_active = true
+;
+
+CREATE INDEX idx_rtwp_user_id          ON return_to_work_plans(user_id)
+;
+
+CREATE INDEX idx_rtwp_org_status       ON return_to_work_plans(organisation_id, status)
+;
+
+CREATE INDEX idx_rtwps_plan_id         ON return_to_work_plan_steps(plan_id, step_number)
+;

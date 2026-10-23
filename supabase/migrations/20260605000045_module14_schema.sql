@@ -42,7 +42,8 @@ CREATE TABLE chemical_categories (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- GHS / UN hazard class codes (H-statements, pictograms)
 CREATE TABLE chemical_hazard_classes (
@@ -54,7 +55,8 @@ CREATE TABLE chemical_hazard_classes (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE TABLE chemical_physical_states (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -62,7 +64,8 @@ CREATE TABLE chemical_physical_states (
   name          text        NOT NULL,
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 -- =============================================================
 -- CHEMICALS
@@ -109,7 +112,8 @@ CREATE TABLE chemicals (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   created_by            uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL HAZARD CLASSIFICATIONS
@@ -124,7 +128,8 @@ CREATE TABLE chemical_hazard_classifications (
   category_detail  text,       -- e.g. 'Category 1A' within the hazard class
   created_at       timestamptz NOT NULL DEFAULT now(),
   UNIQUE (chemical_id, hazard_class_id)
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL SDS
@@ -208,11 +213,13 @@ CREATE TABLE chemical_sds (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   created_by            uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- Add FK now that chemical_sds exists
 ALTER TABLE chemicals ADD CONSTRAINT fk_chemicals_current_sds
-  FOREIGN KEY (current_sds_id) REFERENCES chemical_sds(id) ON DELETE SET NULL;
+  FOREIGN KEY (current_sds_id) REFERENCES chemical_sds(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- CHEMICAL EXPOSURE STANDARDS
@@ -233,7 +240,8 @@ CREATE TABLE chemical_exposure_standards (
   effective_date  date,
   is_current      boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL STORAGE LOCATIONS
@@ -256,7 +264,8 @@ CREATE TABLE chemical_storage_locations (
   is_locked       boolean     NOT NULL DEFAULT false,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL INVENTORY
@@ -277,7 +286,8 @@ CREATE TABLE chemical_inventory (
   notes                 text,
   updated_at            timestamptz NOT NULL DEFAULT now(),
   UNIQUE (chemical_id, storage_location_id)
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL INVENTORY TRANSACTIONS
@@ -303,12 +313,16 @@ CREATE TABLE chemical_inventory_transactions (
   transacted_at         timestamptz NOT NULL DEFAULT now(),
   notes                 text,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE RULE no_update_chem_transactions
-  AS ON UPDATE TO chemical_inventory_transactions DO INSTEAD NOTHING;
+  AS ON UPDATE TO chemical_inventory_transactions DO INSTEAD NOTHING
+;
+
 CREATE RULE no_delete_chem_transactions
-  AS ON DELETE TO chemical_inventory_transactions DO INSTEAD NOTHING;
+  AS ON DELETE TO chemical_inventory_transactions DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- CHEMICAL USAGE LOGS
@@ -334,7 +348,8 @@ CREATE TABLE chemical_usage_logs (
   action_id             uuid       REFERENCES actions(id) ON DELETE SET NULL,
   permit_id             uuid       REFERENCES permits(id) ON DELETE SET NULL,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL COMPATIBILITY RULES
@@ -355,7 +370,8 @@ CREATE TABLE chemical_compatibility_rules (
   created_at          timestamptz NOT NULL DEFAULT now(),
   CHECK (chemical_a_id < chemical_b_id),   -- enforces symmetry
   UNIQUE (chemical_a_id, chemical_b_id)
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL WASTE DISPOSALS
@@ -380,7 +396,8 @@ CREATE TABLE chemical_waste_disposals (
   notes               text,
   created_at          timestamptz NOT NULL DEFAULT now(),
   created_by          uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- CHEMICAL INCIDENT LINKS
@@ -399,38 +416,81 @@ CREATE TABLE chemical_incident_links (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (chemical_id, incident_id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_chem_org_active      ON chemicals(organisation_id, is_active);
-CREATE INDEX idx_chem_site_id         ON chemicals(site_id);
-CREATE INDEX idx_chem_category        ON chemicals(category_id);
-CREATE INDEX idx_chem_number          ON chemicals(chemical_number);
-CREATE INDEX idx_chem_cas             ON chemicals(cas_number);
-CREATE INDEX idx_chem_review          ON chemicals(next_review_date) WHERE is_active = true;
+CREATE INDEX idx_chem_org_active      ON chemicals(organisation_id, is_active)
+;
 
-CREATE INDEX idx_chc_chemical_id      ON chemical_hazard_classifications(chemical_id);
-CREATE INDEX idx_csds_chemical_id     ON chemical_sds(chemical_id);
-CREATE INDEX idx_csds_status          ON chemical_sds(chemical_id, status);
-CREATE INDEX idx_csds_review          ON chemical_sds(next_review_date) WHERE status = 'current';
+CREATE INDEX idx_chem_site_id         ON chemicals(site_id)
+;
 
-CREATE INDEX idx_ces_chemical_id      ON chemical_exposure_standards(chemical_id);
-CREATE INDEX idx_csl_site_id          ON chemical_storage_locations(site_id);
+CREATE INDEX idx_chem_category        ON chemicals(category_id)
+;
 
-CREATE INDEX idx_ci_chemical_id       ON chemical_inventory(chemical_id);
-CREATE INDEX idx_ci_location_id       ON chemical_inventory(storage_location_id);
-CREATE INDEX idx_cit_chemical_id      ON chemical_inventory_transactions(chemical_id, transacted_at DESC);
-CREATE INDEX idx_cit_location_id      ON chemical_inventory_transactions(storage_location_id);
+CREATE INDEX idx_chem_number          ON chemicals(chemical_number)
+;
 
-CREATE INDEX idx_cul_chemical_id      ON chemical_usage_logs(chemical_id);
-CREATE INDEX idx_cul_used_by          ON chemical_usage_logs(used_by);
-CREATE INDEX idx_cul_site_id          ON chemical_usage_logs(site_id);
+CREATE INDEX idx_chem_cas             ON chemicals(cas_number)
+;
 
-CREATE INDEX idx_ccr_a                ON chemical_compatibility_rules(chemical_a_id);
-CREATE INDEX idx_ccr_b                ON chemical_compatibility_rules(chemical_b_id);
-CREATE INDEX idx_cwd_chemical_id      ON chemical_waste_disposals(chemical_id);
-CREATE INDEX idx_cil_chemical_id      ON chemical_incident_links(chemical_id);
-CREATE INDEX idx_cil_incident_id      ON chemical_incident_links(incident_id);
+CREATE INDEX idx_chem_review          ON chemicals(next_review_date) WHERE is_active = true
+;
+
+CREATE INDEX idx_chc_chemical_id      ON chemical_hazard_classifications(chemical_id)
+;
+
+CREATE INDEX idx_csds_chemical_id     ON chemical_sds(chemical_id)
+;
+
+CREATE INDEX idx_csds_status          ON chemical_sds(chemical_id, status)
+;
+
+CREATE INDEX idx_csds_review          ON chemical_sds(next_review_date) WHERE status = 'current'
+;
+
+CREATE INDEX idx_ces_chemical_id      ON chemical_exposure_standards(chemical_id)
+;
+
+CREATE INDEX idx_csl_site_id          ON chemical_storage_locations(site_id)
+;
+
+CREATE INDEX idx_ci_chemical_id       ON chemical_inventory(chemical_id)
+;
+
+CREATE INDEX idx_ci_location_id       ON chemical_inventory(storage_location_id)
+;
+
+CREATE INDEX idx_cit_chemical_id      ON chemical_inventory_transactions(chemical_id, transacted_at DESC)
+;
+
+CREATE INDEX idx_cit_location_id      ON chemical_inventory_transactions(storage_location_id)
+;
+
+CREATE INDEX idx_cul_chemical_id      ON chemical_usage_logs(chemical_id)
+;
+
+CREATE INDEX idx_cul_used_by          ON chemical_usage_logs(used_by)
+;
+
+CREATE INDEX idx_cul_site_id          ON chemical_usage_logs(site_id)
+;
+
+CREATE INDEX idx_ccr_a                ON chemical_compatibility_rules(chemical_a_id)
+;
+
+CREATE INDEX idx_ccr_b                ON chemical_compatibility_rules(chemical_b_id)
+;
+
+CREATE INDEX idx_cwd_chemical_id      ON chemical_waste_disposals(chemical_id)
+;
+
+CREATE INDEX idx_cil_chemical_id      ON chemical_incident_links(chemical_id)
+;
+
+CREATE INDEX idx_cil_incident_id      ON chemical_incident_links(incident_id)
+;

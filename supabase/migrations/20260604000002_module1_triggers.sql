@@ -12,39 +12,48 @@ BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_organisations_updated_at
   BEFORE UPDATE ON organisations
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_sites_updated_at
   BEFORE UPDATE ON sites
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_departments_updated_at
   BEFORE UPDATE ON departments
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_work_areas_updated_at
   BEFORE UPDATE ON work_areas
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_teams_updated_at
   BEFORE UPDATE ON teams
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_roles_updated_at
   BEFORE UPDATE ON roles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_user_profiles_updated_at
   BEFORE UPDATE ON user_profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_documents_updated_at
   BEFORE UPDATE ON documents
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- AUDIT TRIGGER FUNCTION
@@ -184,56 +193,69 @@ BEGIN
 
   RETURN NULL;
 END;
-$$;
+$$
+;
 
 -- Apply audit trigger to every table that needs full change tracking
 CREATE TRIGGER audit_organisations
   AFTER INSERT OR UPDATE OR DELETE ON organisations
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_sites
   AFTER INSERT OR UPDATE OR DELETE ON sites
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_departments
   AFTER INSERT OR UPDATE OR DELETE ON departments
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_work_areas
   AFTER INSERT OR UPDATE OR DELETE ON work_areas
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_teams
   AFTER INSERT OR UPDATE OR DELETE ON teams
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_user_profiles
   AFTER INSERT OR UPDATE OR DELETE ON user_profiles
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_user_roles
   AFTER INSERT OR UPDATE OR DELETE ON user_roles
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_user_site_assignments
   AFTER INSERT OR UPDATE OR DELETE ON user_site_assignments
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_user_team_memberships
   AFTER INSERT OR UPDATE OR DELETE ON user_team_memberships
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_roles
   AFTER INSERT OR UPDATE OR DELETE ON roles
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_role_permissions
   AFTER INSERT OR UPDATE OR DELETE ON role_permissions
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 CREATE TRIGGER audit_documents
   AFTER INSERT OR UPDATE OR DELETE ON documents
-  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION audit_trigger_function()
+;
 
 -- =============================================================
 -- AUTO-TRACK DOCUMENT VERSIONS ON UPLOAD
@@ -251,11 +273,13 @@ BEGIN
     AND NEW.version_number > current_version;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_document_version
   AFTER INSERT ON document_versions
-  FOR EACH ROW EXECUTE FUNCTION sync_document_current_version();
+  FOR EACH ROW EXECUTE FUNCTION sync_document_current_version()
+;
 
 -- =============================================================
 -- AUTO-CREATE USER_PROFILE ON SIGNUP
@@ -284,8 +308,10 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_auth_user();
+  FOR EACH ROW EXECUTE FUNCTION handle_new_auth_user()
+;

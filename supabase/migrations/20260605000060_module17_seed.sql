@@ -58,7 +58,8 @@ INSERT INTO kpi_definitions (code, name, short_name, description, formula_descri
    'Frequency of hazard reports submitted per million hours worked. A leading indicator — higher means stronger safety culture.',
    '(Hazard reports × 1,000,000) ÷ Total hours worked',
    'hazard_report_rate', 'per M hrs', 2, 'leading', 'higher_is_better', true, 8)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- System report templates (organisation_id NULL = global)
 INSERT INTO report_definitions (organisation_id, name, description, category, is_shared, is_system_template, config) VALUES
@@ -81,7 +82,8 @@ INSERT INTO report_definitions (organisation_id, name, description, category, is
    'Overview of regulatory compliance including overdue actions, expiring documents, and inspection status.',
    'compliance', true, true,
    '{"blocks":[{"type":"overdue_actions"},{"type":"expiring_documents"},{"type":"permit_status"},{"type":"audit_findings_open"},{"type":"sds_review_due"}]}')
-ON CONFLICT DO NOTHING;
+ON CONFLICT DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('analytics', 'read',             'View analytics dashboards and KPIs'),
@@ -90,7 +92,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('analytics', 'schedule_reports', 'Schedule automated report delivery'),
   ('analytics', 'export',           'Export report data'),
   ('analytics', 'manage_hours',     'Enter workforce hours worked data')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -123,4 +126,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

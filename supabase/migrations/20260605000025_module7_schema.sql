@@ -23,14 +23,16 @@ CREATE TYPE risk_status_enum AS ENUM (
   'under_review',
   'closed',
   'superseded'
-);
+)
+;
 
 CREATE TYPE risk_review_status_enum AS ENUM (
   'scheduled',
   'in_progress',
   'completed',
   'overdue'
-);
+)
+;
 
 CREATE TYPE hazard_report_status_enum AS ENUM (
   'submitted',
@@ -39,7 +41,8 @@ CREATE TYPE hazard_report_status_enum AS ENUM (
   'actioned',
   'closed',
   'rejected'
-);
+)
+;
 
 -- =============================================================
 -- RISK CATEGORIES
@@ -55,7 +58,8 @@ CREATE TABLE risk_categories (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- RISK LIKELIHOOD LEVELS
@@ -67,7 +71,8 @@ CREATE TABLE risk_likelihood_levels (
   name          text        NOT NULL,
   description   text,       -- what this level means in practice
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 -- =============================================================
 -- RISK CONSEQUENCE LEVELS
@@ -79,7 +84,8 @@ CREATE TABLE risk_consequence_levels (
   name          text        NOT NULL,
   description   text,
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 -- =============================================================
 -- RISK MATRIX THRESHOLDS
@@ -96,7 +102,8 @@ CREATE TABLE risk_matrix_thresholds (
   description  text,
   sort_order   integer     NOT NULL DEFAULT 0,
   CHECK (min_score <= max_score)
-);
+)
+;
 
 -- =============================================================
 -- RISKS
@@ -167,7 +174,8 @@ CREATE TABLE risks (
   created_at                  timestamptz       NOT NULL DEFAULT now(),
   updated_at                  timestamptz       NOT NULL DEFAULT now(),
   created_by                  uuid              REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RISK CONTROLS
@@ -193,7 +201,8 @@ CREATE TABLE risk_controls (
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now(),
   created_by           uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RISK REVIEWS
@@ -231,7 +240,8 @@ CREATE TABLE risk_reviews (
   created_at                  timestamptz             NOT NULL DEFAULT now(),
   updated_at                  timestamptz             NOT NULL DEFAULT now(),
   created_by                  uuid                    REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RISK LINKED INCIDENTS
@@ -250,7 +260,8 @@ CREATE TABLE risk_linked_incidents (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (risk_id, incident_id)
-);
+)
+;
 
 -- =============================================================
 -- HAZARD REPORTS
@@ -285,7 +296,8 @@ CREATE TABLE hazard_reports (
 
   created_at           timestamptz               NOT NULL DEFAULT now(),
   updated_at           timestamptz               NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- HAZARD REPORT EVIDENCE
@@ -302,43 +314,84 @@ CREATE TABLE hazard_report_evidence (
   description     text,
   uploaded_at     timestamptz NOT NULL DEFAULT now(),
   uploaded_by     uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- risks
-CREATE INDEX idx_risk_org_status      ON risks(organisation_id, status);
-CREATE INDEX idx_risk_site_id         ON risks(site_id);
-CREATE INDEX idx_risk_owner           ON risks(owner_id);
-CREATE INDEX idx_risk_number          ON risks(risk_number);
-CREATE INDEX idx_risk_inherent_score  ON risks(organisation_id, inherent_risk_score DESC);
-CREATE INDEX idx_risk_residual_score  ON risks(organisation_id, residual_risk_score DESC);
-CREATE INDEX idx_risk_review_date     ON risks(next_review_date) WHERE status = 'active';
-CREATE INDEX idx_risk_source          ON risks(source_type, source_id);
-CREATE INDEX idx_risk_category        ON risks(category_id);
+CREATE INDEX idx_risk_org_status      ON risks(organisation_id, status)
+;
+
+CREATE INDEX idx_risk_site_id         ON risks(site_id)
+;
+
+CREATE INDEX idx_risk_owner           ON risks(owner_id)
+;
+
+CREATE INDEX idx_risk_number          ON risks(risk_number)
+;
+
+CREATE INDEX idx_risk_inherent_score  ON risks(organisation_id, inherent_risk_score DESC)
+;
+
+CREATE INDEX idx_risk_residual_score  ON risks(organisation_id, residual_risk_score DESC)
+;
+
+CREATE INDEX idx_risk_review_date     ON risks(next_review_date) WHERE status = 'active'
+;
+
+CREATE INDEX idx_risk_source          ON risks(source_type, source_id)
+;
+
+CREATE INDEX idx_risk_category        ON risks(category_id)
+;
 
 -- risk_controls
-CREATE INDEX idx_rc_risk_id           ON risk_controls(risk_id);
-CREATE INDEX idx_rc_assigned_to       ON risk_controls(assigned_to);
-CREATE INDEX idx_rc_control_type      ON risk_controls(risk_id, control_type);
+CREATE INDEX idx_rc_risk_id           ON risk_controls(risk_id)
+;
+
+CREATE INDEX idx_rc_assigned_to       ON risk_controls(assigned_to)
+;
+
+CREATE INDEX idx_rc_control_type      ON risk_controls(risk_id, control_type)
+;
 
 -- risk_reviews
-CREATE INDEX idx_rr_risk_id           ON risk_reviews(risk_id);
-CREATE INDEX idx_rr_reviewer          ON risk_reviews(reviewer_id);
-CREATE INDEX idx_rr_scheduled         ON risk_reviews(scheduled_date) WHERE status IN ('scheduled','overdue');
-CREATE INDEX idx_rr_status            ON risk_reviews(organisation_id, status);
+CREATE INDEX idx_rr_risk_id           ON risk_reviews(risk_id)
+;
+
+CREATE INDEX idx_rr_reviewer          ON risk_reviews(reviewer_id)
+;
+
+CREATE INDEX idx_rr_scheduled         ON risk_reviews(scheduled_date) WHERE status IN ('scheduled','overdue')
+;
+
+CREATE INDEX idx_rr_status            ON risk_reviews(organisation_id, status)
+;
 
 -- risk_linked_incidents
-CREATE INDEX idx_rli_risk_id          ON risk_linked_incidents(risk_id);
-CREATE INDEX idx_rli_incident_id      ON risk_linked_incidents(incident_id);
+CREATE INDEX idx_rli_risk_id          ON risk_linked_incidents(risk_id)
+;
+
+CREATE INDEX idx_rli_incident_id      ON risk_linked_incidents(incident_id)
+;
 
 -- hazard_reports
-CREATE INDEX idx_hr_org_status        ON hazard_reports(organisation_id, status);
-CREATE INDEX idx_hr_site_id           ON hazard_reports(site_id);
-CREATE INDEX idx_hr_reported_by       ON hazard_reports(reported_by);
-CREATE INDEX idx_hr_number            ON hazard_reports(report_number);
+CREATE INDEX idx_hr_org_status        ON hazard_reports(organisation_id, status)
+;
+
+CREATE INDEX idx_hr_site_id           ON hazard_reports(site_id)
+;
+
+CREATE INDEX idx_hr_reported_by       ON hazard_reports(reported_by)
+;
+
+CREATE INDEX idx_hr_number            ON hazard_reports(report_number)
+;
 
 -- hazard_report_evidence
-CREATE INDEX idx_hre_report_id        ON hazard_report_evidence(report_id);
+CREATE INDEX idx_hre_report_id        ON hazard_report_evidence(report_id)
+;

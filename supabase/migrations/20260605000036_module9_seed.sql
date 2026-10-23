@@ -9,7 +9,8 @@ INSERT INTO audit_types (code, name, description, icon, display_order) VALUES
   ('contractor',           'Contractor Audit',              'Audit of contractor compliance with site safety rules and obligations.', 'hard-hat', 4),
   ('management_review',    'Management System Review',      'Formal management review of the OHS management system (e.g. ISO 45001 clause 9.3).', 'bar-chart', 5),
   ('pre_task',             'Pre-Task / Job Safety',         'Brief structured review before commencing a specific task.', 'check-square', 6)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO audit_finding_outcomes (code, name, description, requires_action, is_nonconformance, colour_code, display_order) VALUES
   ('conformance',              'Conformance',                'Requirement is being met. No action needed.', false, false, '#22c55e', 1),
@@ -18,7 +19,8 @@ INSERT INTO audit_finding_outcomes (code, name, description, requires_action, is
   ('observation',              'Observation',                'A noted item that does not constitute a non-conformance but is worth monitoring.', false, false, '#3b82f6', 4),
   ('opportunity_for_improvement','Opportunity for Improvement','System or practice is adequate but could be improved. Action optional.', false, false, '#8b5cf6', 5),
   ('not_applicable',           'Not Applicable',             'The criterion does not apply in this context.', false, false, '#6b7280', 6)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'audits.in_progress',  'Audit Started',
@@ -41,7 +43,8 @@ Minor NCs: {{minor_nc_count}}
 
 Log in to review findings and assign corrective actions.',
    '{"audit_number":"Audit reference","audit_title":"Audit title","major_nc_count":"Major non-conformances","minor_nc_count":"Minor non-conformances"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('audit_templates', 'read',   'View audit template library'),
@@ -51,7 +54,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('audits', 'update',  'Edit audit records and record findings'),
   ('audits', 'approve', 'Approve audit reports'),
   ('audits', 'export',  'Export audit reports')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -81,4 +85,5 @@ all_m AS (
   UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

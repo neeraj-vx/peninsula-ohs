@@ -37,7 +37,8 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
       -- Supervisor / Worker: only explicitly assigned sites
       p_site_id = ANY(get_my_site_ids())
   END;
-$$;
+$$
+;
 
 -- Returns the full array of site IDs visible to the current user.
 -- Used in IN / ANY predicates across all future module RLS policies.
@@ -53,7 +54,8 @@ RETURNS uuid[] LANGUAGE sql STABLE SECURITY DEFINER AS $$
     ELSE
       COALESCE(get_my_site_ids(), ARRAY[]::uuid[])
   END;
-$$;
+$$
+;
 
 -- Returns department IDs the current user can access,
 -- derived from their accessible sites.
@@ -64,7 +66,8 @@ RETURNS uuid[] LANGUAGE sql STABLE SECURITY DEFINER AS $$
     WHERE site_id = ANY(get_accessible_site_ids())
       AND organisation_id = get_my_organisation_id()
   );
-$$;
+$$
+;
 
 -- Returns work area IDs the current user can access,
 -- derived from their accessible departments.
@@ -75,17 +78,27 @@ RETURNS uuid[] LANGUAGE sql STABLE SECURITY DEFINER AS $$
     WHERE department_id = ANY(get_accessible_department_ids())
       AND organisation_id = get_my_organisation_id()
   );
-$$;
+$$
+;
 
 -- =============================================================
 -- ENABLE RLS ON MODULE 2 TABLES
 -- =============================================================
 
-ALTER TABLE auth_events         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_sessions       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sso_providers       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_identity_links ENABLE ROW LEVEL SECURITY;
-ALTER TABLE row_versions        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth_events         ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE user_sessions       ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE sso_providers       ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE user_identity_links ENABLE ROW LEVEL SECURITY
+;
+
+ALTER TABLE row_versions        ENABLE ROW LEVEL SECURITY
+;
 
 -- =============================================================
 -- AUTH EVENTS
@@ -96,13 +109,15 @@ ALTER TABLE row_versions        ENABLE ROW LEVEL SECURITY;
 -- =============================================================
 
 CREATE POLICY "ae_select_own" ON auth_events FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 CREATE POLICY "ae_select_elevated" ON auth_events FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;
 
 -- =============================================================
 -- USER SESSIONS
@@ -111,24 +126,28 @@ CREATE POLICY "ae_select_elevated" ON auth_events FOR SELECT
 -- =============================================================
 
 CREATE POLICY "us_select_own" ON user_sessions FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 CREATE POLICY "us_select_admin" ON user_sessions FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- Users can update (revoke) their own sessions
 CREATE POLICY "us_update_own" ON user_sessions FOR UPDATE
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 -- Admins can update (revoke) any session in their org
 CREATE POLICY "us_update_admin" ON user_sessions FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- record_user_session() runs SECURITY DEFINER — no INSERT policy needed
 
@@ -140,25 +159,29 @@ CREATE POLICY "us_update_admin" ON user_sessions FOR UPDATE
 -- =============================================================
 
 CREATE POLICY "sso_select" ON sso_providers FOR SELECT
-  USING (organisation_id = get_my_organisation_id());
+  USING (organisation_id = get_my_organisation_id())
+;
 
 CREATE POLICY "sso_insert" ON sso_providers FOR INSERT
   WITH CHECK (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 CREATE POLICY "sso_update" ON sso_providers FOR UPDATE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 CREATE POLICY "sso_delete" ON sso_providers FOR DELETE
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- USER IDENTITY LINKS
@@ -168,13 +191,15 @@ CREATE POLICY "sso_delete" ON sso_providers FOR DELETE
 -- =============================================================
 
 CREATE POLICY "uil_select_own" ON user_identity_links FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id = auth.uid())
+;
 
 CREATE POLICY "uil_select_admin" ON user_identity_links FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND is_system_admin()
-  );
+  )
+;
 
 -- =============================================================
 -- ROW VERSIONS
@@ -188,4 +213,5 @@ CREATE POLICY "rv_select" ON row_versions FOR SELECT
   USING (
     organisation_id = get_my_organisation_id()
     AND (is_system_admin() OR is_hse_officer())
-  );
+  )
+;

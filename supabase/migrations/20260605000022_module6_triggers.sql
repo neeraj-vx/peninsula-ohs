@@ -8,23 +8,28 @@
 
 CREATE TRIGGER trg_inspection_templates_updated_at
   BEFORE UPDATE ON inspection_templates
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_inspection_template_questions_updated_at
   BEFORE UPDATE ON inspection_template_questions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_inspection_schedules_updated_at
   BEFORE UPDATE ON inspection_schedules
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_inspections_updated_at
   BEFORE UPDATE ON inspections
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_inspection_responses_updated_at
   BEFORE UPDATE ON inspection_responses
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- INSPECTION NUMBER — BEFORE INSERT
@@ -39,11 +44,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_inspection_number
   BEFORE INSERT ON inspections
-  FOR EACH ROW EXECUTE FUNCTION generate_inspection_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_inspection_number()
+;
 
 -- =============================================================
 -- SNAPSHOT TEMPLATE METADATA ON INSPECTION START
@@ -70,11 +77,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_snapshot_inspection_template
   BEFORE INSERT ON inspections
-  FOR EACH ROW EXECUTE FUNCTION snapshot_inspection_template();
+  FOR EACH ROW EXECUTE FUNCTION snapshot_inspection_template()
+;
 
 -- =============================================================
 -- INSPECTION RESPONSE — COMPUTE is_failed
@@ -141,11 +150,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_compute_response_is_failed
   BEFORE INSERT OR UPDATE ON inspection_responses
-  FOR EACH ROW EXECUTE FUNCTION compute_response_is_failed();
+  FOR EACH ROW EXECUTE FUNCTION compute_response_is_failed()
+;
 
 -- =============================================================
 -- INSPECTION SCORE + PROGRESS — AFTER INSERT/UPDATE on responses
@@ -211,11 +222,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_recalculate_inspection_score
   AFTER INSERT OR UPDATE ON inspection_responses
-  FOR EACH ROW EXECUTE FUNCTION recalculate_inspection_score();
+  FOR EACH ROW EXECUTE FUNCTION recalculate_inspection_score()
+;
 
 -- =============================================================
 -- SCORE THRESHOLD NOTIFICATION
@@ -257,11 +270,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_check_inspection_threshold
   AFTER UPDATE OF score ON inspections
-  FOR EACH ROW EXECUTE FUNCTION check_inspection_score_threshold();
+  FOR EACH ROW EXECUTE FUNCTION check_inspection_score_threshold()
+;
 
 -- =============================================================
 -- SUBMISSION TIMESTAMPS + SCHEDULE SYNC
@@ -288,11 +303,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_stamp_inspection_timestamps
   BEFORE UPDATE ON inspections
-  FOR EACH ROW EXECUTE FUNCTION stamp_inspection_timestamps();
+  FOR EACH ROW EXECUTE FUNCTION stamp_inspection_timestamps()
+;
 
 -- =============================================================
 -- ADVANCE SCHEDULE AFTER COMPLETION
@@ -350,11 +367,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_advance_schedule_after_completion
   AFTER UPDATE OF status ON inspections
-  FOR EACH ROW EXECUTE FUNCTION advance_schedule_after_completion();
+  FOR EACH ROW EXECUTE FUNCTION advance_schedule_after_completion()
+;
 
 -- =============================================================
 -- create_inspection_action()
@@ -430,7 +449,8 @@ BEGIN
 
   RETURN v_action_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- create_scheduled_inspection()
@@ -476,7 +496,8 @@ BEGIN
 
   RETURN v_inspection_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- mark_overdue_inspections()
@@ -500,7 +521,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- ROW VERSIONING
@@ -508,4 +530,5 @@ $$;
 
 CREATE TRIGGER version_inspections
   AFTER INSERT OR UPDATE OR DELETE ON inspections
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

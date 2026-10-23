@@ -17,7 +17,8 @@ INSERT INTO env_parameter_types (code, name, description, monitoring_category, d
   ('soil_contamination',  'Soil Contamination',       'Contaminant concentration in soil.', 'soil', 'mg_kg', 'layers', 12),
   ('ghg_co2e',            'GHG Emissions (CO₂-e)',    'Greenhouse gas emissions in CO₂ equivalent.', 'emissions', 'tonnes', 'cloud', 13),
   ('waste_volume',        'Waste Volume',             'Total waste generated in the measurement period.', 'waste', 'tonnes', 'trash', 14)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO env_measurement_units (code, name, symbol, display_order) VALUES
   ('dB_A',    'Decibels (A-weighted)',     'dB(A)',    1),
@@ -34,7 +35,8 @@ INSERT INTO env_measurement_units (code, name, symbol, display_order) VALUES
   ('kg',      'Kilograms',                 'kg',       12),
   ('L',       'Litres',                    'L',        13),
   ('m3',      'Cubic metres',              'm³',       14)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO waste_categories (code, name, description, is_hazardous, requires_manifest, display_order) VALUES
   ('general',             'General Waste',           'Non-hazardous solid waste for landfill.', false, false, 1),
@@ -47,7 +49,8 @@ INSERT INTO waste_categories (code, name, description, is_hazardous, requires_ma
   ('asbestos',            'Asbestos-Containing Material','ACM requiring licensed disposal.', true, true, 8),
   ('e_waste',             'Electronic Waste',        'Electrical and electronic equipment for recycling.', false, false, 9),
   ('medical',             'Clinical / Medical Waste','Healthcare-associated waste.', true, true, 10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'environment.limit_exceeded',  'Environmental Limit Exceeded',
@@ -70,7 +73,8 @@ Due Date: {{due_date}}
 
 Log in to prepare and submit the report.',
    '{"requirement_name":"Report name","due_date":"Due date","days_to_due":"Days remaining"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('environment', 'create_record',  'Record environmental monitoring readings'),
@@ -79,7 +83,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('environment', 'manage_waste',   'Record and manage waste disposal'),
   ('environment', 'submit_reports', 'Submit regulatory reports'),
   ('environment', 'export',         'Export environmental data')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -110,4 +115,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

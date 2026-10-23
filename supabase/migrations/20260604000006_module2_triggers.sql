@@ -105,7 +105,8 @@ BEGIN
 
   RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- APPLY ROW VERSIONING TO ALL AUDITED TABLES
@@ -116,43 +117,53 @@ $$;
 
 CREATE TRIGGER version_organisations
   AFTER INSERT OR UPDATE OR DELETE ON organisations
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_sites
   AFTER INSERT OR UPDATE OR DELETE ON sites
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_departments
   AFTER INSERT OR UPDATE OR DELETE ON departments
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_work_areas
   AFTER INSERT OR UPDATE OR DELETE ON work_areas
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_teams
   AFTER INSERT OR UPDATE OR DELETE ON teams
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_user_profiles
   AFTER INSERT OR UPDATE OR DELETE ON user_profiles
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_user_roles
   AFTER INSERT OR UPDATE OR DELETE ON user_roles
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_roles
   AFTER INSERT OR UPDATE OR DELETE ON roles
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_role_permissions
   AFTER INSERT OR UPDATE OR DELETE ON role_permissions
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_documents
   AFTER INSERT OR UPDATE OR DELETE ON documents
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 -- =============================================================
 -- UPDATED_AT FOR NEW TABLES
@@ -160,7 +171,8 @@ CREATE TRIGGER version_documents
 
 CREATE TRIGGER trg_sso_providers_updated_at
   BEFORE UPDATE ON sso_providers
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- AUTH EVENT CAPTURE — LOGIN
@@ -201,14 +213,16 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER on_auth_user_signed_in
   AFTER UPDATE OF last_sign_in_at ON auth.users
   FOR EACH ROW
   WHEN (NEW.last_sign_in_at IS DISTINCT FROM OLD.last_sign_in_at
         AND NEW.last_sign_in_at IS NOT NULL)
-  EXECUTE FUNCTION handle_auth_user_login();
+  EXECUTE FUNCTION handle_auth_user_login()
+;
 
 -- =============================================================
 -- log_auth_event()
@@ -265,7 +279,8 @@ BEGIN
 
   RETURN v_event_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- SESSION MANAGEMENT RPC FUNCTIONS
@@ -301,7 +316,8 @@ BEGIN
 
   RETURN v_session_id;
 END;
-$$;
+$$
+;
 
 -- revoke_user_session()
 -- Marks a session as revoked. Users can revoke their own sessions;
@@ -334,7 +350,8 @@ BEGIN
     p_metadata   := jsonb_build_object('session_id', p_session_id, 'reason', p_revoke_reason)
   );
 END;
-$$;
+$$
+;
 
 -- revoke_all_user_sessions()
 -- Force-logs out every active session for a given user.
@@ -372,7 +389,8 @@ BEGIN
 
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- get_record_history()
@@ -404,7 +422,8 @@ CREATE OR REPLACE FUNCTION get_record_history(
   WHERE table_name = p_table_name
     AND record_id  = p_record_id
   ORDER BY version_number ASC;
-$$;
+$$
+;
 
 -- =============================================================
 -- get_record_at_version()
@@ -423,4 +442,5 @@ CREATE OR REPLACE FUNCTION get_record_at_version(
   WHERE table_name    = p_table_name
     AND record_id     = p_record_id
     AND version_number = p_version;
-$$;
+$$
+;

@@ -3,11 +3,16 @@
 -- =============================================================
 
 CREATE TRIGGER trg_integrations_updated_at
-  BEFORE UPDATE ON integrations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON integrations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_webhook_endpoints_updated_at
-  BEFORE UPDATE ON webhook_endpoints FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON webhook_endpoints FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_report_schedules_updated_at
-  BEFORE UPDATE ON report_schedules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON report_schedules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- WEBHOOK FAN-OUT
@@ -54,11 +59,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_queue_webhook_deliveries
   AFTER INSERT ON notifications
-  FOR EACH ROW EXECUTE FUNCTION queue_webhook_deliveries();
+  FOR EACH ROW EXECUTE FUNCTION queue_webhook_deliveries()
+;
 
 -- =============================================================
 -- WEBHOOK DELIVERY STATUS SYNC
@@ -86,11 +93,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_webhook_endpoint_health
   AFTER INSERT ON webhook_deliveries
-  FOR EACH ROW EXECUTE FUNCTION sync_webhook_endpoint_health();
+  FOR EACH ROW EXECUTE FUNCTION sync_webhook_endpoint_health()
+;
 
 -- =============================================================
 -- API KEY LOOKUP
@@ -118,7 +127,8 @@ RETURNS TABLE (
     AND ak.is_active = true
     AND (ak.expires_at IS NULL OR ak.expires_at > now())
   GROUP BY ak.id, ak.organisation_id, ak.environment;
-$$;
+$$
+;
 
 -- =============================================================
 -- API KEY LAST USED STAMP
@@ -128,7 +138,8 @@ $$;
 CREATE OR REPLACE FUNCTION stamp_api_key_last_used(p_key_hash text)
 RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   UPDATE api_keys SET last_used_at = now() WHERE key_hash = p_key_hash;
-$$;
+$$
+;
 
 -- =============================================================
 -- INTEGRATION SYNC STATUS SYNC
@@ -154,8 +165,10 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_integration_status
   AFTER INSERT ON integration_sync_logs
-  FOR EACH ROW EXECUTE FUNCTION sync_integration_status();
+  FOR EACH ROW EXECUTE FUNCTION sync_integration_status()
+;

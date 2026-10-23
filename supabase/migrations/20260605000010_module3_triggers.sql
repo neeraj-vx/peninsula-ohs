@@ -8,27 +8,33 @@
 
 CREATE TRIGGER trg_notification_templates_updated_at
   BEFORE UPDATE ON notification_templates
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_notification_rules_updated_at
   BEFORE UPDATE ON notification_rules
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_notification_preferences_updated_at
   BEFORE UPDATE ON notification_preferences
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_notification_schedules_updated_at
   BEFORE UPDATE ON notification_schedules
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_notification_deliveries_updated_at
   BEFORE UPDATE ON notification_deliveries
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_escalation_chains_updated_at
   BEFORE UPDATE ON escalation_chains
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- TEMPLATE RENDERING
@@ -64,7 +70,8 @@ BEGIN
 
   RETURN v_result;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- AUTO-CREATE DELIVERY ROWS WHEN A NOTIFICATION IS INSERTED
@@ -143,11 +150,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_create_notification_deliveries
   AFTER INSERT ON notifications
-  FOR EACH ROW EXECUTE FUNCTION create_notification_deliveries();
+  FOR EACH ROW EXECUTE FUNCTION create_notification_deliveries()
+;
 
 -- =============================================================
 -- AUTO-START ESCALATION WHEN A NOTIFICATION IS INSERTED
@@ -191,11 +200,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_start_escalation
   AFTER INSERT ON notifications
-  FOR EACH ROW EXECUTE FUNCTION start_escalation_if_required();
+  FOR EACH ROW EXECUTE FUNCTION start_escalation_if_required()
+;
 
 -- =============================================================
 -- CANCEL ESCALATION ON ACKNOWLEDGEMENT
@@ -222,11 +233,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_notification_acknowledged
   AFTER UPDATE OF acknowledged_at ON notifications
-  FOR EACH ROW EXECUTE FUNCTION handle_notification_acknowledged();
+  FOR EACH ROW EXECUTE FUNCTION handle_notification_acknowledged()
+;
 
 -- =============================================================
 -- RETRY SCHEDULING HELPER
@@ -268,7 +281,8 @@ BEGIN
 
   RETURN v_new_status;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- MARK DELIVERY DELIVERED
@@ -289,7 +303,8 @@ BEGIN
       updated_at          = now()
   WHERE id = p_delivery_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- create_notification()
@@ -425,7 +440,8 @@ BEGIN
 
   RETURN v_created_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- USER-FACING NOTIFICATION MANAGEMENT
@@ -444,7 +460,8 @@ BEGIN
   WHERE id              = p_notification_id
     AND recipient_user_id = auth.uid();
 END;
-$$;
+$$
+;
 
 -- dismiss_notification — hides from inbox without ACK
 CREATE OR REPLACE FUNCTION dismiss_notification(p_notification_id uuid)
@@ -458,7 +475,8 @@ BEGIN
   WHERE id              = p_notification_id
     AND recipient_user_id = auth.uid();
 END;
-$$;
+$$
+;
 
 -- mark_notifications_read — bulk mark-as-read for the inbox UI
 CREATE OR REPLACE FUNCTION mark_notifications_read(p_notification_ids uuid[])
@@ -480,7 +498,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- get_unread_count — efficient bell-icon counter
 CREATE OR REPLACE FUNCTION get_unread_count()
@@ -490,7 +509,8 @@ RETURNS integer LANGUAGE sql STABLE SECURITY DEFINER AS $$
   WHERE recipient_user_id = auth.uid()
     AND is_read = false
     AND (expires_at IS NULL OR expires_at > now());
-$$;
+$$
+;
 
 -- =============================================================
 -- FIRE_ESCALATION_STEP()
@@ -596,4 +616,5 @@ BEGIN
       resolution_type = CASE WHEN v_after_step IS NULL THEN 'completed' ELSE NULL END
   WHERE id = p_escalation_id;
 END;
-$$;
+$$
+;

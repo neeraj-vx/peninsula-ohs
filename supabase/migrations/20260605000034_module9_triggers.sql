@@ -3,11 +3,16 @@
 -- =============================================================
 
 CREATE TRIGGER trg_audits_updated_at
-  BEFORE UPDATE ON audits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON audits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_audit_templates_updated_at
-  BEFORE UPDATE ON audit_templates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON audit_templates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_audit_findings_updated_at
-  BEFORE UPDATE ON audit_findings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON audit_findings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- AUDIT NUMBER — AUDIT-YYYY-NNNNN
@@ -21,10 +26,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_audit_number
-  BEFORE INSERT ON audits FOR EACH ROW EXECUTE FUNCTION generate_audit_number();
+  BEFORE INSERT ON audits FOR EACH ROW EXECUTE FUNCTION generate_audit_number()
+;
 
 -- =============================================================
 -- POPULATE AUDIT FROM TEMPLATE
@@ -77,11 +84,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_populate_audit_from_template
   AFTER INSERT ON audits
-  FOR EACH ROW EXECUTE FUNCTION populate_audit_from_template();
+  FOR EACH ROW EXECUTE FUNCTION populate_audit_from_template()
+;
 
 -- =============================================================
 -- FINDING SUMMARY COUNTERS
@@ -123,11 +132,13 @@ BEGIN
   WHERE id = NEW.audit_id;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_recalculate_audit_findings
   AFTER INSERT OR UPDATE ON audit_findings
-  FOR EACH ROW EXECUTE FUNCTION recalculate_audit_finding_counts();
+  FOR EACH ROW EXECUTE FUNCTION recalculate_audit_finding_counts()
+;
 
 -- =============================================================
 -- CREATE ACTION FOR FINDING
@@ -181,7 +192,8 @@ BEGIN
 
   RETURN v_action_id;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- AUDIT STATUS NOTIFICATIONS
@@ -204,13 +216,16 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_audit_status
   AFTER UPDATE OF status ON audits
-  FOR EACH ROW EXECUTE FUNCTION notify_audit_status_change();
+  FOR EACH ROW EXECUTE FUNCTION notify_audit_status_change()
+;
 
 -- Row versioning
 CREATE TRIGGER version_audits
   AFTER INSERT OR UPDATE OR DELETE ON audits
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

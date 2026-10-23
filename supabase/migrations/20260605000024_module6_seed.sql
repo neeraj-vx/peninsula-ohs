@@ -40,7 +40,8 @@ INSERT INTO inspection_types (code, name, description, icon, display_order, is_a
    'Verification that contractors are complying with site safety rules, induction requirements, and applicable work method statements.',
    'clipboard', 8, true)
 
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- =============================================================
 -- NOTIFICATION TEMPLATES
@@ -109,7 +110,8 @@ Please ensure the inspection is completed as soon as possible.',
    '{"schedule_name":"Schedule name","site_name":"Site name","assignee_name":"Assigned conductor name","due_date":"When the inspection was due"}',
    true)
 
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- =============================================================
 -- NEW PERMISSIONS
@@ -133,7 +135,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('inspections', 'export',  'Export inspection records and reports'),
   ('inspections', 'delete',  'Cancel or delete inspection records')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS
@@ -229,4 +232,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

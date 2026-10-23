@@ -3,9 +3,12 @@
 -- =============================================================
 
 CREATE TRIGGER trg_permits_updated_at
-  BEFORE UPDATE ON permits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON permits FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_permit_isolation_certs_updated_at
-  BEFORE UPDATE ON permit_isolation_certs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON permit_isolation_certs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- PERMIT NUMBER — PTW-YYYY-NNNNN
@@ -19,10 +22,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_permit_number
-  BEFORE INSERT ON permits FOR EACH ROW EXECUTE FUNCTION generate_permit_number();
+  BEFORE INSERT ON permits FOR EACH ROW EXECUTE FUNCTION generate_permit_number()
+;
 
 -- =============================================================
 -- PERMIT STATUS CHANGE NOTIFICATIONS
@@ -87,11 +92,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_permit_status
   AFTER UPDATE OF status_id ON permits
-  FOR EACH ROW EXECUTE FUNCTION notify_permit_status_change();
+  FOR EACH ROW EXECUTE FUNCTION notify_permit_status_change()
+;
 
 -- =============================================================
 -- APPROVAL CHAIN PROGRESSION
@@ -137,11 +144,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_permit_approval
   BEFORE UPDATE OF decision ON permit_approvals
-  FOR EACH ROW EXECUTE FUNCTION handle_permit_approval_decision();
+  FOR EACH ROW EXECUTE FUNCTION handle_permit_approval_decision()
+;
 
 -- =============================================================
 -- AUTO-EXPIRE PERMITS — called daily by pg_cron
@@ -168,7 +177,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- PERMIT WORK COMPLETION TIMESTAMPS
@@ -192,13 +202,16 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_stamp_permit_workflow
   BEFORE UPDATE OF status_id ON permits
-  FOR EACH ROW EXECUTE FUNCTION stamp_permit_workflow_times();
+  FOR EACH ROW EXECUTE FUNCTION stamp_permit_workflow_times()
+;
 
 -- Row versioning
 CREATE TRIGGER version_permits
   AFTER INSERT OR UPDATE OR DELETE ON permits
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

@@ -3,11 +3,16 @@
 -- =============================================================
 
 CREATE TRIGGER trg_ems_updated_at
-  BEFORE UPDATE ON env_monitoring_stations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON env_monitoring_stations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_err_updated_at
-  BEFORE UPDATE ON env_reporting_requirements FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON env_reporting_requirements FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_ers_updated_at
-  BEFORE UPDATE ON env_report_submissions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON env_report_submissions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- COMPLIANCE LIMIT CHECK
@@ -57,11 +62,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_check_env_compliance
   BEFORE INSERT ON env_monitoring_records
-  FOR EACH ROW EXECUTE FUNCTION check_env_compliance_limit();
+  FOR EACH ROW EXECUTE FUNCTION check_env_compliance_limit()
+;
 
 -- =============================================================
 -- ADVANCE REPORTING REQUIREMENT DUE DATE
@@ -95,11 +102,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_advance_reporting_due
   AFTER UPDATE OF status ON env_report_submissions
-  FOR EACH ROW EXECUTE FUNCTION advance_reporting_next_due();
+  FOR EACH ROW EXECUTE FUNCTION advance_reporting_next_due()
+;
 
 -- =============================================================
 -- REPORTING DUE ALERTS — daily sweep
@@ -130,4 +139,5 @@ BEGIN
   END LOOP;
   RETURN v_count;
 END;
-$$;
+$$
+;

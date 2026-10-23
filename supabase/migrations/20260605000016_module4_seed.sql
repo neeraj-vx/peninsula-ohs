@@ -32,7 +32,8 @@ INSERT INTO incident_types (code, name, description, icon, display_order, is_act
    'Collisions, rollovers, or any incident involving company or site vehicles — including forklifts, heavy equipment, light vehicles, and contractor transport.',
    'truck', 6, true)
 
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- =============================================================
 -- SEVERITY LEVELS
@@ -65,7 +66,8 @@ INSERT INTO severity_levels (
    '#ef4444',  -- red
    true, true, 1, true, true)
 
-ON CONFLICT (level_number) DO NOTHING;
+ON CONFLICT (level_number) DO NOTHING
+;
 
 -- =============================================================
 -- NOTIFICATION TEMPLATES (Module 3 stubs for Module 4 events)
@@ -134,7 +136,8 @@ All corrective actions should have been verified before closure. Contact your HS
    '{"incident_number":"Incident reference","incident_title":"Incident title","site_name":"Site name","closed_by_name":"Name of person who closed the incident"}',
    true)
 
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- =============================================================
 -- NEW PERMISSIONS
@@ -166,7 +169,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('regulatory', 'read',   'View regulatory submission records'),
   ('regulatory', 'submit', 'Create and submit regulatory reports')
 
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS (Module 4 additions)
@@ -273,4 +277,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

@@ -51,7 +51,8 @@ CREATE TABLE kpi_definitions (
   is_active             boolean     NOT NULL DEFAULT true,
   display_order         integer     NOT NULL DEFAULT 0,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- KPI SNAPSHOTS
@@ -76,7 +77,8 @@ CREATE TABLE kpi_snapshots (
   is_current          boolean     NOT NULL DEFAULT true,
   computed_at         timestamptz NOT NULL DEFAULT now(),
   UNIQUE (kpi_definition_id, organisation_id, site_id, period_type, period_start)
-);
+)
+;
 
 -- =============================================================
 -- KPI TARGETS
@@ -99,7 +101,8 @@ CREATE TABLE kpi_targets (
   notes               text,
   created_at          timestamptz NOT NULL DEFAULT now(),
   UNIQUE (kpi_definition_id, organisation_id, site_id, period_type, effective_from)
-);
+)
+;
 
 -- =============================================================
 -- WORKFORCE HOURS LOGS
@@ -124,7 +127,8 @@ CREATE TABLE workforce_hours_logs (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (organisation_id, site_id, department_id, period_start, period_end)
-);
+)
+;
 
 -- =============================================================
 -- REPORT DEFINITIONS
@@ -148,7 +152,8 @@ CREATE TABLE report_definitions (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- REPORT SCHEDULES
@@ -177,7 +182,8 @@ CREATE TABLE report_schedules (
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now(),
   created_by        uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- REPORT EXECUTION LOG
@@ -203,12 +209,16 @@ CREATE TABLE report_execution_log (
   started_at            timestamptz NOT NULL DEFAULT now(),
   completed_at          timestamptz,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE RULE no_update_report_execution
-  AS ON UPDATE TO report_execution_log DO INSTEAD NOTHING;
+  AS ON UPDATE TO report_execution_log DO INSTEAD NOTHING
+;
+
 CREATE RULE no_delete_report_execution
-  AS ON DELETE TO report_execution_log DO INSTEAD NOTHING;
+  AS ON DELETE TO report_execution_log DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- DASHBOARD WIDGET CONFIGS
@@ -227,20 +237,42 @@ CREATE TABLE dashboard_widget_configs (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (user_id, dashboard_type)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_kpi_snap_org_period    ON kpi_snapshots(organisation_id, period_type, period_start DESC);
-CREATE INDEX idx_kpi_snap_kpi_site      ON kpi_snapshots(kpi_definition_id, site_id, period_end DESC);
-CREATE INDEX idx_kpi_snap_current       ON kpi_snapshots(organisation_id, kpi_definition_id) WHERE is_current = true;
-CREATE INDEX idx_kpi_targets_org        ON kpi_targets(organisation_id, kpi_definition_id);
-CREATE INDEX idx_whl_org_period         ON workforce_hours_logs(organisation_id, period_start, period_end);
-CREATE INDEX idx_whl_site_period        ON workforce_hours_logs(site_id, period_start, period_end);
-CREATE INDEX idx_rdef_org_category      ON report_definitions(organisation_id, category);
-CREATE INDEX idx_rsched_next_run        ON report_schedules(next_run_at) WHERE is_active = true;
-CREATE INDEX idx_rlog_org               ON report_execution_log(organisation_id, started_at DESC);
-CREATE INDEX idx_rlog_schedule          ON report_execution_log(schedule_id, started_at DESC);
-CREATE INDEX idx_dwc_user               ON dashboard_widget_configs(user_id);
+CREATE INDEX idx_kpi_snap_org_period    ON kpi_snapshots(organisation_id, period_type, period_start DESC)
+;
+
+CREATE INDEX idx_kpi_snap_kpi_site      ON kpi_snapshots(kpi_definition_id, site_id, period_end DESC)
+;
+
+CREATE INDEX idx_kpi_snap_current       ON kpi_snapshots(organisation_id, kpi_definition_id) WHERE is_current = true
+;
+
+CREATE INDEX idx_kpi_targets_org        ON kpi_targets(organisation_id, kpi_definition_id)
+;
+
+CREATE INDEX idx_whl_org_period         ON workforce_hours_logs(organisation_id, period_start, period_end)
+;
+
+CREATE INDEX idx_whl_site_period        ON workforce_hours_logs(site_id, period_start, period_end)
+;
+
+CREATE INDEX idx_rdef_org_category      ON report_definitions(organisation_id, category)
+;
+
+CREATE INDEX idx_rsched_next_run        ON report_schedules(next_run_at) WHERE is_active = true
+;
+
+CREATE INDEX idx_rlog_org               ON report_execution_log(organisation_id, started_at DESC)
+;
+
+CREATE INDEX idx_rlog_schedule          ON report_execution_log(schedule_id, started_at DESC)
+;
+
+CREATE INDEX idx_dwc_user               ON dashboard_widget_configs(user_id)
+;

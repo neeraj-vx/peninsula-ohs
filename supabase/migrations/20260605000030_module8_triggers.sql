@@ -3,9 +3,12 @@
 -- =============================================================
 
 CREATE TRIGGER trg_assets_updated_at
-  BEFORE UPDATE ON assets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON assets FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_amr_updated_at
-  BEFORE UPDATE ON asset_maintenance_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON asset_maintenance_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- ASSET NUMBER GENERATION — ASSET-YYYY-NNNNN
@@ -19,10 +22,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_asset_number
-  BEFORE INSERT ON assets FOR EACH ROW EXECUTE FUNCTION generate_asset_number();
+  BEFORE INSERT ON assets FOR EACH ROW EXECUTE FUNCTION generate_asset_number()
+;
 
 -- =============================================================
 -- MAINTENANCE RECORD NUMBER — MAINT-YYYY-NNNNN
@@ -38,10 +43,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_maintenance_number
-  BEFORE INSERT ON asset_maintenance_records FOR EACH ROW EXECUTE FUNCTION generate_maintenance_number();
+  BEFORE INSERT ON asset_maintenance_records FOR EACH ROW EXECUTE FUNCTION generate_maintenance_number()
+;
 
 CREATE OR REPLACE FUNCTION sync_asset_after_maintenance()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -53,11 +60,13 @@ BEGIN
   WHERE id = NEW.asset_id;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_asset_after_maintenance
   AFTER INSERT ON asset_maintenance_records
-  FOR EACH ROW EXECUTE FUNCTION sync_asset_after_maintenance();
+  FOR EACH ROW EXECUTE FUNCTION sync_asset_after_maintenance()
+;
 
 -- =============================================================
 -- OUT-OF-SERVICE FLAGGING
@@ -104,11 +113,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_oos_event
   AFTER INSERT OR UPDATE ON asset_out_of_service_events
-  FOR EACH ROW EXECUTE FUNCTION handle_out_of_service_event();
+  FOR EACH ROW EXECUTE FUNCTION handle_out_of_service_event()
+;
 
 -- =============================================================
 -- INSPECTION SYNC — update asset.last_inspected_at when
@@ -134,11 +145,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_asset_after_inspection
   AFTER UPDATE OF status ON inspections
-  FOR EACH ROW EXECUTE FUNCTION sync_asset_after_inspection();
+  FOR EACH ROW EXECUTE FUNCTION sync_asset_after_inspection()
+;
 
 -- =============================================================
 -- OVERDUE ALERTS — daily sweep
@@ -155,7 +168,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- ROW VERSIONING
@@ -163,8 +177,10 @@ $$;
 
 CREATE TRIGGER version_assets
   AFTER INSERT OR UPDATE OR DELETE ON assets
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_asset_maintenance_records
   AFTER INSERT OR UPDATE OR DELETE ON asset_maintenance_records
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

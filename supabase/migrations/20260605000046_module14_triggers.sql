@@ -3,9 +3,12 @@
 -- =============================================================
 
 CREATE TRIGGER trg_chemicals_updated_at
-  BEFORE UPDATE ON chemicals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON chemicals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_csds_updated_at
-  BEFORE UPDATE ON chemical_sds FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON chemical_sds FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- CHEMICAL NUMBER — CHEM-YYYY-NNNNN
@@ -24,10 +27,12 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_chemical_number
-  BEFORE INSERT ON chemicals FOR EACH ROW EXECUTE FUNCTION generate_chemical_number();
+  BEFORE INSERT ON chemicals FOR EACH ROW EXECUTE FUNCTION generate_chemical_number()
+;
 
 -- =============================================================
 -- SDS VERSION MANAGEMENT
@@ -57,11 +62,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_manage_sds_versions
   AFTER INSERT OR UPDATE OF status ON chemical_sds
-  FOR EACH ROW EXECUTE FUNCTION manage_sds_versions();
+  FOR EACH ROW EXECUTE FUNCTION manage_sds_versions()
+;
 
 -- =============================================================
 -- INVENTORY BALANCE MAINTENANCE
@@ -96,11 +103,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_update_inventory_balance
   AFTER INSERT ON chemical_inventory_transactions
-  FOR EACH ROW EXECUTE FUNCTION update_inventory_balance();
+  FOR EACH ROW EXECUTE FUNCTION update_inventory_balance()
+;
 
 -- =============================================================
 -- COMPATIBILITY CHECK
@@ -123,7 +132,8 @@ CREATE OR REPLACE FUNCTION check_chemical_compatibility(
            (chemical_a_id = LEAST(p_chem_a, p_chem_b)
             AND chemical_b_id = GREATEST(p_chem_a, p_chem_b))
          );
-$$;
+$$
+;
 
 -- =============================================================
 -- SDS REVIEW NOTIFICATIONS — daily sweep
@@ -157,7 +167,8 @@ BEGIN
   END LOOP;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- LOW STOCK ALERT
@@ -190,13 +201,16 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_check_low_stock
   AFTER INSERT OR UPDATE OF quantity_on_hand ON chemical_inventory
-  FOR EACH ROW EXECUTE FUNCTION check_low_stock();
+  FOR EACH ROW EXECUTE FUNCTION check_low_stock()
+;
 
 -- Row versioning
 CREATE TRIGGER version_chemicals
   AFTER INSERT OR UPDATE OR DELETE ON chemicals
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;

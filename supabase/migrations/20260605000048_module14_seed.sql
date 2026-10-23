@@ -13,7 +13,8 @@ INSERT INTO chemical_categories (code, name, description, icon, display_order) V
   ('carcinogenic',       'Carcinogenic / CMR',     'Carcinogenic, mutagenic, or toxic to reproduction.', 'activity',   8),
   ('irritant',           'Irritant',               'Skin or respiratory irritants — lower hazard profile.', 'eye',      9),
   ('cryogenic',          'Cryogenic',              'Cryogenic liquids (LNG, liquid nitrogen, dry ice).', 'thermometer', 10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO chemical_hazard_classes (code, ghs_pictogram, hazard_class, display_order) VALUES
   ('H200', 'exploding_bomb',    'Unstable explosive',                                    1),
@@ -42,7 +43,8 @@ INSERT INTO chemical_hazard_classes (code, ghs_pictogram, hazard_class, display_
   ('H370', 'health_hazard',     'Causes damage to organs',                               24),
   ('H400', 'environment',       'Very toxic to aquatic life',                            25),
   ('H410', 'environment',       'Very toxic to aquatic life with long lasting effects',  26)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO chemical_physical_states (code, name, display_order) VALUES
   ('liquid',   'Liquid',   1),
@@ -52,7 +54,8 @@ INSERT INTO chemical_physical_states (code, name, display_order) VALUES
   ('powder',   'Powder',   5),
   ('paste',    'Paste',    6),
   ('slurry',   'Slurry',   7)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'chemicals.sds_review_due',  'SDS Review Due',
@@ -74,7 +77,8 @@ Maximum Quantity: {{max_quantity}}
 
 Please arrange resupply.',
    '{"chemical_number":"Chemical reference","chemical_name":"Chemical name","quantity_on_hand":"Current quantity","max_quantity":"Maximum quantity"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('chemicals', 'create',     'Register a new chemical'),
@@ -84,7 +88,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('chemicals', 'log_usage',  'Record chemical usage'),
   ('chemicals', 'manage_inventory', 'Manage stock levels and transactions'),
   ('chemicals', 'export',     'Export chemical register')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -116,4 +121,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

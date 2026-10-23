@@ -24,13 +24,15 @@ CREATE TYPE inspection_status_enum AS ENUM (
   'completed',    -- all required questions answered; ready to submit
   'submitted',    -- formally submitted / signed off
   'cancelled'
-);
+)
+;
 
 CREATE TYPE inspection_result_enum AS ENUM (
   'pass',             -- score >= threshold, no hard fails
   'conditional_pass', -- score >= threshold but has failed items
   'fail'              -- score < threshold
-);
+)
+;
 
 CREATE TYPE question_type_enum AS ENUM (
   'pass_fail',
@@ -41,7 +43,8 @@ CREATE TYPE question_type_enum AS ENUM (
   'photo',
   'signature',
   'date_time'
-);
+)
+;
 
 CREATE TYPE recurrence_type_enum AS ENUM (
   'once',
@@ -49,7 +52,8 @@ CREATE TYPE recurrence_type_enum AS ENUM (
   'weekly',
   'monthly',
   'custom'   -- arbitrary cron expression
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION TYPES
@@ -65,7 +69,8 @@ CREATE TABLE inspection_types (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION TEMPLATES
@@ -91,7 +96,8 @@ CREATE TABLE inspection_templates (
   created_at                timestamptz NOT NULL DEFAULT now(),
   updated_at                timestamptz NOT NULL DEFAULT now(),
   created_by                uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- TEMPLATE SECTIONS
@@ -106,7 +112,8 @@ CREATE TABLE inspection_template_sections (
   description  text,
   order_index  integer     NOT NULL DEFAULT 0,
   created_at   timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- TEMPLATE QUESTIONS
@@ -144,7 +151,8 @@ CREATE TABLE inspection_template_questions (
   is_active               boolean            NOT NULL DEFAULT true,
   created_at              timestamptz        NOT NULL DEFAULT now(),
   updated_at              timestamptz        NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION SCHEDULES
@@ -178,7 +186,8 @@ CREATE TABLE inspection_schedules (
   created_at            timestamptz          NOT NULL DEFAULT now(),
   updated_at            timestamptz          NOT NULL DEFAULT now(),
   created_by            uuid                 REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INSPECTIONS
@@ -232,7 +241,8 @@ CREATE TABLE inspections (
   created_at          timestamptz NOT NULL DEFAULT now(),
   updated_at          timestamptz NOT NULL DEFAULT now(),
   created_by          uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION RESPONSES
@@ -261,7 +271,8 @@ CREATE TABLE inspection_responses (
   updated_at        timestamptz NOT NULL DEFAULT now(),
   created_by        uuid        REFERENCES auth.users(id),
   UNIQUE (inspection_id, question_id)
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION RESPONSE EVIDENCE
@@ -281,7 +292,8 @@ CREATE TABLE inspection_response_evidence (
   description     text,
   uploaded_at     timestamptz NOT NULL DEFAULT now(),
   uploaded_by     uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INSPECTION ACTIONS
@@ -300,50 +312,95 @@ CREATE TABLE inspection_actions (
   created_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id),
   UNIQUE (response_id, action_id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- inspection_templates
-CREATE INDEX idx_it2_org_type     ON inspection_templates(organisation_id, inspection_type_id);
-CREATE INDEX idx_it2_published    ON inspection_templates(organisation_id, is_published) WHERE is_published = true;
+CREATE INDEX idx_it2_org_type     ON inspection_templates(organisation_id, inspection_type_id)
+;
+
+CREATE INDEX idx_it2_published    ON inspection_templates(organisation_id, is_published) WHERE is_published = true
+;
 
 -- inspection_template_sections
-CREATE INDEX idx_its_template_id  ON inspection_template_sections(template_id, order_index);
+CREATE INDEX idx_its_template_id  ON inspection_template_sections(template_id, order_index)
+;
 
 -- inspection_template_questions
-CREATE INDEX idx_itq_template_id  ON inspection_template_questions(template_id, order_index);
-CREATE INDEX idx_itq_section_id   ON inspection_template_questions(section_id);
-CREATE INDEX idx_itq_active       ON inspection_template_questions(template_id, is_active);
+CREATE INDEX idx_itq_template_id  ON inspection_template_questions(template_id, order_index)
+;
+
+CREATE INDEX idx_itq_section_id   ON inspection_template_questions(section_id)
+;
+
+CREATE INDEX idx_itq_active       ON inspection_template_questions(template_id, is_active)
+;
 
 -- inspection_schedules
-CREATE INDEX idx_isch_org_id      ON inspection_schedules(organisation_id);
-CREATE INDEX idx_isch_assigned    ON inspection_schedules(assigned_to);
-CREATE INDEX idx_isch_next_due    ON inspection_schedules(next_due_at) WHERE is_active = true;
-CREATE INDEX idx_isch_site_id     ON inspection_schedules(site_id);
+CREATE INDEX idx_isch_org_id      ON inspection_schedules(organisation_id)
+;
+
+CREATE INDEX idx_isch_assigned    ON inspection_schedules(assigned_to)
+;
+
+CREATE INDEX idx_isch_next_due    ON inspection_schedules(next_due_at) WHERE is_active = true
+;
+
+CREATE INDEX idx_isch_site_id     ON inspection_schedules(site_id)
+;
 
 -- inspections
-CREATE INDEX idx_insp_org_status  ON inspections(organisation_id, status);
-CREATE INDEX idx_insp_site_id     ON inspections(site_id);
-CREATE INDEX idx_insp_conducted_by ON inspections(conducted_by);
-CREATE INDEX idx_insp_template_id ON inspections(template_id);
-CREATE INDEX idx_insp_schedule_id ON inspections(schedule_id);
-CREATE INDEX idx_insp_number      ON inspections(inspection_number);
-CREATE INDEX idx_insp_result      ON inspections(organisation_id, result);
-CREATE INDEX idx_insp_date        ON inspections(organisation_id, completed_at DESC);
+CREATE INDEX idx_insp_org_status  ON inspections(organisation_id, status)
+;
+
+CREATE INDEX idx_insp_site_id     ON inspections(site_id)
+;
+
+CREATE INDEX idx_insp_conducted_by ON inspections(conducted_by)
+;
+
+CREATE INDEX idx_insp_template_id ON inspections(template_id)
+;
+
+CREATE INDEX idx_insp_schedule_id ON inspections(schedule_id)
+;
+
+CREATE INDEX idx_insp_number      ON inspections(inspection_number)
+;
+
+CREATE INDEX idx_insp_result      ON inspections(organisation_id, result)
+;
+
+CREATE INDEX idx_insp_date        ON inspections(organisation_id, completed_at DESC)
+;
 
 -- inspection_responses
-CREATE INDEX idx_ir_inspection_id ON inspection_responses(inspection_id);
-CREATE INDEX idx_ir_question_id   ON inspection_responses(question_id);
-CREATE INDEX idx_ir_failed        ON inspection_responses(inspection_id, is_failed) WHERE is_failed = true;
+CREATE INDEX idx_ir_inspection_id ON inspection_responses(inspection_id)
+;
+
+CREATE INDEX idx_ir_question_id   ON inspection_responses(question_id)
+;
+
+CREATE INDEX idx_ir_failed        ON inspection_responses(inspection_id, is_failed) WHERE is_failed = true
+;
 
 -- inspection_response_evidence
-CREATE INDEX idx_ire_response_id  ON inspection_response_evidence(response_id);
-CREATE INDEX idx_ire_inspection_id ON inspection_response_evidence(inspection_id);
+CREATE INDEX idx_ire_response_id  ON inspection_response_evidence(response_id)
+;
+
+CREATE INDEX idx_ire_inspection_id ON inspection_response_evidence(inspection_id)
+;
 
 -- inspection_actions
-CREATE INDEX idx_ia_inspection_id ON inspection_actions(inspection_id);
-CREATE INDEX idx_ia_response_id   ON inspection_actions(response_id);
-CREATE INDEX idx_ia_action_id     ON inspection_actions(action_id);
+CREATE INDEX idx_ia_inspection_id ON inspection_actions(inspection_id)
+;
+
+CREATE INDEX idx_ia_response_id   ON inspection_actions(response_id)
+;
+
+CREATE INDEX idx_ia_action_id     ON inspection_actions(action_id)
+;

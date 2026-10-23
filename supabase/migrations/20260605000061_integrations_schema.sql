@@ -40,7 +40,8 @@ CREATE TABLE integration_types (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INTEGRATIONS
@@ -68,11 +69,12 @@ CREATE TABLE integrations (
   created_at          timestamptz NOT NULL DEFAULT now(),
   updated_at          timestamptz NOT NULL DEFAULT now(),
   created_by          uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INTEGRATION FIELD MAPPINGS
--- Maps source system fields to EXXIO schema fields.
+-- Maps source system fields to Peninsula schema fields.
 -- transformation jsonb: {"trim":true,"lowercase":true,"format":"date"}
 -- =============================================================
 
@@ -81,13 +83,14 @@ CREATE TABLE integration_field_mappings (
   integration_id  uuid        NOT NULL REFERENCES integrations(id) ON DELETE CASCADE,
   organisation_id uuid        NOT NULL REFERENCES organisations(id),
   source_field    text        NOT NULL,   -- field name in the external system
-  target_table    text        NOT NULL,   -- EXXIO table name
-  target_field    text        NOT NULL,   -- EXXIO column name
+  target_table    text        NOT NULL,   -- Peninsula table name
+  target_field    text        NOT NULL,   -- Peninsula column name
   transformation  jsonb       NOT NULL DEFAULT '{}',
   is_required     boolean     NOT NULL DEFAULT false,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INTEGRATION SYNC LOGS
@@ -112,10 +115,14 @@ CREATE TABLE integration_sync_logs (
   started_at        timestamptz NOT NULL DEFAULT now(),
   completed_at      timestamptz,
   created_at        timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
-CREATE RULE no_update_sync_logs AS ON UPDATE TO integration_sync_logs DO INSTEAD NOTHING;
-CREATE RULE no_delete_sync_logs AS ON DELETE TO integration_sync_logs DO INSTEAD NOTHING;
+CREATE RULE no_update_sync_logs AS ON UPDATE TO integration_sync_logs DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_sync_logs AS ON DELETE TO integration_sync_logs DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- API KEYS
@@ -143,7 +150,8 @@ CREATE TABLE api_keys (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        NOT NULL REFERENCES auth.users(id),
   UNIQUE (key_hash)
-);
+)
+;
 
 -- =============================================================
 -- API KEY SCOPES
@@ -158,7 +166,8 @@ CREATE TABLE api_key_scopes (
   scope_code      text        NOT NULL,
   created_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (api_key_id, scope_code)
-);
+)
+;
 
 -- =============================================================
 -- WEBHOOK EVENT TYPES
@@ -176,13 +185,14 @@ CREATE TABLE webhook_event_types (
   display_order integer      NOT NULL DEFAULT 0,
   is_active     boolean      NOT NULL DEFAULT true,
   created_at    timestamptz  NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- WEBHOOK ENDPOINTS
 -- A registered URL that receives HTTP POST events.
 -- signing_secret is used to compute HMAC-SHA256 signatures
--- on every delivery (X-EXXIO-Signature header).
+-- on every delivery (X-Peninsula-Signature header).
 -- =============================================================
 
 CREATE TABLE webhook_endpoints (
@@ -205,7 +215,8 @@ CREATE TABLE webhook_endpoints (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- WEBHOOK ENDPOINT SUBSCRIPTIONS
@@ -220,7 +231,8 @@ CREATE TABLE webhook_endpoint_subscriptions (
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now(),
   UNIQUE (endpoint_id, event_type_id)
-);
+)
+;
 
 -- =============================================================
 -- WEBHOOK DELIVERIES
@@ -249,26 +261,56 @@ CREATE TABLE webhook_deliveries (
   delivered_at        timestamptz,
   next_retry_at       timestamptz,
   created_at          timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
-CREATE RULE no_update_webhook_deliveries AS ON UPDATE TO webhook_deliveries DO INSTEAD NOTHING;
-CREATE RULE no_delete_webhook_deliveries AS ON DELETE TO webhook_deliveries DO INSTEAD NOTHING;
+CREATE RULE no_update_webhook_deliveries AS ON UPDATE TO webhook_deliveries DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_webhook_deliveries AS ON DELETE TO webhook_deliveries DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_integrations_org      ON integrations(organisation_id, status);
-CREATE INDEX idx_ifm_integration       ON integration_field_mappings(integration_id);
-CREATE INDEX idx_isl_integration       ON integration_sync_logs(integration_id, started_at DESC);
-CREATE INDEX idx_isl_org_status        ON integration_sync_logs(organisation_id, status);
-CREATE INDEX idx_apikey_org_active     ON api_keys(organisation_id) WHERE is_active = true;
-CREATE INDEX idx_apikey_hash           ON api_keys(key_hash) WHERE is_active = true;  -- auth lookups
-CREATE INDEX idx_aks_key_id            ON api_key_scopes(api_key_id);
-CREATE INDEX idx_whet_code             ON webhook_event_types(code);
-CREATE INDEX idx_whe_org_active        ON webhook_endpoints(organisation_id) WHERE is_active = true;
-CREATE INDEX idx_whes_endpoint         ON webhook_endpoint_subscriptions(endpoint_id);
-CREATE INDEX idx_whd_endpoint_status   ON webhook_deliveries(endpoint_id, status);
+CREATE INDEX idx_integrations_org      ON integrations(organisation_id, status)
+;
+
+CREATE INDEX idx_ifm_integration       ON integration_field_mappings(integration_id)
+;
+
+CREATE INDEX idx_isl_integration       ON integration_sync_logs(integration_id, started_at DESC)
+;
+
+CREATE INDEX idx_isl_org_status        ON integration_sync_logs(organisation_id, status)
+;
+
+CREATE INDEX idx_apikey_org_active     ON api_keys(organisation_id) WHERE is_active = true
+;
+
+CREATE INDEX idx_apikey_hash           ON api_keys(key_hash) WHERE is_active = true
+;
+
+-- auth lookups
+CREATE INDEX idx_aks_key_id            ON api_key_scopes(api_key_id)
+;
+
+CREATE INDEX idx_whet_code             ON webhook_event_types(code)
+;
+
+CREATE INDEX idx_whe_org_active        ON webhook_endpoints(organisation_id) WHERE is_active = true
+;
+
+CREATE INDEX idx_whes_endpoint         ON webhook_endpoint_subscriptions(endpoint_id)
+;
+
+CREATE INDEX idx_whd_endpoint_status   ON webhook_deliveries(endpoint_id, status)
+;
+
 CREATE INDEX idx_whd_pending           ON webhook_deliveries(next_retry_at)
-                                       WHERE status IN ('pending','failed');
-CREATE INDEX idx_whd_notification      ON webhook_deliveries(notification_id);
+                                       WHERE status IN ('pending','failed')
+;
+
+CREATE INDEX idx_whd_notification      ON webhook_deliveries(notification_id)
+;

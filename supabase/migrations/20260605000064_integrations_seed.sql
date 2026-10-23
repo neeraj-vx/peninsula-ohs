@@ -15,7 +15,8 @@ INSERT INTO integration_types (code, name, description, category, icon, display_
   ('email_smtp',     'Email (SMTP)',             'Custom SMTP email gateway for notification delivery.', 'messaging', 'mail',       10),
   ('sms_twilio',     'SMS (Twilio)',             'Twilio SMS gateway for critical alert delivery.', 'messaging', 'message-circle', 11),
   ('sms_generic',    'SMS (Generic)',            'Generic SMS gateway integration.', 'messaging', 'message-circle', 12)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- Webhook event types — mirror all notification event codes
 INSERT INTO webhook_event_types (code, name, description, module, display_order) VALUES
@@ -65,7 +66,8 @@ INSERT INTO webhook_event_types (code, name, description, module, display_order)
   -- Users
   ('user.created',               'User Created',                'A new user has been added.',               'users',       120),
   ('user.deactivated',           'User Deactivated',            'A user account has been deactivated.',     'users',       121)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('integrations', 'manage',        'Configure and manage integrations'),
@@ -75,7 +77,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('api_keys',     'revoke',        'Revoke API keys'),
   ('webhooks',     'manage',        'Create and manage webhook endpoints'),
   ('webhooks',     'read',          'View webhook endpoints and delivery logs')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -93,4 +96,5 @@ admin_perms AS (
 ),
 all_m AS (SELECT * FROM hse_perms UNION ALL SELECT * FROM admin_perms)
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

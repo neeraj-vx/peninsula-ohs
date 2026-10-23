@@ -8,35 +8,43 @@
 
 CREATE TRIGGER trg_incidents_updated_at
   BEFORE UPDATE ON incidents
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_incident_witnesses_updated_at
   BEFORE UPDATE ON incident_witnesses
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_incident_medical_updated_at
   BEFORE UPDATE ON incident_medical
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_investigations_updated_at
   BEFORE UPDATE ON investigations
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_rca_five_whys_updated_at
   BEFORE UPDATE ON rca_five_whys
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_rca_fishbone_updated_at
   BEFORE UPDATE ON rca_fishbone
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_incident_capa_updated_at
   BEFORE UPDATE ON incident_capa
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_regulatory_submissions_updated_at
   BEFORE UPDATE ON regulatory_submissions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- REFERENCE NUMBER GENERATION
@@ -62,7 +70,8 @@ BEGIN
 
   RETURN p_prefix || '-' || v_year || '-' || LPAD(v_num::text, 5, '0');
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- INCIDENT NUMBER — BEFORE INSERT
@@ -76,11 +85,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_incident_number
   BEFORE INSERT ON incidents
-  FOR EACH ROW EXECUTE FUNCTION generate_incident_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_incident_number()
+;
 
 -- =============================================================
 -- INVESTIGATION NUMBER — BEFORE INSERT
@@ -94,11 +105,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_investigation_number
   BEFORE INSERT ON investigations
-  FOR EACH ROW EXECUTE FUNCTION generate_investigation_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_investigation_number()
+;
 
 -- =============================================================
 -- CAPA NUMBER — BEFORE INSERT
@@ -112,11 +125,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_capa_number
   BEFORE INSERT ON incident_capa
-  FOR EACH ROW EXECUTE FUNCTION generate_capa_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_capa_number()
+;
 
 -- =============================================================
 -- STATUS HISTORY TRACKING
@@ -195,11 +210,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_track_incident_status
   AFTER UPDATE OF status ON incidents
-  FOR EACH ROW EXECUTE FUNCTION track_incident_status_change();
+  FOR EACH ROW EXECUTE FUNCTION track_incident_status_change()
+;
 
 -- =============================================================
 -- AUTO-SET submitted_at / triaged_at / closed_at
@@ -234,11 +251,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_stamp_incident_workflow
   BEFORE UPDATE ON incidents
-  FOR EACH ROW EXECUTE FUNCTION stamp_incident_workflow_times();
+  FOR EACH ROW EXECUTE FUNCTION stamp_incident_workflow_times()
+;
 
 -- =============================================================
 -- AUTO-ASSIGN INCIDENT ON SUBMISSION
@@ -280,13 +299,15 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_auto_assign_incident
   BEFORE UPDATE OF status ON incidents
   FOR EACH ROW
   WHEN (NEW.status = 'submitted')
-  EXECUTE FUNCTION auto_assign_incident();
+  EXECUTE FUNCTION auto_assign_incident()
+;
 
 -- =============================================================
 -- CAPA OVERDUE DETECTION
@@ -306,11 +327,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_check_capa_overdue
   BEFORE INSERT OR UPDATE ON incident_capa
-  FOR EACH ROW EXECUTE FUNCTION check_capa_overdue();
+  FOR EACH ROW EXECUTE FUNCTION check_capa_overdue()
+;
 
 -- mark_overdue_capas() — called by pg_cron daily to bulk-update
 CREATE OR REPLACE FUNCTION mark_overdue_capas()
@@ -332,7 +355,8 @@ BEGIN
   -- Batch notifications handled by separate Edge Function sweep
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- NOTIFY ON CAPA ASSIGNED
@@ -378,11 +402,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_capa_assigned
   AFTER INSERT OR UPDATE OF assigned_to ON incident_capa
-  FOR EACH ROW EXECUTE FUNCTION notify_capa_assigned();
+  FOR EACH ROW EXECUTE FUNCTION notify_capa_assigned()
+;
 
 -- =============================================================
 -- INVESTIGATION CREATED → NOTIFY INVESTIGATOR
@@ -425,11 +451,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_notify_investigator_assigned
   AFTER INSERT OR UPDATE OF investigator_id ON investigations
-  FOR EACH ROW EXECUTE FUNCTION notify_investigator_assigned();
+  FOR EACH ROW EXECUTE FUNCTION notify_investigator_assigned()
+;
 
 -- =============================================================
 -- SYNC INCIDENT STATUS FROM INVESTIGATION / CAPA
@@ -461,11 +489,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_sync_incident_from_investigation
   AFTER UPDATE OF status ON investigations
-  FOR EACH ROW EXECUTE FUNCTION sync_incident_status_from_investigation();
+  FOR EACH ROW EXECUTE FUNCTION sync_incident_status_from_investigation()
+;
 
 -- =============================================================
 -- ROW VERSIONING — apply to all core incident tables
@@ -474,19 +504,23 @@ CREATE TRIGGER trg_sync_incident_from_investigation
 
 CREATE TRIGGER version_incidents
   AFTER INSERT OR UPDATE OR DELETE ON incidents
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_investigations
   AFTER INSERT OR UPDATE OR DELETE ON investigations
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_incident_capa
   AFTER INSERT OR UPDATE OR DELETE ON incident_capa
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 CREATE TRIGGER version_regulatory_submissions
   AFTER INSERT OR UPDATE OR DELETE ON regulatory_submissions
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 -- =============================================================
 -- UTILITY: get_incident_summary()
@@ -522,4 +556,5 @@ RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER AS $$
   LEFT JOIN departments d ON d.id = i.department_id
   LEFT JOIN user_profiles up ON up.id = i.submitted_by
   WHERE i.id = p_incident_id;
-$$;
+$$
+;

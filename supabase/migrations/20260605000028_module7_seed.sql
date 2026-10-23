@@ -12,7 +12,8 @@ INSERT INTO risk_likelihood_levels (level_number, name, description) VALUES
   (3, 'Possible',       'Might occur at some time. Incident has occurred at this site or similar sites previously.'),
   (4, 'Likely',         'Will probably occur in most circumstances. Incident occurs several times per year across the organisation.'),
   (5, 'Almost Certain', 'Is expected to occur in most circumstances. Incident occurs regularly or is likely to occur.')
-ON CONFLICT (level_number) DO NOTHING;
+ON CONFLICT (level_number) DO NOTHING
+;
 
 -- =============================================================
 -- RISK CONSEQUENCE LEVELS (1–5)
@@ -24,7 +25,8 @@ INSERT INTO risk_consequence_levels (level_number, name, description) VALUES
   (3, 'Moderate',   'Moderate injury — lost time or restricted duties (1–7 days). Contained environmental impact. Moderate property damage $10k–$100k. Regulatory investigation.'),
   (4, 'Major',      'Serious injury — hospitalisation or lost time > 7 days, or multiple injuries. Significant environmental impact. Property damage $100k–$1M. Regulatory prosecution.'),
   (5, 'Fatal',      'Death or permanent total disability. Catastrophic environmental impact requiring significant remediation. Property damage > $1M. Criminal prosecution.')
-ON CONFLICT (level_number) DO NOTHING;
+ON CONFLICT (level_number) DO NOTHING
+;
 
 -- =============================================================
 -- RISK MATRIX THRESHOLDS (5×5 Standard Matrix)
@@ -37,7 +39,8 @@ INSERT INTO risk_matrix_thresholds (label, min_score, max_score, colour_code, de
   ('Medium',   5,  9,  '#eab308', 'Moderate risk. Implement additional controls. Review quarterly.', 2),
   ('High',    10, 16,  '#f97316', 'Significant risk. Senior management attention required. Review monthly.', 3),
   ('Critical',17, 25,  '#ef4444', 'Unacceptable risk. Immediate action required. Stop activity if necessary. CEO/Board notification.', 4)
-ON CONFLICT (label) DO NOTHING;
+ON CONFLICT (label) DO NOTHING
+;
 
 -- =============================================================
 -- RISK CATEGORIES
@@ -54,7 +57,8 @@ INSERT INTO risk_categories (code, name, description, icon, display_order) VALUE
   ('fire_explosion',  'Fire / Explosion', 'Flammable materials, ignition sources, confined spaces, hot work.', 'flame', 8),
   ('environmental',   'Environmental',    'Spills, emissions, waste disposal, ground contamination, water bodies.', 'leaf', 9),
   ('gravitational',   'Gravitational',    'Working at height, falling objects, unstable structures, excavations.', 'arrow-down', 10)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 -- =============================================================
 -- NOTIFICATION TEMPLATES
@@ -131,7 +135,8 @@ Please log in to complete the overdue risk review.',
    '{"risk_number":"Risk reference","risk_title":"Risk title","due_date":"When the review was due"}',
    true)
 
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 -- =============================================================
 -- NEW PERMISSIONS
@@ -148,7 +153,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('hazard_reports', 'read',   'View hazard reports'),
   ('hazard_reports', 'review', 'Review and action hazard reports'),
   ('hazard_reports', 'promote','Promote hazard reports to the risk register')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 -- =============================================================
 -- ROLE → PERMISSION MAPPINGS
@@ -217,4 +223,5 @@ all_mappings AS (
 )
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT role_id, perm_id FROM all_mappings
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

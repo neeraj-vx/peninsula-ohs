@@ -3,11 +3,16 @@
 -- =============================================================
 
 CREATE TRIGGER trg_rdef_updated_at
-  BEFORE UPDATE ON report_definitions    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON report_definitions    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_rsched_updated_at
-  BEFORE UPDATE ON report_schedules      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON report_schedules      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
+
 CREATE TRIGGER trg_dwc_updated_at
-  BEFORE UPDATE ON dashboard_widget_configs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON dashboard_widget_configs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- KPI COMPUTE ENGINE
@@ -232,7 +237,8 @@ BEGIN
 
   RETURN v_value;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- BATCH KPI SNAPSHOT — called by pg_cron daily
@@ -271,7 +277,8 @@ BEGIN
   END LOOP;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- NEXT SCHEDULED REPORT RUN — advances report_schedules.next_run_at
@@ -298,11 +305,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_advance_report_schedule
   AFTER INSERT ON report_execution_log
-  FOR EACH ROW EXECUTE FUNCTION advance_report_schedule_next_run();
+  FOR EACH ROW EXECUTE FUNCTION advance_report_schedule_next_run()
+;
 
 -- =============================================================
 -- CONVENIENCE VIEWS (non-materialized — read against snapshots)
@@ -342,4 +351,5 @@ LEFT JOIN kpi_targets kt
   AND kt.period_type      = ks.period_type
   AND kt.effective_from  <= ks.period_start
   AND (kt.effective_to IS NULL OR kt.effective_to >= ks.period_end)
-WHERE ks.is_current = true;
+WHERE ks.is_current = true
+;

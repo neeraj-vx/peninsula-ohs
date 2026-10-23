@@ -32,7 +32,8 @@ CREATE TYPE incident_status_enum AS ENUM (
   'pending_approval',   -- investigation complete; awaiting HSE/Admin sign-off
   'closed',
   'cancelled'
-);
+)
+;
 
 CREATE TYPE investigation_status_enum AS ENUM (
   'assigned',
@@ -41,7 +42,8 @@ CREATE TYPE investigation_status_enum AS ENUM (
   'capa_in_progress',
   'pending_review',
   'complete'
-);
+)
+;
 
 CREATE TYPE capa_status_enum AS ENUM (
   'open',
@@ -50,7 +52,8 @@ CREATE TYPE capa_status_enum AS ENUM (
   'verified',
   'closed',
   'overdue'
-);
+)
+;
 
 CREATE TYPE regulatory_status_enum AS ENUM (
   'pending',
@@ -58,7 +61,8 @@ CREATE TYPE regulatory_status_enum AS ENUM (
   'acknowledged',
   'under_review',
   'closed'
-);
+)
+;
 
 -- =============================================================
 -- REFERENCE COUNTERS
@@ -72,7 +76,8 @@ CREATE TABLE reference_counters (
   year            integer NOT NULL,
   last_number     integer NOT NULL DEFAULT 0,
   PRIMARY KEY (entity_type, organisation_id, year)
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT TYPES
@@ -88,7 +93,8 @@ CREATE TABLE incident_types (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- SEVERITY LEVELS
@@ -108,7 +114,8 @@ CREATE TABLE severity_levels (
   notify_executive                boolean     NOT NULL DEFAULT false,
   is_active                       boolean     NOT NULL DEFAULT true,
   created_at                      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INCIDENTS
@@ -165,7 +172,8 @@ CREATE TABLE incidents (
   created_at              timestamptz           NOT NULL DEFAULT now(),
   updated_at              timestamptz           NOT NULL DEFAULT now(),
   created_by              uuid                  REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT PEOPLE INVOLVED
@@ -189,7 +197,8 @@ CREATE TABLE incident_people_involved (
   injury_description text,
   created_at        timestamptz NOT NULL DEFAULT now(),
   created_by        uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT WITNESSES
@@ -208,7 +217,8 @@ CREATE TABLE incident_witnesses (
   statement_taken_by   uuid        REFERENCES auth.users(id),
   created_at           timestamptz NOT NULL DEFAULT now(),
   updated_at           timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT EVIDENCE
@@ -229,7 +239,8 @@ CREATE TABLE incident_evidence (
   captured_at     timestamptz,           -- when the photo/video was taken at scene
   captured_by     uuid        REFERENCES auth.users(id),
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT MEDICAL
@@ -255,7 +266,8 @@ CREATE TABLE incident_medical (
   workers_comp_claim_number text,
   created_at               timestamptz NOT NULL DEFAULT now(),
   updated_at               timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INCIDENT STATUS HISTORY
@@ -271,12 +283,16 @@ CREATE TABLE incident_status_history (
   changed_by      uuid                 REFERENCES auth.users(id),
   changed_at      timestamptz          NOT NULL DEFAULT now(),
   notes           text
-);
+)
+;
 
 CREATE RULE no_update_incident_status_history
-  AS ON UPDATE TO incident_status_history DO INSTEAD NOTHING;
+  AS ON UPDATE TO incident_status_history DO INSTEAD NOTHING
+;
+
 CREATE RULE no_delete_incident_status_history
-  AS ON DELETE TO incident_status_history DO INSTEAD NOTHING;
+  AS ON DELETE TO incident_status_history DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- INVESTIGATIONS
@@ -304,7 +320,8 @@ CREATE TABLE investigations (
   created_at              timestamptz NOT NULL DEFAULT now(),
   updated_at              timestamptz NOT NULL DEFAULT now(),
   created_by              uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RCA — FIVE WHYS
@@ -332,7 +349,8 @@ CREATE TABLE rca_five_whys (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   created_by            uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RCA — FISHBONE (ISHIKAWA) HEADER
@@ -351,7 +369,8 @@ CREATE TABLE rca_fishbone (
   created_at            timestamptz NOT NULL DEFAULT now(),
   updated_at            timestamptz NOT NULL DEFAULT now(),
   created_by            uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- RCA — FISHBONE CAUSES
@@ -374,7 +393,8 @@ CREATE TABLE rca_fishbone_causes (
   notes            text,
   created_at       timestamptz NOT NULL DEFAULT now(),
   created_by       uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- CORRECTIVE AND PREVENTIVE ACTIONS (CAPA)
@@ -408,7 +428,8 @@ CREATE TABLE incident_capa (
   created_at          timestamptz     NOT NULL DEFAULT now(),
   updated_at          timestamptz     NOT NULL DEFAULT now(),
   created_by          uuid            REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- REGULATORY SUBMISSIONS
@@ -433,57 +454,106 @@ CREATE TABLE regulatory_submissions (
   created_at       timestamptz            NOT NULL DEFAULT now(),
   updated_at       timestamptz            NOT NULL DEFAULT now(),
   created_by       uuid                   REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- incidents
-CREATE INDEX idx_inc_org_status     ON incidents(organisation_id, status);
-CREATE INDEX idx_inc_site_id        ON incidents(site_id);
-CREATE INDEX idx_inc_type_id        ON incidents(incident_type_id);
-CREATE INDEX idx_inc_severity       ON incidents(severity_level_id);
-CREATE INDEX idx_inc_submitted_by   ON incidents(submitted_by);
-CREATE INDEX idx_inc_assigned_to    ON incidents(assigned_to);
-CREATE INDEX idx_inc_date           ON incidents(incident_date DESC);
-CREATE INDEX idx_inc_number         ON incidents(incident_number);
-CREATE INDEX idx_inc_org_date       ON incidents(organisation_id, incident_date DESC);
+CREATE INDEX idx_inc_org_status     ON incidents(organisation_id, status)
+;
+
+CREATE INDEX idx_inc_site_id        ON incidents(site_id)
+;
+
+CREATE INDEX idx_inc_type_id        ON incidents(incident_type_id)
+;
+
+CREATE INDEX idx_inc_severity       ON incidents(severity_level_id)
+;
+
+CREATE INDEX idx_inc_submitted_by   ON incidents(submitted_by)
+;
+
+CREATE INDEX idx_inc_assigned_to    ON incidents(assigned_to)
+;
+
+CREATE INDEX idx_inc_date           ON incidents(incident_date DESC)
+;
+
+CREATE INDEX idx_inc_number         ON incidents(incident_number)
+;
+
+CREATE INDEX idx_inc_org_date       ON incidents(organisation_id, incident_date DESC)
+;
 
 -- incident_people_involved
-CREATE INDEX idx_ipi_incident_id    ON incident_people_involved(incident_id);
-CREATE INDEX idx_ipi_user_id        ON incident_people_involved(user_id);
+CREATE INDEX idx_ipi_incident_id    ON incident_people_involved(incident_id)
+;
+
+CREATE INDEX idx_ipi_user_id        ON incident_people_involved(user_id)
+;
 
 -- incident_witnesses
-CREATE INDEX idx_iw_incident_id     ON incident_witnesses(incident_id);
+CREATE INDEX idx_iw_incident_id     ON incident_witnesses(incident_id)
+;
 
 -- incident_evidence
-CREATE INDEX idx_ie_incident_id     ON incident_evidence(incident_id);
-CREATE INDEX idx_ie_type            ON incident_evidence(incident_id, evidence_type);
+CREATE INDEX idx_ie_incident_id     ON incident_evidence(incident_id)
+;
+
+CREATE INDEX idx_ie_type            ON incident_evidence(incident_id, evidence_type)
+;
 
 -- incident_medical
-CREATE INDEX idx_im_incident_id     ON incident_medical(incident_id);
+CREATE INDEX idx_im_incident_id     ON incident_medical(incident_id)
+;
 
 -- incident_status_history
-CREATE INDEX idx_ish_incident_id    ON incident_status_history(incident_id);
-CREATE INDEX idx_ish_changed_at     ON incident_status_history(incident_id, changed_at DESC);
+CREATE INDEX idx_ish_incident_id    ON incident_status_history(incident_id)
+;
+
+CREATE INDEX idx_ish_changed_at     ON incident_status_history(incident_id, changed_at DESC)
+;
 
 -- investigations
-CREATE INDEX idx_inv_incident_id    ON investigations(incident_id);
-CREATE INDEX idx_inv_investigator   ON investigations(investigator_id);
-CREATE INDEX idx_inv_status         ON investigations(status);
+CREATE INDEX idx_inv_incident_id    ON investigations(incident_id)
+;
+
+CREATE INDEX idx_inv_investigator   ON investigations(investigator_id)
+;
+
+CREATE INDEX idx_inv_status         ON investigations(status)
+;
 
 -- rca_fishbone_causes
-CREATE INDEX idx_rfc_fishbone_id    ON rca_fishbone_causes(fishbone_id);
-CREATE INDEX idx_rfc_category       ON rca_fishbone_causes(fishbone_id, category);
+CREATE INDEX idx_rfc_fishbone_id    ON rca_fishbone_causes(fishbone_id)
+;
+
+CREATE INDEX idx_rfc_category       ON rca_fishbone_causes(fishbone_id, category)
+;
 
 -- incident_capa
-CREATE INDEX idx_capa_incident_id   ON incident_capa(incident_id);
-CREATE INDEX idx_capa_assigned_to   ON incident_capa(assigned_to);
-CREATE INDEX idx_capa_status        ON incident_capa(organisation_id, status);
-CREATE INDEX idx_capa_due_date      ON incident_capa(due_date) WHERE status NOT IN ('verified','closed');
+CREATE INDEX idx_capa_incident_id   ON incident_capa(incident_id)
+;
+
+CREATE INDEX idx_capa_assigned_to   ON incident_capa(assigned_to)
+;
+
+CREATE INDEX idx_capa_status        ON incident_capa(organisation_id, status)
+;
+
+CREATE INDEX idx_capa_due_date      ON incident_capa(due_date) WHERE status NOT IN ('verified','closed')
+;
 
 -- regulatory_submissions
-CREATE INDEX idx_rs_incident_id     ON regulatory_submissions(incident_id);
-CREATE INDEX idx_rs_status          ON regulatory_submissions(organisation_id, status);
-CREATE INDEX idx_rs_due_date        ON regulatory_submissions(required_by_date) WHERE status = 'pending';
+CREATE INDEX idx_rs_incident_id     ON regulatory_submissions(incident_id)
+;
+
+CREATE INDEX idx_rs_status          ON regulatory_submissions(organisation_id, status)
+;
+
+CREATE INDEX idx_rs_due_date        ON regulatory_submissions(required_by_date) WHERE status = 'pending'
+;

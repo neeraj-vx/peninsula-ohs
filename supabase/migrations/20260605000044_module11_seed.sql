@@ -10,7 +10,8 @@ INSERT INTO permit_types (code, name, description, rescue_plan_required, isolati
   ('excavation',         'Excavation / Trenching',    'Digging, trenching, or any ground disturbance activities.',         false, false, 10, 'shovel',     5),
   ('chemical_handling',  'Chemical Handling',         'Work involving hazardous chemicals, gases, or toxic substances.',    false, false, 8,  'flask',      6),
   ('general_high_risk',  'General High-Risk Work',    'High-risk work not covered by other permit types.',                 false, false, 12, 'alert-triangle', 7)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO permit_statuses (code, name, description, is_active_work, is_terminal, colour_code, display_order) VALUES
   ('draft',           'Draft',            'Being prepared by applicant.',                      false, false, '#6b7280', 1),
@@ -25,7 +26,8 @@ INSERT INTO permit_statuses (code, name, description, is_active_work, is_termina
   ('rejected',        'Rejected',         'Permit application rejected.',                       false, true,  '#ef4444', 10),
   ('cancelled',       'Cancelled',        'Cancelled before commencement.',                     false, true,  '#6b7280', 11),
   ('expired',         'Expired',          'Time limit reached while permit was active.',        false, true,  '#ef4444', 12)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO ppe_types (code, name, description, icon, display_order) VALUES
   ('hard_hat',          'Hard Hat / Safety Helmet',      'Protects head from falling objects and impact.', 'hard-hat',    1),
@@ -42,7 +44,8 @@ INSERT INTO ppe_types (code, name, description, icon, display_order) VALUES
   ('chemical_suit',     'Chemical Protection Suit',       'Full-body barrier against chemical splash or gas.', 'shield',   12),
   ('welding_helmet',    'Welding Helmet / Shield',        'Protects face and eyes during welding and hot work.', 'zap',     13),
   ('anti_static',       'Anti-Static / ESD Protection',  'Prevents electrostatic discharge in sensitive areas.', 'zap',    14)
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO NOTHING
+;
 
 INSERT INTO notification_templates (organisation_id, trigger_event, name, subject_template, body_template, available_vars, is_active) VALUES
   (NULL, 'permits.approval_required', 'Permit Approval Required',
@@ -86,7 +89,8 @@ Title: {{permit_title}}
 
 A new permit must be obtained before work can recommence.',
    '{"permit_number":"PTW reference","permit_title":"Work description"}', true)
-ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING;
+ON CONFLICT (organisation_id, trigger_event, name) DO NOTHING
+;
 
 INSERT INTO permissions (module, action, description) VALUES
   ('permits', 'create',     'Apply for a Permit to Work'),
@@ -97,7 +101,8 @@ INSERT INTO permissions (module, action, description) VALUES
   ('permits', 'close',      'Close completed permits'),
   ('permits', 'cancel',     'Cancel active permits'),
   ('permits', 'export',     'Export permit register')
-ON CONFLICT (module, action) DO NOTHING;
+ON CONFLICT (module, action) DO NOTHING
+;
 
 WITH perm AS (SELECT id, module, action FROM permissions),
 role_ids AS (SELECT id, name FROM roles WHERE is_system_role = true),
@@ -131,4 +136,5 @@ all_m AS (
   UNION ALL SELECT * FROM hse_perms UNION ALL SELECT * FROM executive_perms UNION ALL SELECT * FROM admin_perms
 )
 INSERT INTO role_permissions (role_id, permission_id) SELECT role_id, perm_id FROM all_m
-ON CONFLICT (role_id, permission_id) DO NOTHING;
+ON CONFLICT (role_id, permission_id) DO NOTHING
+;

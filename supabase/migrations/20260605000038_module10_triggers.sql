@@ -3,7 +3,8 @@
 -- =============================================================
 
 CREATE TRIGGER trg_drwf_updated_at
-  BEFORE UPDATE ON document_review_workflows FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON document_review_workflows FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- SUBMIT DOCUMENT VERSION FOR REVIEW
@@ -67,7 +68,8 @@ BEGIN
     );
   END LOOP;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- REVIEW DECISION HANDLER
@@ -122,11 +124,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_review_decision
   BEFORE UPDATE OF decision ON document_version_reviews
-  FOR EACH ROW EXECUTE FUNCTION handle_document_review_decision();
+  FOR EACH ROW EXECUTE FUNCTION handle_document_review_decision()
+;
 
 -- =============================================================
 -- PUBLISH DOCUMENT VERSION
@@ -177,7 +181,8 @@ BEGIN
     );
   END IF;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- REVIEW CYCLE DUE DATE TRACKING
@@ -193,11 +198,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_set_document_review_due
   BEFORE UPDATE OF published_at, review_cycle_days ON documents
-  FOR EACH ROW EXECUTE FUNCTION set_document_review_due_date();
+  FOR EACH ROW EXECUTE FUNCTION set_document_review_due_date()
+;
 
 -- =============================================================
 -- DOCUMENT EXPIRY NOTIFICATIONS — daily sweep
@@ -222,4 +229,5 @@ BEGIN
   END LOOP;
   RETURN v_count;
 END;
-$$;
+$$
+;

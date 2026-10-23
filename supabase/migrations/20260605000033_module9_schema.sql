@@ -34,7 +34,8 @@ CREATE TABLE audit_types (
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- requires_action: if true, a CAPA action should be created for any
 -- finding with this outcome.
@@ -49,7 +50,8 @@ CREATE TABLE audit_finding_outcomes (
   display_order   integer     NOT NULL DEFAULT 0,
   is_active       boolean     NOT NULL DEFAULT true,
   created_at      timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- AUDIT TEMPLATES
@@ -70,7 +72,8 @@ CREATE TABLE audit_templates (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 CREATE TABLE audit_template_sections (
   id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,7 +82,8 @@ CREATE TABLE audit_template_sections (
   description  text,
   order_index  integer     NOT NULL DEFAULT 0,
   created_at   timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE TABLE audit_template_criteria (
   id                uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -92,7 +96,8 @@ CREATE TABLE audit_template_criteria (
   order_index       integer     NOT NULL DEFAULT 0,
   is_active         boolean     NOT NULL DEFAULT true,
   created_at        timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- AUDITS
@@ -148,7 +153,8 @@ CREATE TABLE audits (
   created_at          timestamptz NOT NULL DEFAULT now(),
   updated_at          timestamptz NOT NULL DEFAULT now(),
   created_by          uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- AUDIT SECTIONS
@@ -165,7 +171,8 @@ CREATE TABLE audit_sections (
   description           text,
   order_index           integer     NOT NULL DEFAULT 0,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- AUDIT CRITERIA
@@ -184,7 +191,8 @@ CREATE TABLE audit_criteria (
   evidence_required     text,
   order_index           integer     NOT NULL DEFAULT 0,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- AUDIT FINDINGS
@@ -213,7 +221,8 @@ CREATE TABLE audit_findings (
   created_at       timestamptz NOT NULL DEFAULT now(),
   updated_at       timestamptz NOT NULL DEFAULT now(),
   UNIQUE (audit_id, criterion_id)   -- one finding per criterion
-);
+)
+;
 
 -- =============================================================
 -- AUDIT EVIDENCE
@@ -240,7 +249,8 @@ CREATE TABLE audit_evidence (
   collected_at     timestamptz,
   collected_by     uuid        REFERENCES auth.users(id),
   created_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- AUDIT FINDING ACTIONS
@@ -255,29 +265,61 @@ CREATE TABLE audit_finding_actions (
   created_at      timestamptz NOT NULL DEFAULT now(),
   created_by      uuid        REFERENCES auth.users(id),
   UNIQUE (finding_id, action_id)
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_ats_template_id     ON audit_template_sections(template_id, order_index);
-CREATE INDEX idx_atc_template_id     ON audit_template_criteria(template_id, order_index);
-CREATE INDEX idx_atc_section_id      ON audit_template_criteria(section_id);
+CREATE INDEX idx_ats_template_id     ON audit_template_sections(template_id, order_index)
+;
 
-CREATE INDEX idx_audit_org_status    ON audits(organisation_id, status);
-CREATE INDEX idx_audit_type_id       ON audits(audit_type_id);
-CREATE INDEX idx_audit_auditor       ON audits(lead_auditor_id);
-CREATE INDEX idx_audit_number        ON audits(audit_number);
-CREATE INDEX idx_audit_dates         ON audits(planned_start_date, planned_end_date);
+CREATE INDEX idx_atc_template_id     ON audit_template_criteria(template_id, order_index)
+;
 
-CREATE INDEX idx_asec_audit_id       ON audit_sections(audit_id, order_index);
-CREATE INDEX idx_acri_audit_id       ON audit_criteria(audit_id, order_index);
-CREATE INDEX idx_acri_section_id     ON audit_criteria(section_id);
-CREATE INDEX idx_afnd_audit_id       ON audit_findings(audit_id);
-CREATE INDEX idx_afnd_outcome        ON audit_findings(outcome_id);
+CREATE INDEX idx_atc_section_id      ON audit_template_criteria(section_id)
+;
+
+CREATE INDEX idx_audit_org_status    ON audits(organisation_id, status)
+;
+
+CREATE INDEX idx_audit_type_id       ON audits(audit_type_id)
+;
+
+CREATE INDEX idx_audit_auditor       ON audits(lead_auditor_id)
+;
+
+CREATE INDEX idx_audit_number        ON audits(audit_number)
+;
+
+CREATE INDEX idx_audit_dates         ON audits(planned_start_date, planned_end_date)
+;
+
+CREATE INDEX idx_asec_audit_id       ON audit_sections(audit_id, order_index)
+;
+
+CREATE INDEX idx_acri_audit_id       ON audit_criteria(audit_id, order_index)
+;
+
+CREATE INDEX idx_acri_section_id     ON audit_criteria(section_id)
+;
+
+CREATE INDEX idx_afnd_audit_id       ON audit_findings(audit_id)
+;
+
+CREATE INDEX idx_afnd_outcome        ON audit_findings(outcome_id)
+;
+
 CREATE INDEX idx_afnd_nc             ON audit_findings(audit_id)
-                                     WHERE action_created = false;
-CREATE INDEX idx_aev_audit_id        ON audit_evidence(audit_id);
-CREATE INDEX idx_afa_finding_id      ON audit_finding_actions(finding_id);
-CREATE INDEX idx_afa_action_id       ON audit_finding_actions(action_id);
+                                     WHERE action_created = false
+;
+
+CREATE INDEX idx_aev_audit_id        ON audit_evidence(audit_id)
+;
+
+CREATE INDEX idx_afa_finding_id      ON audit_finding_actions(finding_id)
+;
+
+CREATE INDEX idx_afa_action_id       ON audit_finding_actions(action_id)
+;

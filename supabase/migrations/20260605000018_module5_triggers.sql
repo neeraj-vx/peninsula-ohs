@@ -8,11 +8,13 @@
 
 CREATE TRIGGER trg_actions_updated_at
   BEFORE UPDATE ON actions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 CREATE TRIGGER trg_action_extensions_updated_at
   BEFORE UPDATE ON action_extensions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+;
 
 -- =============================================================
 -- ACTION NUMBER — BEFORE INSERT
@@ -27,11 +29,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_generate_action_number
   BEFORE INSERT ON actions
-  FOR EACH ROW EXECUTE FUNCTION generate_action_number();
+  FOR EACH ROW EXECUTE FUNCTION generate_action_number()
+;
 
 -- =============================================================
 -- OVERDUE CHECK
@@ -57,11 +61,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_check_action_overdue
   BEFORE INSERT OR UPDATE ON actions
-  FOR EACH ROW EXECUTE FUNCTION check_action_overdue();
+  FOR EACH ROW EXECUTE FUNCTION check_action_overdue()
+;
 
 -- =============================================================
 -- WORKFLOW TIMESTAMPS
@@ -108,11 +114,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_stamp_action_workflow
   BEFORE UPDATE ON actions
-  FOR EACH ROW EXECUTE FUNCTION stamp_action_workflow_times();
+  FOR EACH ROW EXECUTE FUNCTION stamp_action_workflow_times()
+;
 
 -- =============================================================
 -- STATUS CHANGE AUDIT COMMENT
@@ -195,11 +203,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_track_action_status
   AFTER UPDATE OF status ON actions
-  FOR EACH ROW EXECUTE FUNCTION track_action_status_change();
+  FOR EACH ROW EXECUTE FUNCTION track_action_status_change()
+;
 
 -- =============================================================
 -- REASSIGNMENT LOG
@@ -252,11 +262,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_log_action_reassignment
   AFTER UPDATE OF assigned_to ON actions
-  FOR EACH ROW EXECUTE FUNCTION log_action_reassignment();
+  FOR EACH ROW EXECUTE FUNCTION log_action_reassignment()
+;
 
 -- =============================================================
 -- INITIAL ASSIGNMENT LOG — fire on first INSERT with assigned_to
@@ -290,11 +302,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_log_initial_action_assignment
   AFTER INSERT ON actions
-  FOR EACH ROW EXECUTE FUNCTION log_initial_action_assignment();
+  FOR EACH ROW EXECUTE FUNCTION log_initial_action_assignment()
+;
 
 -- =============================================================
 -- EXTENSION DECISION HANDLER
@@ -367,11 +381,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_handle_extension_decision
   BEFORE UPDATE OF status ON action_extensions
-  FOR EACH ROW EXECUTE FUNCTION handle_extension_decision();
+  FOR EACH ROW EXECUTE FUNCTION handle_extension_decision()
+;
 
 -- =============================================================
 -- EXTENSION REQUEST COMMENT
@@ -410,11 +426,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$$
+;
 
 CREATE TRIGGER trg_log_extension_request
   AFTER INSERT ON action_extensions
-  FOR EACH ROW EXECUTE FUNCTION log_extension_request();
+  FOR EACH ROW EXECUTE FUNCTION log_extension_request()
+;
 
 -- =============================================================
 -- ROW VERSIONING
@@ -422,7 +440,8 @@ CREATE TRIGGER trg_log_extension_request
 
 CREATE TRIGGER version_actions
   AFTER INSERT OR UPDATE OR DELETE ON actions
-  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function();
+  FOR EACH ROW EXECUTE FUNCTION row_version_trigger_function()
+;
 
 -- =============================================================
 -- BULK CLOSE FUNCTION
@@ -457,7 +476,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- BULK OVERDUE SWEEP — called by pg_cron daily
@@ -477,7 +497,8 @@ BEGIN
   GET DIAGNOSTICS v_count = ROW_COUNT;
   RETURN v_count;
 END;
-$$;
+$$
+;
 
 -- =============================================================
 -- UTILITY: get_my_actions()
@@ -521,4 +542,5 @@ RETURNS TABLE (
       WHEN 'low'      THEN 4
     END,
     COALESCE(extended_due_date, due_date) ASC NULLS LAST;
-$$;
+$$
+;

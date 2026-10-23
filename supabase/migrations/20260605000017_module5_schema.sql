@@ -30,7 +30,8 @@ CREATE TYPE action_type_enum AS ENUM (
   'preventive',  -- stop it happening again (proactive)
   'immediate',   -- stop the hazard right now
   'long_term'    -- systemic change requiring sustained effort
-);
+)
+;
 
 -- Richer status set than Module 4's capa_status_enum:
 -- adds verification_pending (explicit gate), reopened, cancelled.
@@ -44,13 +45,15 @@ CREATE TYPE action_status_enum AS ENUM (
   'overdue',             -- past due_date with no completion
   'reopened',            -- verification rejected; assignee must redo
   'cancelled'
-);
+)
+;
 
 CREATE TYPE extension_status_enum AS ENUM (
   'pending',
   'approved',
   'rejected'
-);
+)
+;
 
 -- =============================================================
 -- ACTIONS — the unified CAPA table
@@ -123,7 +126,8 @@ CREATE TABLE actions (
   created_at                timestamptz         NOT NULL DEFAULT now(),
   updated_at                timestamptz         NOT NULL DEFAULT now(),
   created_by                uuid                REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ACTION COMMENTS
@@ -150,11 +154,15 @@ CREATE TABLE action_comments (
                             )),
   body          text        NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- Comments are immutable once written
-CREATE RULE no_update_action_comments AS ON UPDATE TO action_comments DO INSTEAD NOTHING;
-CREATE RULE no_delete_action_comments AS ON DELETE TO action_comments DO INSTEAD NOTHING;
+CREATE RULE no_update_action_comments AS ON UPDATE TO action_comments DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_action_comments AS ON DELETE TO action_comments DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- ACTION EVIDENCE
@@ -175,7 +183,8 @@ CREATE TABLE action_evidence (
   description     text,
   uploaded_at     timestamptz NOT NULL DEFAULT now(),
   uploaded_by     uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ACTION EXTENSIONS
@@ -197,7 +206,8 @@ CREATE TABLE action_extensions (
   reviewed_at           timestamptz,
   review_notes          text,
   created_at            timestamptz            NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ACTION ASSIGNMENTS
@@ -215,10 +225,14 @@ CREATE TABLE action_assignments (
   assigned_by     uuid        REFERENCES auth.users(id),
   assigned_at     timestamptz NOT NULL DEFAULT now(),
   notes           text
-);
+)
+;
 
-CREATE RULE no_update_action_assignments AS ON UPDATE TO action_assignments DO INSTEAD NOTHING;
-CREATE RULE no_delete_action_assignments AS ON DELETE TO action_assignments DO INSTEAD NOTHING;
+CREATE RULE no_update_action_assignments AS ON UPDATE TO action_assignments DO INSTEAD NOTHING
+;
+
+CREATE RULE no_delete_action_assignments AS ON DELETE TO action_assignments DO INSTEAD NOTHING
+;
 
 -- =============================================================
 -- LINK Module 4's incident_capa to this unified table
@@ -228,34 +242,60 @@ CREATE RULE no_delete_action_assignments AS ON DELETE TO action_assignments DO I
 -- =============================================================
 
 ALTER TABLE incident_capa
-  ADD COLUMN action_id uuid REFERENCES actions(id) ON DELETE SET NULL;
+  ADD COLUMN action_id uuid REFERENCES actions(id) ON DELETE SET NULL
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
 -- actions
-CREATE INDEX idx_act_org_status      ON actions(organisation_id, status);
-CREATE INDEX idx_act_assigned_to     ON actions(assigned_to) WHERE status NOT IN ('verified','closed','cancelled');
-CREATE INDEX idx_act_site_id         ON actions(site_id);
-CREATE INDEX idx_act_source          ON actions(source_type, source_id);
-CREATE INDEX idx_act_due_date        ON actions(due_date) WHERE status NOT IN ('verified','closed','cancelled');
+CREATE INDEX idx_act_org_status      ON actions(organisation_id, status)
+;
+
+CREATE INDEX idx_act_assigned_to     ON actions(assigned_to) WHERE status NOT IN ('verified','closed','cancelled')
+;
+
+CREATE INDEX idx_act_site_id         ON actions(site_id)
+;
+
+CREATE INDEX idx_act_source          ON actions(source_type, source_id)
+;
+
+CREATE INDEX idx_act_due_date        ON actions(due_date) WHERE status NOT IN ('verified','closed','cancelled')
+;
+
 CREATE INDEX idx_act_overdue         ON actions(organisation_id, due_date)
-                                     WHERE status IN ('open','in_progress','overdue');
-CREATE INDEX idx_act_number          ON actions(action_number);
-CREATE INDEX idx_act_priority        ON actions(organisation_id, priority, status);
-CREATE INDEX idx_act_created_at      ON actions(organisation_id, created_at DESC);
+                                     WHERE status IN ('open','in_progress','overdue')
+;
+
+CREATE INDEX idx_act_number          ON actions(action_number)
+;
+
+CREATE INDEX idx_act_priority        ON actions(organisation_id, priority, status)
+;
+
+CREATE INDEX idx_act_created_at      ON actions(organisation_id, created_at DESC)
+;
 
 -- action_comments
-CREATE INDEX idx_ac_action_id        ON action_comments(action_id, created_at DESC);
+CREATE INDEX idx_ac_action_id        ON action_comments(action_id, created_at DESC)
+;
 
 -- action_evidence
-CREATE INDEX idx_aev_action_id       ON action_evidence(action_id);
+CREATE INDEX idx_aev_action_id       ON action_evidence(action_id)
+;
 
 -- action_extensions
-CREATE INDEX idx_aex_action_id       ON action_extensions(action_id);
-CREATE INDEX idx_aex_pending         ON action_extensions(organisation_id, status) WHERE status = 'pending';
+CREATE INDEX idx_aex_action_id       ON action_extensions(action_id)
+;
+
+CREATE INDEX idx_aex_pending         ON action_extensions(organisation_id, status) WHERE status = 'pending'
+;
 
 -- action_assignments
-CREATE INDEX idx_aas_action_id       ON action_assignments(action_id, assigned_at DESC);
-CREATE INDEX idx_aas_assigned_to     ON action_assignments(assigned_to);
+CREATE INDEX idx_aas_action_id       ON action_assignments(action_id, assigned_at DESC)
+;
+
+CREATE INDEX idx_aas_assigned_to     ON action_assignments(assigned_to)
+;

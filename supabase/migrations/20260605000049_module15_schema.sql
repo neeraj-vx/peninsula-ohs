@@ -38,7 +38,8 @@ CREATE TABLE env_parameter_types (
   display_order       integer     NOT NULL DEFAULT 0,
   is_active           boolean     NOT NULL DEFAULT true,
   created_at          timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 CREATE TABLE env_measurement_units (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -47,7 +48,8 @@ CREATE TABLE env_measurement_units (
   symbol        text        NOT NULL,
   display_order integer     NOT NULL DEFAULT 0,
   is_active     boolean     NOT NULL DEFAULT true
-);
+)
+;
 
 CREATE TABLE waste_categories (
   id                    uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -61,7 +63,8 @@ CREATE TABLE waste_categories (
   display_order         integer     NOT NULL DEFAULT 0,
   is_active             boolean     NOT NULL DEFAULT true,
   created_at            timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- MONITORING STATIONS
@@ -85,7 +88,8 @@ CREATE TABLE env_monitoring_stations (
   is_active        boolean     NOT NULL DEFAULT true,
   created_at       timestamptz NOT NULL DEFAULT now(),
   updated_at       timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ENVIRONMENTAL MONITORING RECORDS
@@ -120,7 +124,8 @@ CREATE TABLE env_monitoring_records (
   recorded_by         uuid        REFERENCES auth.users(id),
   notes               text,
   created_at          timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ENVIRONMENTAL COMPLIANCE LIMITS
@@ -145,7 +150,8 @@ CREATE TABLE env_compliance_limits (
   is_active         boolean     NOT NULL DEFAULT true,
   notes             text,
   created_at        timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- WASTE MANAGEMENT LOGS
@@ -172,7 +178,8 @@ CREATE TABLE waste_management_logs (
   notes             text,
   created_at        timestamptz NOT NULL DEFAULT now(),
   created_by        uuid        REFERENCES auth.users(id)
-);
+)
+;
 
 -- =============================================================
 -- ENVIRONMENTAL REPORTING REQUIREMENTS
@@ -198,7 +205,8 @@ CREATE TABLE env_reporting_requirements (
   notes             text,
   created_at        timestamptz NOT NULL DEFAULT now(),
   updated_at        timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- ENVIRONMENTAL REPORT SUBMISSIONS
@@ -222,19 +230,39 @@ CREATE TABLE env_report_submissions (
   notes                   text,
   created_at              timestamptz NOT NULL DEFAULT now(),
   updated_at              timestamptz NOT NULL DEFAULT now()
-);
+)
+;
 
 -- =============================================================
 -- INDEXES
 -- =============================================================
 
-CREATE INDEX idx_ems_site_id          ON env_monitoring_stations(site_id);
-CREATE INDEX idx_emr_station_id       ON env_monitoring_records(station_id, measured_at DESC);
-CREATE INDEX idx_emr_parameter        ON env_monitoring_records(parameter_type_id, measured_at DESC);
-CREATE INDEX idx_emr_site_id          ON env_monitoring_records(site_id, measured_at DESC);
-CREATE INDEX idx_emr_exceeds          ON env_monitoring_records(organisation_id) WHERE exceeds_limit = true;
-CREATE INDEX idx_ecl_site_param       ON env_compliance_limits(site_id, parameter_type_id) WHERE is_active = true;
-CREATE INDEX idx_wml_site_id          ON waste_management_logs(site_id, generated_at DESC);
-CREATE INDEX idx_wml_category         ON waste_management_logs(waste_category_id);
-CREATE INDEX idx_err_org_due          ON env_reporting_requirements(organisation_id, next_due_date) WHERE is_active = true;
-CREATE INDEX idx_ers_requirement      ON env_report_submissions(requirement_id, reporting_period_end DESC);
+CREATE INDEX idx_ems_site_id          ON env_monitoring_stations(site_id)
+;
+
+CREATE INDEX idx_emr_station_id       ON env_monitoring_records(station_id, measured_at DESC)
+;
+
+CREATE INDEX idx_emr_parameter        ON env_monitoring_records(parameter_type_id, measured_at DESC)
+;
+
+CREATE INDEX idx_emr_site_id          ON env_monitoring_records(site_id, measured_at DESC)
+;
+
+CREATE INDEX idx_emr_exceeds          ON env_monitoring_records(organisation_id) WHERE exceeds_limit = true
+;
+
+CREATE INDEX idx_ecl_site_param       ON env_compliance_limits(site_id, parameter_type_id) WHERE is_active = true
+;
+
+CREATE INDEX idx_wml_site_id          ON waste_management_logs(site_id, generated_at DESC)
+;
+
+CREATE INDEX idx_wml_category         ON waste_management_logs(waste_category_id)
+;
+
+CREATE INDEX idx_err_org_due          ON env_reporting_requirements(organisation_id, next_due_date) WHERE is_active = true
+;
+
+CREATE INDEX idx_ers_requirement      ON env_report_submissions(requirement_id, reporting_period_end DESC)
+;
