@@ -285,32 +285,28 @@ export async function runComplianceCheck(
     }
   }
 
-  // ── Check 2: Probation period ──
-  const probationRule = rules.find(r => r.rule_type === 'probation_max_days')
-  if (probationRule) {
-    if (hire.probation_period_days == null) {
+  // ── Check 2: Probation vs the no-notice period ──
+  // Employment standards don't cap probation; they set an initial period
+  // (rule_type 'probation_max_days', e.g. 3 months in ON) after which
+  // termination notice is owed even if the employee is still on probation.
+  const noticeFreeRule = rules.find(r => r.rule_type === 'probation_max_days')
+  if (noticeFreeRule && hire.probation_period_days != null) {
+    const noticeFreeDays = noticeFreeRule.rule_value_numeric ?? 90
+    if (hire.probation_period_days > noticeFreeDays) {
       results.push({
-        rule_key: 'probation_max',
-        rule_label: probationRule.rule_label,
+        rule_key: 'notice_free_period',
+        rule_label: noticeFreeRule.rule_label,
         severity: 'warning',
         passed: false,
-        message: `No probation period specified. ${provinceName} allows up to ${probationRule.rule_value} days.`,
-      })
-    } else if (hire.probation_period_days > (probationRule.rule_value_numeric ?? 90)) {
-      results.push({
-        rule_key: 'probation_max',
-        rule_label: probationRule.rule_label,
-        severity: 'error',
-        passed: false,
-        message: `Probation period of ${hire.probation_period_days} days exceeds the ${provinceName} maximum of ${probationRule.rule_value} days.`,
+        message: `Probation of ${hire.probation_period_days} days runs past the first ${noticeFreeDays} days. In ${provinceName}, termination notice (or pay instead) is owed after that point even during probation.`,
       })
     } else {
       results.push({
-        rule_key: 'probation_max',
-        rule_label: probationRule.rule_label,
+        rule_key: 'notice_free_period',
+        rule_label: noticeFreeRule.rule_label,
         severity: 'info',
         passed: true,
-        message: `Probation period of ${hire.probation_period_days} days is within the ${provinceName} maximum of ${probationRule.rule_value} days.`,
+        message: `Probation of ${hire.probation_period_days} days is within the first ${noticeFreeDays} days, when no statutory termination notice is owed in ${provinceName}.`,
       })
     }
   }
@@ -348,15 +344,16 @@ export async function runComplianceCheck(
     })
   }
 
-  // ── Check 5: Stat holiday pay for casual/part-time ──
-  const statHolidayRule = rules.find(r => r.rule_type === 'stat_holiday_pay_pct')
-  if (statHolidayRule && (hire.employment_type === 'casual' || hire.employment_type === 'part_time')) {
+  // ── Check 5: Minimum vacation pay (applies to every employee) ──
+  // rule_type 'stat_holiday_pay_pct' holds the minimum vacation pay percentage
+  const vacationRule = rules.find(r => r.rule_type === 'stat_holiday_pay_pct')
+  if (vacationRule) {
     results.push({
-      rule_key: 'stat_holiday_pay',
-      rule_label: statHolidayRule.rule_label,
+      rule_key: 'vacation_pay',
+      rule_label: vacationRule.rule_label,
       severity: 'info',
       passed: true,
-      message: `${provinceName} requires ${statHolidayRule.rule_value}% vacation/stat holiday pay on all earnings for ${hire.employment_type} workers.`,
+      message: `${provinceName} requires at least ${vacationRule.rule_value}% vacation pay on earnings${vacationRule.notes ? ` (${vacationRule.notes.replace(/ Corrected \d{4}-\d{2}-\d{2}.*$/, '')})` : ''}.`,
     })
   }
 
