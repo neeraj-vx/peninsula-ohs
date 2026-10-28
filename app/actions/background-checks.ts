@@ -340,7 +340,7 @@ export async function issueAdverseActionPreNotice(packageId: string): Promise<{ 
 
   const { data: pkg } = await supabase
     .from('bgc_packages')
-    .select('candidate_first_name, candidate_last_name, candidate_email, position_title')
+    .select('candidate_first_name, candidate_last_name, candidate_email, position_title, province')
     .eq('id', packageId)
     .single()
 
@@ -353,7 +353,16 @@ export async function issueAdverseActionPreNotice(packageId: string): Promise<{ 
     .single()
 
   const now = new Date()
-  const disputeWindowClosesAt = getDisputeWindowCloseDate(now, 5)
+  // 5 business days using the candidate's province's statutory holidays
+  // (federal calendar where the province isn't seeded yet)
+  const { data: closeDate } = await supabase.rpc('add_business_days', {
+    p_start: now.toISOString().slice(0, 10),
+    p_days: 5,
+    p_jurisdiction: pkg.province ? `CA-${pkg.province}` : 'CA',
+  })
+  const disputeWindowClosesAt = closeDate
+    ? new Date(`${closeDate}T23:59:59Z`)
+    : getDisputeWindowCloseDate(now, 5)
 
   const { error } = await supabase.from('bgc_adverse_action_notices').insert({
     organisation_id:          orgId,

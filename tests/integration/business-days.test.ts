@@ -24,6 +24,10 @@ describe('business days', () => {
     expect(await addBusinessDays('2026-11-10', 1, 'CA-ON')).toBe('2026-11-11')
   })
 
+  it('falls back to federal holidays for a province that is not seeded yet', async () => {
+    expect(await addBusinessDays('2026-06-30', 1, 'CA-MB')).toBe('2026-07-02')  // Canada Day
+  })
+
   it('reports holidays as non-business days', async () => {
     const isBusinessDay = async (d: string) =>
       must(await admin.rpc('is_business_day', { p_date: d, p_jurisdiction: 'CA' }), 'is_business_day')

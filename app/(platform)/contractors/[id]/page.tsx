@@ -62,7 +62,7 @@ export default async function ContractorDetailPage({ params }: PageProps) {
 
   const { data: contractor } = await supabase
     .from('contractor_companies')
-    .select('id, company_name, abn, primary_contact_name, primary_contact_email, primary_contact_phone, address, prequalification_status, prequalification_expiry, notes, is_active, created_at')
+    .select('id, company_name, business_number, primary_contact_name, primary_contact_email, primary_contact_phone, address, prequalification_status, prequalification_expiry, notes, is_active, created_at')
     .eq('id', id)
     .single()
 
@@ -170,7 +170,7 @@ export default async function ContractorDetailPage({ params }: PageProps) {
             <div style={{ padding: '1.5rem' }}>
               <Grid condensed>
                 <Column sm={4} md={4} lg={8}>
-                  <DetailRow label="Business Number">{contractor.abn ?? '—'}</DetailRow>
+                  <DetailRow label="Business Number">{contractor.business_number ?? '—'}</DetailRow>
                 </Column>
                 <Column sm={4} md={4} lg={8}>
                   <DetailRow label="Prequal Expiry">{formatDate(contractor.prequalification_expiry)}</DetailRow>

@@ -24,7 +24,7 @@ export async function createContractorCompany(
     .insert({
       organisation_id: orgId,
       company_name: companyName,
-      abn: (formData.get('abn') as string)?.trim() || null,
+      business_number: (formData.get('business_number') as string)?.trim() || null,
       primary_contact_name: (formData.get('primary_contact_name') as string)?.trim() || null,
       primary_contact_email: (formData.get('primary_contact_email') as string)?.trim() || null,
       primary_contact_phone: (formData.get('primary_contact_phone') as string)?.trim() || null,

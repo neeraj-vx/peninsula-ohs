@@ -51,8 +51,8 @@ export function ContractorForm() {
                   </Column>
                   <Column sm={4} md={4} lg={6} style={{ marginBottom: '1rem' }}>
                     <TextInput
-                      id="abn"
-                      name="abn"
+                      id="business_number"
+                      name="business_number"
                       labelText="Business Number (BN)"
                       helperText="CRA Business Number, e.g. 123456789 RT0001"
                     />

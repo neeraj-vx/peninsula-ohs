@@ -15,14 +15,14 @@ export default async function ContractorsPage() {
 
   const { data } = await supabase
     .from('contractor_companies')
-    .select('id, company_name, abn, primary_contact_name, prequalification_status, prequalification_expiry, is_active, created_at')
+    .select('id, company_name, business_number, primary_contact_name, prequalification_status, prequalification_expiry, is_active, created_at')
     .eq('organisation_id', orgId)
     .order('created_at', { ascending: false })
 
   const rows = (data ?? []).map((r) => ({
     id: r.id,
     company_name: r.company_name,
-    abn: r.abn ?? '—',
+    business_number: r.business_number ?? '—',
     primary_contact_name: r.primary_contact_name ?? '—',
     prequalification_status: r.prequalification_status ?? 'pending',
     prequalification_expiry: r.prequalification_expiry ?? null,
@@ -35,7 +35,7 @@ export default async function ContractorsPage() {
       header: 'Company',
       cellConfig: { as: 'text_link', prefix: '/contractors/' },
     },
-    { key: 'abn', header: 'Business Number' },
+    { key: 'business_number', header: 'Business Number' },
     { key: 'primary_contact_name', header: 'Primary Contact' },
     {
       key: 'prequalification_status',

@@ -100,7 +100,7 @@ describe('core workflows under RLS', () => {
     expect(recipients).not.toContain(b.users.admin.id)
   })
 
-  it('TRIFR, LTIFR and severity use the real incident columns (D4)', async () => {
+  it('TRIR/LTIR (200k base), TRIFR/LTIFR and severity use the real incident columns (D4, C10)', async () => {
     const start = `${year}-01-01`
     const end = `${year}-12-31`
     const incident = must(await createIncident(a, a.users.hse, { incident_date: `${year}-03-03` }), 'kpi incident')
@@ -130,6 +130,8 @@ describe('core workflows under RLS', () => {
         p_formula_key: key, p_org_id: a.id, p_site_id: null, p_period_type: 'yearly', p_period_start: start, p_period_end: end,
       }), key))
 
+    expect(await kpi('trir')).toBe(2)            // 1 × 200,000 / 100,000 (C10)
+    expect(await kpi('ltir')).toBe(2)
     expect(await kpi('trifr')).toBe(10)          // 1 × 1,000,000 / 100,000
     expect(await kpi('ltifr')).toBe(10)
     expect(await kpi('severity_rate')).toBe(30)  // 3 days × 1,000,000 / 100,000
