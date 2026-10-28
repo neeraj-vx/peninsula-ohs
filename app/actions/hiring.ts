@@ -41,16 +41,26 @@ export async function getJurisdictionRules(province: string) {
   const supabase = await createClient()
   const orgId = await getOrgId()
 
+  const today = new Date().toISOString().slice(0, 10)
   const { data } = await supabase
     .from('employment_jurisdiction_rules')
     .select('*')
     .eq('province_code', province)
     .eq('is_active', true)
-    .is('expiry_date', null)
+    .or(`expiry_date.is.null,expiry_date.gte.${today}`)
     .or(`organisation_id.is.null,organisation_id.eq.${orgId}`)
     .order('rule_type')
+    .order('effective_date', { ascending: false, nullsFirst: false })
 
-  return data ?? []
+  // Keep only the rule in force today per rule_key (organisation overrides first),
+  // so a future-dated change such as next October's minimum wage isn't applied early
+  const inForce = new Map<string, NonNullable<typeof data>[number]>()
+  for (const rule of data ?? []) {
+    if (rule.effective_date && rule.effective_date > today) continue
+    const existing = inForce.get(rule.rule_key)
+    if (!existing || (rule.organisation_id && !existing.organisation_id)) inForce.set(rule.rule_key, rule)
+  }
+  return [...inForce.values()]
 }
 
 // ─── Template helpers ──────────────────────────────────────────────────────────

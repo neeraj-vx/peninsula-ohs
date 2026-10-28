@@ -309,12 +309,28 @@ Integration status after these fixes: `security` 8/8, `rls-smoke` 5/5 roles × a
 
 Tests: **46/46 pass** (unit + integration incl. business days and audit-log visibility).
 
+### 5.5 Decisions taken and Step 3 (2026-10-28)
+
+Asked to "do what's best for the platform", the following were decided and built:
+
+| Item | Decision | Where |
+|---|---|---|
+| C10 | TRIR/LTIR on a 200,000-hour base are the primary injury rates; TRIFR/LTIFR kept inactive for history | `20261028131246` |
+| `contractors.abn` | Additive: `business_number` added and backfilled; app uses it; `abn` kept, marked deprecated | `20261028131319` |
+| `swms` | Display name "Safe Work Procedure (SWP)", code unchanged; new FLHA document type | `20261028131319` |
+| Seed data | Canadian regulators added, Australian ones deactivated; CSA/ANSI PPE standards | `20261028131319` |
+| BGC dispute window | Uses `add_business_days()` with the candidate's province; unseeded provinces fall back to federal holidays | `app/actions/background-checks.ts` |
+| Competencies (C4) | Option (a): new `competency_types` / `worker_competencies`, BGC `worker_licences` kept, unified by the `worker_competency_status` view | `20261028132142` |
+| **Step 3** | Training assignment rules, auto-generated assignments with business-day due dates, refreshers, record expiry from course validity, toolbox credit, notifications, TRAINING_COMPLIANCE KPI, sample Canadian courses (flagged), Required training page and My training views | `20261028132142`, commits `3916e2a`, `7564116` |
+| **D32** (new) | `getJurisdictionRules` ignored `effective_date`, so a future-dated rule (e.g. next minimum wage) could apply early. Fixed in code; the general fix is in the rules-engine design | `app/actions/hiring.ts` |
+| **Step 4** | Design proposal written for approval: [rules-engine-design.md](rules-engine-design.md) | — |
+
+Tests: **56/56 pass**.
+
 **Still open (each needs a decision or input from you):**
-- C10: TRIR/LTIR on a 200,000-hour base (add new KPI rows, keep TRIFR/LTIFR inactive?).
-- §6 "R" items: rename `contractors.abn` → `business_number`, document type code `swms` → `swp`. Both are data migrations.
-- §6 "S" items: Canadian regulator / course / KPI seed data replacing the AU rows (deactivate, don't delete).
-- `lib/background-checks/adverse-action.ts` still uses its own 2026 holiday list. It should call `add_business_days()` with the candidate's province, which needs the province on the BGC package.
-- Steps 3–4 (training reconciliation, rules engine) need the Dev Build Spec or the open questions in §9 answered.
+- Step 4 rules engine: the four decisions in [rules-engine-design.md §11](rules-engine-design.md) before increment R1 starts.
+- Legal review of all sample content (see `docs/compliance-guide.md`).
+- Holiday calendars for provinces other than Ontario, and for 2028 onward.
 
 **Test harness:** Vitest 3.2.4. `pnpm test` runs the unit tests. `pnpm test:integration` runs `security`, `tenant-isolation`, `workflows` (D1/D4/D7/D8/D15/D23/D27–D30), `business-days` (D11) and `rls-smoke` (every role × every table) against the live project, using throwaway `zz-test-*` organisations that are removed afterwards.
 
