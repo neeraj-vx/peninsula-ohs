@@ -33,16 +33,14 @@ const INDUSTRIES = [
 ]
 
 const TIMEZONES = [
-  { label: 'Sydney / Melbourne (AEST)', value: 'Australia/Sydney' },
-  { label: 'Brisbane (AEST, no DST)', value: 'Australia/Brisbane' },
-  { label: 'Adelaide (ACST)', value: 'Australia/Adelaide' },
-  { label: 'Perth (AWST)', value: 'Australia/Perth' },
-  { label: 'Darwin (ACST, no DST)', value: 'Australia/Darwin' },
-  { label: 'Hobart (AEST)', value: 'Australia/Hobart' },
-  { label: 'Auckland (NZST)', value: 'Pacific/Auckland' },
-  { label: 'London (GMT/BST)', value: 'Europe/London' },
-  { label: 'New York (ET)', value: 'America/New_York' },
-  { label: 'Los Angeles (PT)', value: 'America/Los_Angeles' },
+  { label: 'Newfoundland (NT)', value: 'America/St_Johns' },
+  { label: 'Atlantic — Halifax (AT)', value: 'America/Halifax' },
+  { label: 'Eastern — Toronto, Ottawa, Montréal (ET)', value: 'America/Toronto' },
+  { label: 'Central — Winnipeg (CT)', value: 'America/Winnipeg' },
+  { label: 'Saskatchewan — Regina (CST, no DST)', value: 'America/Regina' },
+  { label: 'Mountain — Edmonton, Calgary (MT)', value: 'America/Edmonton' },
+  { label: 'Pacific — Vancouver (PT)', value: 'America/Vancouver' },
+  { label: 'Yukon — Whitehorse (MST)', value: 'America/Whitehorse' },
   { label: 'UTC', value: 'UTC' },
 ]
 
@@ -140,7 +138,7 @@ export default function RegisterPage() {
   const [subdomainStatus, setSubdomainStatus] = useState<SubdomainStatus>('idle')
   const [subdomainError, setSubdomainError] = useState<string | null>(null)
   const [industry, setIndustry] = useState('')
-  const [timezone, setTimezone] = useState('Australia/Sydney')
+  const [timezone, setTimezone] = useState('America/Toronto')
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -318,7 +316,7 @@ export default function RegisterPage() {
                   id="orgName"
                   labelText="Organisation name"
                   helperText="The name of your company or business unit"
-                  placeholder="Acme Pty Ltd"
+                  placeholder="Acme Inc."
                   value={orgName}
                   onChange={e => handleOrgNameChange(e.target.value)}
                   required

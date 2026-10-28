@@ -56,7 +56,7 @@ export default async function ChemicalDetailPage({ params }: PageProps) {
 
   function fmtDate(d: string | null | undefined) {
     if (!d) return '—'
-    return new Date(d).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+    return new Date(d).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   return (
@@ -146,7 +146,7 @@ export default async function ChemicalDetailPage({ params }: PageProps) {
                 {chem.current_quantity != null && (
                   <Column sm={4} md={4} lg={8}>
                     <DetailRow label="Current Quantity">
-                      {Number(chem.current_quantity).toLocaleString('en-AU')} {chem.quantity_unit}
+                      {Number(chem.current_quantity).toLocaleString('en-CA')} {chem.quantity_unit}
                     </DetailRow>
                   </Column>
                 )}
@@ -200,14 +200,14 @@ export default async function ChemicalDetailPage({ params }: PageProps) {
                     {chem.exposure_standard_twa != null && (
                       <tr>
                         <td style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f4f4f4', color: '#161616' }}>TWA</td>
-                        <td style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f4f4f4', color: '#161616' }}>{Number(chem.exposure_standard_twa).toLocaleString('en-AU')}</td>
+                        <td style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f4f4f4', color: '#161616' }}>{Number(chem.exposure_standard_twa).toLocaleString('en-CA')}</td>
                         <td style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid #f4f4f4', color: '#525252' }}>{chem.exposure_standard_unit ?? 'ppm'}</td>
                       </tr>
                     )}
                     {chem.exposure_standard_stel != null && (
                       <tr>
                         <td style={{ padding: '0.5rem 0.75rem', color: '#161616' }}>STEL</td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: '#161616' }}>{Number(chem.exposure_standard_stel).toLocaleString('en-AU')}</td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: '#161616' }}>{Number(chem.exposure_standard_stel).toLocaleString('en-CA')}</td>
                         <td style={{ padding: '0.5rem 0.75rem', color: '#525252' }}>{chem.exposure_standard_unit ?? 'ppm'}</td>
                       </tr>
                     )}

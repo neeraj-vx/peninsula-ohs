@@ -9,7 +9,7 @@ import { AcknowledgementPanel } from '@/components/documents/AcknowledgementPane
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function formatFileSize(bytes: number | null): string {

@@ -210,12 +210,12 @@ export default function OnboardingWizard({ roles }: { roles: Role[] }) {
             </Select>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1 }}>
-                <TextInput id="siteCity" labelText="City" placeholder="Sydney"
+                <TextInput id="siteCity" labelText="City" placeholder="Toronto"
                   value={siteCity} onChange={e => setSiteCity(e.target.value)} />
               </div>
               <div style={{ flex: 1 }}>
-                <TextInput id="siteState" labelText="State / Province"
-                  placeholder="NSW" value={siteState} onChange={e => setSiteState(e.target.value)} />
+                <TextInput id="siteState" labelText="Province"
+                  placeholder="ON" value={siteState} onChange={e => setSiteState(e.target.value)} />
               </div>
             </div>
             <Button type="submit" renderIcon={ArrowRight} disabled={loading} style={{ width: '100%', maxWidth: '100%' }}>

@@ -53,8 +53,8 @@ export function ContractorForm() {
                     <TextInput
                       id="abn"
                       name="abn"
-                      labelText="ABN"
-                      helperText="Australian Business Number (11 digits)"
+                      labelText="Business Number (BN)"
+                      helperText="CRA Business Number, e.g. 123456789 RT0001"
                     />
                   </Column>
                   <Column sm={4} md={8} lg={12} style={{ marginBottom: '1rem' }}>

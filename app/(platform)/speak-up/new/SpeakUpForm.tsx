@@ -180,7 +180,7 @@ export function SpeakUpForm({ categories, sites }: Props) {
                         onChange={(dates: Date[]) => {
                           if (dates[0]) {
                             setIncidentDate(
-                              dates[0].toLocaleDateString('en-AU', {
+                              dates[0].toLocaleDateString('en-CA', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',

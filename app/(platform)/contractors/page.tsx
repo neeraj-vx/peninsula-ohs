@@ -5,7 +5,7 @@ import { NewButton } from '@/components/ui/NewButton'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default async function ContractorsPage() {
@@ -35,7 +35,7 @@ export default async function ContractorsPage() {
       header: 'Company',
       cellConfig: { as: 'text_link', prefix: '/contractors/' },
     },
-    { key: 'abn', header: 'ABN' },
+    { key: 'abn', header: 'Business Number' },
     { key: 'primary_contact_name', header: 'Primary Contact' },
     {
       key: 'prequalification_status',

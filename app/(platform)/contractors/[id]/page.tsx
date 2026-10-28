@@ -33,12 +33,12 @@ function inductionTag(status: string): TagType {
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function formatDateTime(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleString('en-CA', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -170,7 +170,7 @@ export default async function ContractorDetailPage({ params }: PageProps) {
             <div style={{ padding: '1.5rem' }}>
               <Grid condensed>
                 <Column sm={4} md={4} lg={8}>
-                  <DetailRow label="ABN">{contractor.abn ?? '—'}</DetailRow>
+                  <DetailRow label="Business Number">{contractor.abn ?? '—'}</DetailRow>
                 </Column>
                 <Column sm={4} md={4} lg={8}>
                   <DetailRow label="Prequal Expiry">{formatDate(contractor.prequalification_expiry)}</DetailRow>

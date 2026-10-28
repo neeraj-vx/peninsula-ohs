@@ -7,16 +7,15 @@ import {
 } from '@carbon/react'
 
 const TIMEZONES = [
+  'America/St_Johns',
+  'America/Halifax',
+  'America/Toronto',
+  'America/Winnipeg',
+  'America/Regina',
+  'America/Edmonton',
+  'America/Vancouver',
+  'America/Whitehorse',
   'UTC',
-  'Australia/Sydney',
-  'Australia/Melbourne',
-  'Australia/Brisbane',
-  'Australia/Perth',
-  'Australia/Adelaide',
-  'Australia/Darwin',
-  'Australia/Hobart',
-  'Pacific/Auckland',
-  'Asia/Singapore',
 ]
 
 const PROVINCES = [

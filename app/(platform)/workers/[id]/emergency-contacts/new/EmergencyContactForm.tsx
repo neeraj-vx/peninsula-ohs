@@ -82,7 +82,7 @@ export default function EmergencyContactForm({ workerId }: Props) {
                   id="phone_primary"
                   name="phone_primary"
                   labelText="Primary Phone"
-                  placeholder="+61 4xx xxx xxx"
+                  placeholder="+1 (416) 555-0100"
                   required
                   style={{ marginBottom: '1rem' }}
                 />
@@ -92,7 +92,7 @@ export default function EmergencyContactForm({ workerId }: Props) {
                   id="phone_secondary"
                   name="phone_secondary"
                   labelText="Secondary Phone (optional)"
-                  placeholder="+61 4xx xxx xxx"
+                  placeholder="+1 (416) 555-0100"
                   style={{ marginBottom: '1rem' }}
                 />
               </Column>

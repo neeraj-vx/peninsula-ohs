@@ -68,7 +68,7 @@ export function RegulatoryForm({ regulatoryBodies, action }: Props) {
                         id="standard_code"
                         name="standard_code"
                         labelText="Standard Code *"
-                        placeholder="e.g. AS/NZS 4801:2001"
+                        placeholder="e.g. CSA Z45001-19"
                         required
                       />
                     </FormGroup>
@@ -114,7 +114,7 @@ export function RegulatoryForm({ regulatoryBodies, action }: Props) {
                         id="jurisdiction"
                         name="jurisdiction"
                         labelText="Jurisdiction"
-                        placeholder="e.g. Australia, NSW, National"
+                        placeholder="e.g. Ontario, Federal"
                       />
                     </FormGroup>
                   </Column>

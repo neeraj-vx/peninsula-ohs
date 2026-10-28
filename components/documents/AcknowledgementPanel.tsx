@@ -42,7 +42,7 @@ interface AcknowledgementPanelProps {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

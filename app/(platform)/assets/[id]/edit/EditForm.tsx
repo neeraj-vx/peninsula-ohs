@@ -132,7 +132,7 @@ export function EditAssetForm({ id, initialData, assetTypes, assetStatuses }: Pr
                     <TextInput id="warranty_expiry_date" name="warranty_expiry_date" labelText="Warranty Expiry" type="date" defaultValue={initialData.warranty_expiry_date ?? ''} />
                   </Column>
                   <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
-                    <TextInput id="replacement_cost" name="replacement_cost" labelText="Replacement Cost (AUD)" type="number" step="0.01" defaultValue={initialData.replacement_cost != null ? String(initialData.replacement_cost) : ''} />
+                    <TextInput id="replacement_cost" name="replacement_cost" labelText="Replacement Cost (CAD)" type="number" step="0.01" defaultValue={initialData.replacement_cost != null ? String(initialData.replacement_cost) : ''} />
                   </Column>
                   <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
                     <FormGroup legendText="">

@@ -6,7 +6,7 @@ import { SignOutButton } from './SignOutButton'
 
 function formatDateTime(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-AU', {
+  return new Date(iso).toLocaleString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

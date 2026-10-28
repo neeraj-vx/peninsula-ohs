@@ -47,7 +47,7 @@ export function IncidentForm({ incidentTypes, severityLevels }: IncidentFormProp
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    const fmt = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const fmt = new Date().toLocaleDateString('en-CA', { day: '2-digit', month: '2-digit', year: 'numeric' })
     setIncidentDate(fmt)
     setDefaultDate(fmt)
   }, [])
@@ -197,7 +197,7 @@ export function IncidentForm({ incidentTypes, severityLevels }: IncidentFormProp
                         onChange={(dates: Date[]) => {
                           if (dates[0]) {
                             setIncidentDate(
-                              dates[0].toLocaleDateString('en-AU', {
+                              dates[0].toLocaleDateString('en-CA', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',

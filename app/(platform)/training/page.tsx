@@ -13,7 +13,7 @@ const PROVINCE_NAMES: Record<string, string> = {
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function statusColour(status: string) {

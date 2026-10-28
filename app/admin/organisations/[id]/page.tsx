@@ -103,7 +103,7 @@ export default async function AdminOrgDetailPage({
                   </span>
                 </td>
                 <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#8d8d8d' }}>
-                  {new Date(u.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {new Date(u.created_at).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </td>
               </tr>
             ))}
@@ -136,7 +136,7 @@ export default async function AdminOrgDetailPage({
                     <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#f4f4f4' }}>{entry.action}</td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#8d8d8d' }}>{entry.ip_address ?? '—'}</td>
                     <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#8d8d8d' }}>
-                      {new Date(entry.created_at).toLocaleString('en-AU')}
+                      {new Date(entry.created_at).toLocaleString('en-CA')}
                     </td>
                   </tr>
                 ))}

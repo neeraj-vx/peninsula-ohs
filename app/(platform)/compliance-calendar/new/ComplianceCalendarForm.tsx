@@ -105,7 +105,7 @@ export function ComplianceCalendarForm({ obligationTypes }: Props) {
                         id="title"
                         name="title"
                         labelText="Title *"
-                        placeholder="e.g. Annual WHS Management System Review"
+                        placeholder="e.g. Annual OHS Program Review"
                         required
                       />
                     </FormGroup>
@@ -177,7 +177,7 @@ export function ComplianceCalendarForm({ obligationTypes }: Props) {
                         id="regulatory_body"
                         name="regulatory_body"
                         labelText="Regulatory Body"
-                        placeholder="e.g. SafeWork NSW"
+                        placeholder="e.g. Ontario Ministry of Labour (MLITSD)"
                       />
                     </FormGroup>
                   </Column>
@@ -219,7 +219,7 @@ export function ComplianceCalendarForm({ obligationTypes }: Props) {
                         onChange={(dates: Date[]) => {
                           if (dates[0]) {
                             setNextDueDate(
-                              dates[0].toLocaleDateString('en-AU', {
+                              dates[0].toLocaleDateString('en-CA', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',

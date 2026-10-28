@@ -33,7 +33,7 @@ interface Props {
 function toDisplayDate(iso: string | null): string {
   if (!iso) return ''
   const d = new Date(iso + 'T00:00:00')
-  return d.toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return d.toLocaleDateString('en-CA', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export function EditIncidentForm({ id, initialData, incidentTypes, severityLevels }: Props) {
@@ -128,7 +128,7 @@ export function EditIncidentForm({ id, initialData, incidentTypes, severityLevel
                         dateFormat="d/m/Y"
                         value={incidentDate}
                         onChange={(dates: Date[]) => {
-                          if (dates[0]) setIncidentDate(dates[0].toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+                          if (dates[0]) setIncidentDate(dates[0].toLocaleDateString('en-CA', { day: '2-digit', month: '2-digit', year: 'numeric' }))
                         }}
                       >
                         <DatePickerInput id="incident_date" labelText="Incident Date *" placeholder="DD/MM/YYYY" />

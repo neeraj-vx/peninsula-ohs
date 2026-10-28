@@ -42,7 +42,7 @@ export function PpeForm({ workers, ppeItems }: PpeFormProps) {
   const [defaultIssuedDate, setDefaultIssuedDate] = useState('')
 
   useEffect(() => {
-    const fmt = new Date().toLocaleDateString('en-AU', {
+    const fmt = new Date().toLocaleDateString('en-CA', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -165,7 +165,7 @@ export function PpeForm({ workers, ppeItems }: PpeFormProps) {
                         onChange={(dates: Date[]) => {
                           if (dates[0]) {
                             setIssuedDate(
-                              dates[0].toLocaleDateString('en-AU', {
+                              dates[0].toLocaleDateString('en-CA', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',
@@ -191,7 +191,7 @@ export function PpeForm({ workers, ppeItems }: PpeFormProps) {
                         onChange={(dates: Date[]) => {
                           if (dates[0]) {
                             setExpectedReturnDate(
-                              dates[0].toLocaleDateString('en-AU', {
+                              dates[0].toLocaleDateString('en-CA', {
                                 day: '2-digit',
                                 month: '2-digit',
                                 year: 'numeric',

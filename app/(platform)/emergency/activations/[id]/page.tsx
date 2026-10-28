@@ -11,7 +11,7 @@ function statusTag(status: string): TagType {
 }
 
 function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric', month: 'short', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })

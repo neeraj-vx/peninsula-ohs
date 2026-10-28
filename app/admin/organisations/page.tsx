@@ -114,7 +114,7 @@ export default async function AdminOrganisationsPage({
                   </span>
                 </td>
                 <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: '#8d8d8d' }}>
-                  {new Date(org.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {new Date(org.created_at).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </td>
                 <td style={{ padding: '0.75rem 1rem' }}>
                   <a href={`/admin/organisations/${org.id}`} style={{ fontSize: '0.75rem', color: '#78a9ff', textDecoration: 'none' }}>

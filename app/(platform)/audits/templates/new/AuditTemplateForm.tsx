@@ -81,7 +81,7 @@ export function AuditTemplateForm({ auditTypes, action }: Props) {
                 </Column>
                 <Column sm={4} md={4} lg={8}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <TextInput id="standard_reference" name="standard_reference" labelText="Standard Reference (optional)" placeholder="e.g. ISO 45001:2018, WHS Regulation 2017" />
+                    <TextInput id="standard_reference" name="standard_reference" labelText="Standard Reference (optional)" placeholder="e.g. ISO 45001:2018, O. Reg. 851" />
                   </div>
                 </Column>
                 <Column sm={4} md={8} lg={16}>

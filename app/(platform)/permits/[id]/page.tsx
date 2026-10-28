@@ -31,7 +31,7 @@ function SectionHeader({ title, action }: { title: string; action?: React.ReactN
 
 function formatDateTime(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-AU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleString('en-CA', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 // Form action props must return void — this cast discards the { error? } return value safely
@@ -474,7 +474,7 @@ export default async function PermitDetailPage({ params }: PageProps) {
                       <p style={{ fontSize: '0.875rem', fontWeight: 500, color: '#161616' }}>{a.step_name}</p>
                       {a.decision_notes && <p style={{ fontSize: '0.8125rem', color: '#525252', marginTop: '0.25rem' }}>{a.decision_notes}</p>}
                       {a.decided_at && <p style={{ fontSize: '0.75rem', color: '#6f6f6f', marginTop: '0.125rem' }}>
-                        {a.decision === 'approved' ? 'Approved' : 'Decided'}: {new Date(a.decided_at).toLocaleDateString('en-AU')}
+                        {a.decision === 'approved' ? 'Approved' : 'Decided'}: {new Date(a.decided_at).toLocaleDateString('en-CA')}
                       </p>}
                     </div>
                     {a.decision === 'pending' && (

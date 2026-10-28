@@ -12,7 +12,7 @@ import type { TagType } from '@/components/table/DataTableClient'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -21,7 +21,7 @@ function formatDate(iso: string | null) {
 
 function formatDateTime(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-AU', {
+  return new Date(iso).toLocaleString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

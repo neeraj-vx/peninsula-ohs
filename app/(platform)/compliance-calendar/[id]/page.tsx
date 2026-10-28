@@ -40,7 +40,7 @@ function taskStatusTag(status: string): TagType {
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

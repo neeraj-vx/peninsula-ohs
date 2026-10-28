@@ -35,7 +35,7 @@ export type CellConfig =
   | { as: 'due_date' }
   // AU-formatted date (no overdue colouring)
   | { as: 'date' }
-  // AUD currency
+  // CAD currency
   | { as: 'currency' }
   // Boolean → Tag
   | { as: 'bool_tag'; trueType: TagType; trueLabel: string; falseType: TagType; falseLabel: string }
@@ -150,20 +150,20 @@ function renderCell(
         days <= 14 ? { color: '#f1620a', fontWeight: 600 } : {}
       return (
         <span style={style}>
-          {date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {date.toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })}
         </span>
       )
     }
 
     case 'date':
       if (!value) return '—'
-      return new Date(String(value)).toLocaleDateString('en-AU', {
+      return new Date(String(value)).toLocaleDateString('en-CA', {
         day: 'numeric', month: 'short', year: 'numeric',
       })
 
     case 'currency':
       if (value == null) return '—'
-      return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(Number(value))
+      return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(Number(value))
 
     case 'bool_tag': {
       const bool = Boolean(value)

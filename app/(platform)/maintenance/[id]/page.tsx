@@ -17,7 +17,7 @@ import {
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -26,7 +26,7 @@ function formatDate(iso: string | null) {
 
 function formatCurrency(val: number | null) {
   if (val == null) return '—'
-  return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(val)
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(val)
 }
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {

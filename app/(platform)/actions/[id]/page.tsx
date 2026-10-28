@@ -59,7 +59,7 @@ const priorityConfig: Record<string, { label: string; color: string }> = {
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -68,7 +68,7 @@ function formatDate(iso: string | null | undefined) {
 
 function formatDateTime(iso: string | null | undefined) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('en-AU', {
+  return new Date(iso).toLocaleString('en-CA', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

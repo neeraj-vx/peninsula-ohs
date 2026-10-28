@@ -4,7 +4,7 @@ import { Grid, Column, Tile, Tag } from '@carbon/react'
 import { NewButton } from '@/components/ui/NewButton'
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 const TYPE_COLORS: Record<string, 'blue' | 'teal' | 'purple' | 'magenta' | 'cyan' | 'green' | 'gray'> = {

@@ -15,7 +15,7 @@ function StatCard({ label, value, href, colour }: { label: string; value: number
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default async function EmergencyPage() {

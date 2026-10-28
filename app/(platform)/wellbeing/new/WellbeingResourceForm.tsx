@@ -165,7 +165,7 @@ export function WellbeingResourceForm({ sites, departments }: Props) {
                         id="contact_email"
                         name="contact_email"
                         labelText="Contact Email"
-                        placeholder="e.g. support@eap.com.au"
+                        placeholder="e.g. support@eap.ca"
                         type="email"
                       />
                     </FormGroup>

@@ -12,7 +12,7 @@ function indicatorTag(type: string): TagType {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 /** Return the last N calendar months as { label, start, end } objects */
@@ -23,7 +23,7 @@ function lastNMonths(n: number) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
     const start = new Date(d.getFullYear(), d.getMonth(), 1)
     const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999)
-    const label = start.toLocaleDateString('en-AU', { month: 'short', year: '2-digit' })
+    const label = start.toLocaleDateString('en-CA', { month: 'short', year: '2-digit' })
     months.push({ label, start, end })
   }
   return months

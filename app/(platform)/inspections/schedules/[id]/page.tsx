@@ -38,7 +38,7 @@ function recurrenceLabel(type: string): string {
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-AU', {
+  return new Date(iso).toLocaleDateString('en-CA', {
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   })
 }
@@ -275,7 +275,7 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
                           {insp.score != null ? `${Number(insp.score).toFixed(1)}%` : '—'}
                         </TableCell>
                         <TableCell style={{ fontSize: '0.8125rem' }}>
-                          {new Date(insp.created_at).toLocaleDateString('en-AU', {
+                          {new Date(insp.created_at).toLocaleDateString('en-CA', {
                             day: 'numeric', month: 'short', year: 'numeric',
                           })}
                         </TableCell>

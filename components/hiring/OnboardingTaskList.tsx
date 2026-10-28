@@ -40,7 +40,7 @@ const TYPE_COLOURS: Record<string, 'blue' | 'teal' | 'gray' | 'purple' | 'cyan'>
 
 function formatDate(iso: string | null): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export function OnboardingTaskList({ tasks, assignmentId }: Props) {
