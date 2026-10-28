@@ -295,12 +295,28 @@ Integration status after these fixes: `security` 8/8, `rls-smoke` 5/5 roles × a
 
 **Closed out (same day):** bundle 2 applied (D27, D29), recorded as `20261023163000`. `v_kpi_current` switched to `security_invoker` (advisor 0010; it leaked KPIs across tenants). **`pnpm test:all`: 41/41 pass**, and no test organisations or users are left behind. Security advisors went from 253 + 246 ERRORs to 0 ERRORs.
 
-**Remaining follow-ups (not started):**
-- **D31:** of the 99 SECURITY DEFINER functions callable by `authenticated`, most are trigger functions or RLS helpers and are harmless. A few take arbitrary ids with no org check and need review: `get_record_history` / `get_record_at_version` (read `row_versions` for any table/record, so likely a cross-tenant read), `revoke_all_user_sessions(p_target_user_id)`, `lookup_api_key`, `stamp_api_key_last_used`, `bulk_close_actions`, `promote_hazard_to_risk`, `publish_document_version`.
-- Enable leaked-password protection (Auth settings) and move `unaccent` out of `public`.
-- D11 (holiday calendar in SQL), D15 (audit triggers), C10 (TRIR/LTIR on a 200k base), Canada localisation (§6), Steps 3–4.
+### 5.4 Follow-ups completed (2026-10-28)
 
-**Test harness:** Vitest 3.2.4. `pnpm test` (unit) passes. `pnpm test:integration` has `security`, `tenant-isolation`, `workflows` (D1/D4/D7/D8/D23) and `rls-smoke` (every role × every table). It needs the bundle's `test_support_delete_org` for cleanup. Until RLS is back on, `security` and `tenant-isolation` are expected to fail.
+| Item | Result | Migration / commit |
+|---|---|---|
+| **D31** | Org and role guards added to `get_record_history`, `get_record_at_version`, `get_incident_summary`, `create_audit_finding_action`, `create_inspection_action`, `promote_hazard_to_risk`, `publish_document_version`, `submit_document_for_review`, `revoke_all_user_sessions`. `log_auth_event`, `lookup_api_key`, `stamp_api_key_last_used` and `schedule_delivery_retry` are now service-role only. Reviewed and already safe: notification ack/dismiss/read, `bulk_close_actions`, `record_user_session`, `revoke_user_session`. | `20261028122846` |
+| Advisor 0014 | `unaccent` moved to the `extensions` schema (nothing referenced it) | `20261028122846` |
+| **D11** | `statutory_holidays` (2026–27, federal `CA` + Ontario `CA-ON`, observed dates), `is_business_day()`, `add_business_days()`. Other provinces and years still to be seeded. | `20261028124238` |
+| **D15** | Audit triggers on 38 more tables. Speak-up, BGC findings and health tables are intentionally excluded (see migration header). | `20261028124526` |
+| Leaked-password protection | **Not possible on the current plan.** The dashboard rejects it ("available on Pro Plans and up"). Upgrading is a billing decision. | — |
+| UI simplification | Sidebar went from 15 sections / ~60 links to 8 role-filtered entries. Sub-pages are contextual, a `/tools` launcher holds the occasional modules, there's a "Report something" menu, and the home page has quick actions, my tasks, workplace numbers and an admin setup checklist. The notification bell and dashboard counts were broken and are fixed. | `f79c278` |
+| Canada localisation (§6, "L" items) | en-CA dates, CAD, Canadian timezones (default Toronto), BN label for contractors, Canadian placeholders. | `df97313` |
+
+Tests: **46/46 pass** (unit + integration incl. business days and audit-log visibility).
+
+**Still open (each needs a decision or input from you):**
+- C10: TRIR/LTIR on a 200,000-hour base (add new KPI rows, keep TRIFR/LTIFR inactive?).
+- §6 "R" items: rename `contractors.abn` → `business_number`, document type code `swms` → `swp`. Both are data migrations.
+- §6 "S" items: Canadian regulator / course / KPI seed data replacing the AU rows (deactivate, don't delete).
+- `lib/background-checks/adverse-action.ts` still uses its own 2026 holiday list. It should call `add_business_days()` with the candidate's province, which needs the province on the BGC package.
+- Steps 3–4 (training reconciliation, rules engine) need the Dev Build Spec or the open questions in §9 answered.
+
+**Test harness:** Vitest 3.2.4. `pnpm test` runs the unit tests. `pnpm test:integration` runs `security`, `tenant-isolation`, `workflows` (D1/D4/D7/D8/D15/D23/D27–D30), `business-days` (D11) and `rls-smoke` (every role × every table) against the live project, using throwaway `zz-test-*` organisations that are removed afterwards.
 
 ---
 
