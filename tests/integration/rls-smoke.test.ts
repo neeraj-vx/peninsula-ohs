@@ -23,8 +23,13 @@ describe('RLS smoke: every role can query every table', () => {
       const client = org.users[role].client
       for (let i = 0; i < tables.length; i += 25) {
         const batch = tables.slice(i, i + 25)
+        const query = (table: string) => client.from(table).select('*', { head: true, count: 'exact' }).limit(1)
         const results = await Promise.all(
-          batch.map(table => client.from(table).select('*', { head: true, count: 'exact' }).limit(1)),
+          batch.map(async (table) => {
+            const first = await query(table)
+            // A network blip has no Postgres error code; retry once. Policy errors always have one.
+            return first.error && !first.error.code ? query(table) : first
+          }),
         )
         results.forEach(({ error }, j) => {
           if (error) failures.push(`${batch[j]}: ${error.code} ${error.message}`)
