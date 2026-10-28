@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Grid, Column, Tile, InlineNotification } from '@carbon/react'
 import { DocumentSettingsForm } from './DocumentSettingsForm'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function DocumentSettingsPage() {
   const supabase = await createClient()
@@ -18,16 +19,19 @@ export default async function DocumentSettingsPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1
-          style={{
-            fontSize: '1.75rem',
-            fontWeight: 400,
-            color: '#161616',
-            marginBottom: '0.25rem',
-          }}
-        >
-          Document Settings
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 400,
+              color: '#161616',
+              marginBottom: '0.25rem',
+            }}
+          >
+            Document Settings
+          </h1>
+          <PageIntro screen="/settings/documents" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>
           Configure e-signature and document behaviour for your organisation
         </p>

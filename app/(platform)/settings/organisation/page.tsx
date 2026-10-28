@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Grid, Column, Tile, Button, InlineNotification } from '@carbon/react'
 import { OrgForm } from './OrgForm'
 import { updateOrganisation } from '@/app/actions/settings'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function OrganisationSettingsPage() {
   const supabase = await createClient()
@@ -27,9 +28,12 @@ export default async function OrganisationSettingsPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-          Organisation
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+            Organisation
+          </h1>
+          <PageIntro screen="/settings/organisation" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>General settings for your organisation</p>
       </div>
 

@@ -12,6 +12,7 @@ import {
   TableCell,
   TableContainer,
 } from '@carbon/react'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 type TagType = 'green' | 'gray' | 'red' | 'blue'
 
@@ -61,9 +62,12 @@ export default async function IntegrationsSettingsPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-          Integrations
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+            Integrations
+          </h1>
+          <PageIntro screen="/settings/integrations" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>
           Connected systems, webhooks and API keys
         </p>

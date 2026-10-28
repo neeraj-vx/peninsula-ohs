@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 import { Tile, Tag } from '@carbon/react'
 import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
@@ -43,7 +44,10 @@ export default async function TrainingRequirementsPage() {
       <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
         <Link href="/training" style={{ color: '#0f62fe', textDecoration: 'none' }}>Training</Link>
       </p>
-      <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Required training</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Required training</h1>
+        <PageIntro screen="/training/requirements" />
+      </div>
       <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem', marginBottom: '2rem', maxWidth: '44rem' }}>
         Decide which courses each role must complete. Everyone in that role is assigned the course straight away,
         new starters are assigned it when they join, and a refresher is assigned before a certificate expires.

@@ -3,6 +3,7 @@ import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, Tag, Grid, Column } from '@carbon/react'
 import { NewButton } from '@/components/ui/NewButton'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function ScoreBadge({ score, label }: { score: number | null; label: string }) {
   if (score == null) return <span style={{ color: '#6f6f6f' }}>—</span>
@@ -197,16 +198,19 @@ export default async function WellbeingPage() {
         }}
       >
         <div>
-          <h1
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 400,
-              color: '#161616',
-              marginBottom: '0.25rem',
-            }}
-          >
-            Mental Health &amp; Wellbeing
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 400,
+                color: '#161616',
+                marginBottom: '0.25rem',
+              }}
+            >
+              Mental Health &amp; Wellbeing
+            </h1>
+            <PageIntro screen="/wellbeing" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Resources, anonymous check-ins, and wellbeing programs
           </p>

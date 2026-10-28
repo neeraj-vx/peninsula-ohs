@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Tile, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 const columns: ColDef[] = [
   { key: 'name', header: 'Name' },
@@ -61,9 +62,12 @@ export default async function WorkersPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Worker Profiles
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Worker Profiles
+            </h1>
+            <PageIntro screen="/workers" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} worker{rows.length !== 1 ? 's' : ''}
           </p>

@@ -4,6 +4,7 @@ import { getOrgProvince } from '@/lib/supabase/get-org-province'
 import { Tile, Tag } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 const PROVINCE_NAMES: Record<string, string> = {
   ON: 'Ontario', BC: 'British Columbia', AB: 'Alberta', QC: 'Quebec',
@@ -77,7 +78,10 @@ export default async function CoursesPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Course Library</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Course Library</h1>
+            <PageIntro screen="/training/courses" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {filteredSystem.length} system course{filteredSystem.length !== 1 ? 's' : ''}
             {' · '}

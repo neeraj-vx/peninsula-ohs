@@ -14,6 +14,7 @@ import {
 } from '@carbon/react'
 import { SiteForm } from './SiteForm'
 import { createSite } from '@/app/actions/settings'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function SitesSettingsPage() {
   const supabase = await createClient()
@@ -39,9 +40,12 @@ export default async function SitesSettingsPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-          Sites &amp; Departments
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+            Sites &amp; Departments
+          </h1>
+          <PageIntro screen="/settings/sites" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>
           {(sites ?? []).length} site{(sites ?? []).length !== 1 ? 's' : ''} configured
         </p>

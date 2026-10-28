@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 import { createClient } from '@/lib/supabase/server'
 import { Grid, Column, Tile, Tag } from '@carbon/react'
 import {
@@ -183,9 +184,12 @@ export default async function DashboardPage() {
   return (
     <div style={{ padding: '2rem', maxWidth: '80rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>
-          {greeting}{profile?.first_name ? `, ${profile.first_name}` : ''}
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>
+            {greeting}{profile?.first_name ? `, ${profile.first_name}` : ''}
+          </h1>
+          <PageIntro screen="/dashboard" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem' }}>
           {tasks.length > 0
             ? `You have ${tasks.length === 5 ? '5 or more' : tasks.length} open task${tasks.length === 1 ? '' : 's'}.`

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', {
@@ -123,16 +124,19 @@ export default async function SpeakUpPage() {
         }}
       >
         <div>
-          <h1
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 400,
-              color: '#161616',
-              marginBottom: '0.25rem',
-            }}
-          >
-            Anonymous Speak-Up Reports
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 400,
+                color: '#161616',
+                marginBottom: '0.25rem',
+              }}
+            >
+              Anonymous Speak-Up Reports
+            </h1>
+            <PageIntro screen="/speak-up" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Confidential concern and misconduct reports submitted by workers
           </p>

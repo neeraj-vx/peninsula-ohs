@@ -4,6 +4,7 @@ import { Tile } from '@carbon/react'
 import Link from 'next/link'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function BackgroundChecksPage() {
   const supabase = await createClient()
@@ -66,9 +67,12 @@ export default async function BackgroundChecksPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Background Checks
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Background Checks
+            </h1>
+            <PageIntro screen="/background-checks" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Canadian pre-employment and post-employment background verification
           </p>

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Tile, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 const columns: ColDef[] = [
   { key: 'asset_number', header: 'Asset #' },
@@ -80,9 +81,12 @@ export default async function AssetsPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Asset Register
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Asset Register
+            </h1>
+            <PageIntro screen="/assets" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} asset{rows.length !== 1 ? 's' : ''} registered
           </p>

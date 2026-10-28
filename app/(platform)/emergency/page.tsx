@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, Grid, Column } from '@carbon/react'
 import Link from 'next/link'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function StatCard({ label, value, href, colour }: { label: string; value: number; href: string; colour: string }) {
   return (
@@ -47,9 +48,12 @@ export default async function EmergencyPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-          Emergency Management
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+            Emergency Management
+          </h1>
+          <PageIntro screen="/emergency" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>
           Response plans, drills, wardens and activations
         </p>

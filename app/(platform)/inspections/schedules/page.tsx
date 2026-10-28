@@ -17,6 +17,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
 } from '@carbon/react'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 type TagType = 'gray' | 'blue' | 'teal' | 'purple' | 'cyan' | 'magenta' | 'red' | 'green'
 
@@ -106,9 +107,12 @@ export default async function InspectionSchedulesPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Inspection Schedules
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Inspection Schedules
+            </h1>
+            <PageIntro screen="/inspections/schedules" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} schedule{rows.length !== 1 ? 's' : ''}
           </p>

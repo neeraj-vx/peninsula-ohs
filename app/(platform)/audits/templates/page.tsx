@@ -5,6 +5,7 @@ import {
   TableContainer, TableToolbar, TableToolbarContent, TableToolbarSearch,
   Breadcrumb, BreadcrumbItem,
 } from '@carbon/react'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -51,7 +52,10 @@ export default async function AuditTemplatesPage() {
       </Breadcrumb>
       <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Audit Templates</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Audit Templates</h1>
+            <PageIntro screen="/audits/templates" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>{rows.length} template{rows.length !== 1 ? 's' : ''}</p>
         </div>
         <Button kind="primary" href="/audits/templates/new" style={{ justifyContent: 'center' }}>New Template</Button>

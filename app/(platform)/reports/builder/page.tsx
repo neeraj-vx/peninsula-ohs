@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Grid, Column, Tile, Tag } from '@carbon/react'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -37,9 +38,12 @@ export default async function ReportBuilderPage() {
         <Column sm={4} md={8} lg={16}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-                Report Builder
-              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+                  Report Builder
+                </h1>
+                <PageIntro screen="/reports/builder" />
+              </div>
               <p style={{ fontSize: '0.875rem', color: '#525252' }}>
                 Create and manage custom report definitions
               </p>

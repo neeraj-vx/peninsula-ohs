@@ -3,6 +3,7 @@ import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, Tag, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import type { TagType } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
@@ -137,16 +138,19 @@ export default async function FatiguePage() {
         }}
       >
         <div>
-          <h1
-            style={{
-              fontSize: '1.75rem',
-              fontWeight: 400,
-              color: '#161616',
-              marginBottom: '0.25rem',
-            }}
-          >
-            Fatigue &amp; Shift Monitoring
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 400,
+                color: '#161616',
+                marginBottom: '0.25rem',
+              }}
+            >
+              Fatigue &amp; Shift Monitoring
+            </h1>
+            <PageIntro screen="/fatigue" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {shiftRows.length} shift log{shiftRows.length !== 1 ? 's' : ''} recorded
           </p>

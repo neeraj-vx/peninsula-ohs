@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 const WARDEN_LABELS: Record<string, string> = {
   chief_warden: 'Chief Warden',
@@ -50,9 +51,12 @@ export default async function WardenPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Emergency Wardens
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Emergency Wardens
+            </h1>
+            <PageIntro screen="/emergency/wardens" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} warden{rows.length !== 1 ? 's' : ''} assigned
           </p>

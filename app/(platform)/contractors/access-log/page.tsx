@@ -3,6 +3,7 @@ import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Breadcrumb, BreadcrumbItem, Tile } from '@carbon/react'
 import { NewButton } from '@/components/ui/NewButton'
 import { SignOutButton } from './SignOutButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDateTime(iso: string | null) {
   if (!iso) return '—'
@@ -61,9 +62,12 @@ export default async function AccessLogPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Site Access Log
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Site Access Log
+            </h1>
+            <PageIntro screen="/contractors/access-log" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Contractor worker sign-in and sign-out records
           </p>

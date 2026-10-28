@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -46,9 +47,12 @@ export default async function ActivationsPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Emergency Activations
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Emergency Activations
+            </h1>
+            <PageIntro screen="/emergency/activations" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} activation{rows.length !== 1 ? 's' : ''} recorded
           </p>

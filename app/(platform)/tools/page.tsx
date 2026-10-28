@@ -3,6 +3,7 @@ import { Tile } from '@carbon/react'
 import { ArrowRight } from '@carbon/icons-react'
 import { createClient } from '@/lib/supabase/server'
 import { TOOL_GROUPS, audienceFor, canSee } from '@/components/shell/nav'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function ToolsPage() {
   const supabase = await createClient()
@@ -21,7 +22,10 @@ export default async function ToolsPage() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '80rem' }}>
-      <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>More tools</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>More tools</h1>
+        <PageIntro screen="/tools" />
+      </div>
       <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem', marginBottom: '2rem' }}>
         Everything else EXXIO can do. You won&apos;t need most of these every day. Open one when it fits your work.
       </p>

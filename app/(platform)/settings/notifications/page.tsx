@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, InlineNotification } from '@carbon/react'
 import { NotificationRulesForm } from './NotificationRulesForm'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,9 +64,12 @@ export default async function NotificationRulesPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-          Notification Rules
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+            Notification Rules
+          </h1>
+          <PageIntro screen="/settings/notifications" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252' }}>
           Configure which events trigger notifications and who receives them.
         </p>

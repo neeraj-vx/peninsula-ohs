@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Breadcrumb, BreadcrumbItem, Grid, Column } from '@carbon/react'
 import Link from 'next/link'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 interface TemplateRisk {
   id: string
@@ -70,7 +71,10 @@ export default async function RiskTemplatesPage() {
       </Breadcrumb>
 
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Risk Templates</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Risk Templates</h1>
+          <PageIntro screen="/risks/templates" />
+        </div>
         <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem' }}>
           Start a new risk from a pre-built template. Templates are pre-populated with common hazards, controls, and risk ratings.
         </p>

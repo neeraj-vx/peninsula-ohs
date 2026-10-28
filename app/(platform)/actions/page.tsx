@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Tile, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 type ActionRow = {
   id: string
@@ -120,7 +121,10 @@ export default async function ActionsPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Actions</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616' }}>Actions</h1>
+            <PageIntro screen="/actions" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem' }}>
             {rows.length} {rows.length === 1 ? 'action' : 'actions'} total
           </p>

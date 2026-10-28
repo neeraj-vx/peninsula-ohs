@@ -4,6 +4,7 @@ import { Tile } from '@carbon/react'
 import Link from 'next/link'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
@@ -62,7 +63,10 @@ export default async function HiringPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Hiring Pipeline</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Hiring Pipeline</h1>
+            <PageIntro screen="/hiring" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>Province-aware hiring workflows with compliance checks and document generation</p>
         </div>
         <NewButton href="/hiring/new" label="New Hire" />

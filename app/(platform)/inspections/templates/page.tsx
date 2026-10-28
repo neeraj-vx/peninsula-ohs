@@ -17,6 +17,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
 } from '@carbon/react'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', {
@@ -84,9 +85,12 @@ export default async function InspectionTemplatesPage() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Inspection Templates
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Inspection Templates
+            </h1>
+            <PageIntro screen="/inspections/templates" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} template{rows.length !== 1 ? 's' : ''}
           </p>

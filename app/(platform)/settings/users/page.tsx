@@ -8,6 +8,7 @@ import {
 import { DataTableClient } from '@/components/table/DataTableClient'
 import CancelInvitationButton from './CancelInvitationButton'
 import InviteUserForm from './InviteUserForm'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—'
@@ -90,9 +91,12 @@ export default async function UsersSettingsPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Users &amp; Roles
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Users &amp; Roles
+            </h1>
+            <PageIntro screen="/settings/users" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Manage users and send invitations for your organisation.
           </p>

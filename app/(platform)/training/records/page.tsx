@@ -3,6 +3,7 @@ import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
@@ -64,7 +65,10 @@ export default async function TrainingRecordsPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Training Records</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>Training Records</h1>
+            <PageIntro screen="/training/records" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {rows.length} record{rows.length !== 1 ? 's' : ''}
           </p>

@@ -3,6 +3,7 @@ import { getOrgId } from '@/lib/supabase/get-org-id'
 import { Tile, Breadcrumb, BreadcrumbItem, Tag } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { NewButton } from '@/components/ui/NewButton'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 export default async function ToolboxTemplatesPage() {
   const supabase = await createClient()
@@ -68,9 +69,12 @@ export default async function ToolboxTemplatesPage() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Talk Templates
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Talk Templates
+            </h1>
+            <PageIntro screen="/toolbox/templates" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             {active} active template{active !== 1 ? 's' : ''} — {rows.length} total
           </p>

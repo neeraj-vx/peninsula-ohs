@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ExportCSVButton from './ExportCSVButton'
 import { NewButton } from '@/components/ui/NewButton'
 import TrendChart from '@/components/charts/TrendChart'
+import { PageIntro } from '@/components/page-intro/PageIntro'
 
 type TagType = 'blue' | 'teal'
 
@@ -119,9 +120,12 @@ export default async function ReportsPage() {
     <div style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
-            Reports &amp; KPIs
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 400, color: '#161616', marginBottom: '0.25rem' }}>
+              Reports &amp; KPIs
+            </h1>
+            <PageIntro screen="/reports" />
+          </div>
           <p style={{ fontSize: '0.875rem', color: '#525252' }}>
             Key performance indicators and scheduled reports
           </p>
