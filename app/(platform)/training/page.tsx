@@ -32,6 +32,31 @@ export default async function TrainingPage() {
   const supabase = await createClient()
   const orgId = await getOrgId()
   if (!orgId) return <div style={{ padding: '2rem' }}><p>No organisation found.</p></div>
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Training assigned to me, and organisation-wide assignment status (RLS
+  // limits the latter to what this user may see)
+  const [{ data: myAssignments }, { data: orgAssignments }] = await Promise.all([
+    supabase
+      .from('training_assignments')
+      .select('id, due_date, status, source, training_courses(name)')
+      .eq('worker_id', user?.id ?? '')
+      .in('status', ['assigned', 'overdue'])
+      .order('due_date', { ascending: true }),
+    supabase
+      .from('training_assignments')
+      .select('status, due_date, completed_at')
+      .eq('organisation_id', orgId)
+      .neq('status', 'waived'),
+  ])
+  const assignmentStats = {
+    open: (orgAssignments ?? []).filter((a) => a.status === 'assigned').length,
+    overdue: (orgAssignments ?? []).filter((a) => a.status === 'overdue').length,
+    completed: (orgAssignments ?? []).filter((a) => a.status === 'completed').length,
+  }
+  const dueSoFar = (orgAssignments ?? []).filter((a) => a.due_date <= new Date().toISOString().slice(0, 10))
+  const onTime = dueSoFar.filter((a) => a.status === 'completed' && a.completed_at && a.completed_at.slice(0, 10) <= a.due_date).length
+  const compliancePct = dueSoFar.length > 0 ? Math.round((onTime / dueSoFar.length) * 100) : null
 
   // Cutoff for "expiring soon" — 60 days from today
   const sixtyDaysFromNow = new Date()
@@ -138,7 +163,7 @@ export default async function TrainingPage() {
     { title: 'Course Library', desc: 'Define training courses and certification programs', href: '/training/courses', action: 'New Course', actionHref: '/training/courses/new' },
     { title: 'Training Records', desc: 'Log and track worker training completions', href: '/training/records', action: 'Log Training', actionHref: '/training/records/new' },
     { title: 'Certifications Register', desc: 'View all certification-type training records', href: '/training/records', action: 'Log Training', actionHref: '/training/records/new' },
-    { title: 'Needs Matrix', desc: 'View training requirements across roles and sites', href: '/training/records', action: 'View Records', actionHref: '/training/records' },
+    { title: 'Required Training', desc: 'Choose which courses each role must complete; people are assigned automatically', href: '/training/requirements', action: 'Add Requirement', actionHref: '/training/requirements' },
     { title: 'Inductions', desc: `${inductionCount ?? 0} induction completion${(inductionCount ?? 0) !== 1 ? 's' : ''} recorded`, href: '/training/inductions', action: 'New Program', actionHref: '/training/inductions/new' },
   ]
 
@@ -155,6 +180,48 @@ export default async function TrainingPage() {
         </div>
         <NewButton href="/training/records/new" label="Log Training" />
       </div>
+
+      {/* Training assigned to me */}
+      <Tile style={{ padding: 0, marginBottom: '2rem' }}>
+        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>My training</h2>
+          <Link href="/training/records/new" style={{ fontSize: '0.875rem', color: '#0f62fe', textDecoration: 'none' }}>Log completed training</Link>
+        </div>
+        {(myAssignments ?? []).length === 0 ? (
+          <p style={{ padding: '1.25rem 1.5rem', fontSize: '0.875rem', color: '#525252' }}>Nothing assigned to you right now.</p>
+        ) : (
+          (myAssignments ?? []).map((a, i) => {
+            const overdue = a.status === 'overdue'
+            return (
+              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.875rem 1.5rem', borderTop: i === 0 ? 'none' : '1px solid #f4f4f4' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: '#161616' }}>{(a.training_courses as unknown as { name: string } | null)?.name ?? 'Training'}</p>
+                  {a.source === 'refresher' && <p style={{ fontSize: '0.75rem', color: '#6f6f6f' }}>Refresher: your certificate is expiring</p>}
+                </div>
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, color: overdue ? '#da1e28' : '#525252' }}>
+                  {overdue ? 'Overdue · was due ' : 'Due '}{formatDate(a.due_date)}
+                </p>
+              </div>
+            )
+          })
+        )}
+      </Tile>
+
+      {(orgAssignments ?? []).length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))', gap: '1px', background: '#e0e0e0', border: '1px solid #e0e0e0', marginBottom: '2rem' }}>
+          {[
+            { label: 'On-time completion', value: compliancePct === null ? '—' : `${compliancePct}%`, colour: '#161616' },
+            { label: 'Assigned, not yet due', value: assignmentStats.open, colour: '#161616' },
+            { label: 'Overdue', value: assignmentStats.overdue, colour: assignmentStats.overdue > 0 ? '#da1e28' : '#161616' },
+            { label: 'Completed', value: assignmentStats.completed, colour: '#24a148' },
+          ].map((s) => (
+            <Link key={s.label} href="/training/requirements" style={{ background: '#fff', padding: '1rem 1.25rem', textDecoration: 'none' }}>
+              <p style={{ fontSize: '1.75rem', fontWeight: 300, color: s.colour, lineHeight: 1.1 }}>{s.value}</p>
+              <p style={{ fontSize: '0.8125rem', color: '#525252', marginTop: '0.25rem' }}>{s.label}</p>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* 4 Stat tiles */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>

@@ -29,15 +29,35 @@ async function getMyTasks(supabase: Supabase, userId: string) {
   return data ?? []
 }
 
+// Assigned courses first, then certificates that are expiring or expired
 async function getMyTraining(supabase: Supabase, userId: string) {
-  const { data } = await supabase
-    .from('training_records')
-    .select('id, expiry_date, status, training_courses(name)')
-    .eq('worker_id', userId)
-    .in('status', ['expiring_soon', 'expired'])
-    .order('expiry_date', { ascending: true })
-    .limit(5)
-  return data ?? []
+  const [{ data: assigned }, { data: expiring }] = await Promise.all([
+    supabase
+      .from('training_assignments')
+      .select('id, due_date, status, training_courses(name)')
+      .eq('worker_id', userId)
+      .in('status', ['assigned', 'overdue'])
+      .order('due_date', { ascending: true })
+      .limit(5),
+    supabase
+      .from('training_records')
+      .select('id, expiry_date, status, training_courses(name)')
+      .eq('worker_id', userId)
+      .in('status', ['expiring_soon', 'expired'])
+      .order('expiry_date', { ascending: true })
+      .limit(5),
+  ])
+  const courseName = (c: unknown) => (c as { name: string } | null)?.name ?? 'Training'
+  return [
+    ...(assigned ?? []).map((a) => ({
+      id: a.id, name: courseName(a.training_courses), href: '/training',
+      urgent: a.status === 'overdue', label: a.status === 'overdue' ? `Overdue · ${formatDate(a.due_date)}` : `Due ${formatDate(a.due_date)}`,
+    })),
+    ...(expiring ?? []).map((r) => ({
+      id: r.id, name: courseName(r.training_courses), href: '/training/records',
+      urgent: r.status === 'expired', label: r.status === 'expired' ? 'Expired' : `Expires ${formatDate(r.expiry_date)}`,
+    })),
+  ].slice(0, 5)
 }
 
 async function getTeamNumbers(supabase: Supabase) {
@@ -72,13 +92,13 @@ async function getSetupSteps(supabase: Supabase, orgId: string) {
   const [sites, users, matrix, documents] = await Promise.all([
     supabase.from('sites').select('id', { count: 'exact', head: true }).eq('organisation_id', orgId),
     supabase.from('user_profiles').select('id', { count: 'exact', head: true }).eq('organisation_id', orgId),
-    supabase.from('training_needs_matrix').select('id', { count: 'exact', head: true }).eq('organisation_id', orgId),
+    supabase.from('training_assignment_rules').select('id', { count: 'exact', head: true }).eq('organisation_id', orgId).eq('is_active', true),
     supabase.from('documents').select('id', { count: 'exact', head: true }).eq('organisation_id', orgId),
   ])
   return [
     { label: 'Add your work sites', hint: 'Where your people work, so reports can be filed against a location.', href: '/settings/sites', done: (sites.count ?? 0) > 0 },
     { label: 'Invite your team', hint: 'Give supervisors and workers their own login.', href: '/settings/users', done: (users.count ?? 0) > 1 },
-    { label: 'Choose required training', hint: 'Pick which courses each role must complete.', href: '/training', done: (matrix.count ?? 0) > 0 },
+    { label: 'Choose required training', hint: 'Pick which courses each role must complete.', href: '/training/requirements', done: (matrix.count ?? 0) > 0 },
     { label: 'Upload your safety policy', hint: 'Your OHS policy and procedures, ready for staff to acknowledge.', href: '/documents/new', done: (documents.count ?? 0) > 0 },
   ]
 }
@@ -272,17 +292,12 @@ export default async function DashboardPage() {
               )}
             </SectionCard>
           ) : (
-            <SectionCard title="My training" link={{ href: '/training/records', label: 'See all' }}>
+            <SectionCard title="My training" link={{ href: '/training', label: 'See all' }}>
               {myTraining.length === 0 ? (
-                <EmptyState text="All your training is up to date." />
+                <EmptyState text="Nothing assigned and nothing expiring. You’re up to date." />
               ) : (
-                myTraining.map((r) => (
-                  <Row
-                    key={r.id}
-                    href="/training/records"
-                    primary={(r.training_courses as unknown as { name: string } | null)?.name ?? 'Training'}
-                    right={<Tag type={r.status === 'expired' ? 'red' : 'warm-gray'} size="sm">{r.status === 'expired' ? 'Expired' : `Expires ${formatDate(r.expiry_date)}`}</Tag>}
-                  />
+                myTraining.map((t) => (
+                  <Row key={t.id} href={t.href} primary={t.name} right={<Tag type={t.urgent ? 'red' : 'warm-gray'} size="sm">{t.label}</Tag>} />
                 ))
               )}
             </SectionCard>

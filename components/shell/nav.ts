@@ -139,6 +139,7 @@ export const NAV: NavSection[] = [
     pages: [
       { label: 'Overview', href: '/training' },
       { label: 'Training records', href: '/training/records' },
+      { label: 'Required training', href: '/training/requirements', audience: 'manager' },
       { label: 'Courses', href: '/training/courses', audience: 'manager' },
       { label: 'Inductions', href: '/training/inductions', audience: 'manager' },
     ],

@@ -53,7 +53,11 @@ const ENTITY_ROUTES: Record<string, string> = {
   hire: '/hiring',
   document: '/documents',
   training_record: '/training/records',
+  training_assignment: '/training',
 }
+
+// Entities without their own detail page link to the list
+const LIST_ONLY_ENTITIES = new Set(['training_assignment'])
 
 export function AppShell({ children, userEmail, userName, roles = [], impersonating }: AppShellProps) {
   const router = useRouter()
@@ -141,7 +145,9 @@ export function AppShell({ children, userEmail, userName, roles = [], impersonat
 
   function notifLink(n: NotificationRow): string {
     const base = n.trigger_entity_type ? ENTITY_ROUTES[n.trigger_entity_type] : undefined
-    return base && n.trigger_entity_id ? `${base}/${n.trigger_entity_id}` : '#'
+    if (!base) return '#'
+    if (LIST_ONLY_ENTITIES.has(n.trigger_entity_type!)) return base
+    return n.trigger_entity_id ? `${base}/${n.trigger_entity_id}` : base
   }
 
   function formatNotifDate(iso: string) {
