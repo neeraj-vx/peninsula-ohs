@@ -24,8 +24,20 @@ describe('business days', () => {
     expect(await addBusinessDays('2026-11-10', 1, 'CA-ON')).toBe('2026-11-11')
   })
 
-  it('falls back to federal holidays for a province that is not seeded yet', async () => {
-    expect(await addBusinessDays('2026-06-30', 1, 'CA-MB')).toBe('2026-07-02')  // Canada Day
+  it('falls back to federal holidays for an unknown jurisdiction', async () => {
+    expect(await addBusinessDays('2026-06-30', 1, 'CA-XX')).toBe('2026-07-02')  // Canada Day
+  })
+
+  it('uses each province\'s own generated calendar', async () => {
+    expect(await addBusinessDays('2026-07-31', 1, 'CA-BC')).toBe('2026-08-04')   // B.C. Day
+    expect(await addBusinessDays('2026-07-31', 1, 'CA-ON')).toBe('2026-08-03')   // not an ON public holiday
+    expect(await addBusinessDays('2026-06-23', 1, 'CA-QC')).toBe('2026-06-25')   // Fête nationale
+    expect(await addBusinessDays('2026-02-13', 1, 'CA-MB')).toBe('2026-02-17')   // Louis Riel Day
+  })
+
+  it('moves weekend holidays to the next weekday (observed)', async () => {
+    // New Year's Day 2028 is a Saturday: observed Monday 3 January
+    expect(await addBusinessDays('2027-12-31', 1, 'CA')).toBe('2028-01-04')
   })
 
   it('reports holidays as non-business days', async () => {

@@ -28,7 +28,7 @@ describe('platform security', () => {
   it('tables without policies are only the service-role-only ones', async () => {
     const report = await securityReport()
     expect(report.rls_without_policies.sort()).toEqual(
-      ['bgc_consent_tokens', 'reference_counters', 'super_admin_audit_log', 'super_admin_sessions', 'super_admins'].sort(),
+      ['bgc_consent_tokens', 'marketing_leads', 'reference_counters', 'super_admin_audit_log', 'super_admin_sessions', 'super_admins'].sort(),
     )
   })
 
