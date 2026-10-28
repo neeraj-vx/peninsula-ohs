@@ -124,7 +124,16 @@ Key properties:
 
 Each increment ships with integration tests in the existing Vitest suite, against throwaway `zz-test-*` organisations.
 
-## 11. Decisions needed before R1
+## 11. Decisions (settled 2026-10-28)
+
+1. **Reviewer:** Peninsula publishes system rules; publishing requires a second person (enforced by `guard_rule_version`).
+2. **Provinces:** Ontario first; other provinces' rule content later. Holiday calendars already cover every province and territory.
+3. **Customer overrides:** customers may mark a rule "not applicable" with a reason (`rule_org_settings`); they cannot switch rules off. Stricter customer rules are deferred to R2.
+4. **French:** not needed at launch; labels and messages stay single-language.
+
+**R1 status: built** (`20261028151146_rules_engine_r1.sql`, `evaluate_hire_rules`, 9 integration tests). Next: R2 (`required_training`, `headcount_trigger`, `periodic_obligation`).
+
+### Original questions
 
 1. **Who reviews system rule content** (in-house OHS lead, external counsel, or both), and is two-person approval required?
 2. **Launch provinces for rules content:** Ontario only for R1–R3, then BC / AB / QC in R4 (recommended)?

@@ -327,8 +327,19 @@ Asked to "do what's best for the platform", the following were decided and built
 
 Tests: **56/56 pass**.
 
+### 5.6 Built 2026-10-28 (later)
+
+| Item | Result |
+|---|---|
+| Two-step sign-in | TOTP for everyone, **required for System Admins** (middleware + restrictive RLS on admin-only writes needing an `aal2` session). Security & sign-in page, `/mfa` code screen. Tested with a real RFC 6238 code. |
+| Hiring rules | BC notice fixed (1 week after 3 months); "maximum probation" corrected to the no-notice period (warning, not a block); "stat holiday pay" relabelled as vacation pay. |
+| Holiday calendars | All 13 provinces/territories + federal, 2026–2030, generated from rules (Easter, nth Monday, Victoria Day, observed shifts); yearly cron. Matches the hand-checked 2026–27 rows exactly. Provincial lists flagged `needs_review`. |
+| Rules engine R1 | See `rules-engine-design.md` §11; hiring checks now run in the database against the rules in force on the start date. |
+| Marketing | `/pricing` (prices in `components/marketing/pricing.ts`, currently "Contact us") and `/contact` (leads stored in `marketing_leads`). |
+
+Tests: **74/74 pass**.
+
 **Still open (each needs a decision or input from you):**
-- Step 4 rules engine: the four decisions in [rules-engine-design.md §11](rules-engine-design.md) before increment R1 starts.
 - Legal review of all sample content (see `docs/compliance-guide.md`).
 - Holiday calendars for provinces other than Ontario, and for 2028 onward.
 
