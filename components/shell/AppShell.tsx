@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -19,78 +19,76 @@ import {
   SkipToContent,
   Theme,
 } from '@carbon/react'
-import {
-  Dashboard,
-  Warning,
-  WarningAlt,
-  DataError,
-  TaskComplete,
-  Certificate,
-  Chemistry,
-  Document,
-  Activity,
-  Earth,
-  Analytics,
-  Settings,
-  UserMultiple,
-  Notification,
-  UserAvatar,
-  Asset,
-  Construction,
-  Education,
-  Alarm,
-  Collaborate,
-  Security,
-} from '@carbon/icons-react'
+import { Notification, UserAvatar, Add } from '@carbon/icons-react'
 import { createClient } from '@/lib/supabase/client'
+import { NAV, REPORT_OPTIONS, audienceFor, canSee, isUnder, type NavPage } from './nav'
 
-interface Notification {
+interface NotificationRow {
   id: string
-  message: string
-  notification_type: string | null
+  title: string
+  body: string
   is_read: boolean
   created_at: string
-  related_entity_type: string | null
-  related_entity_id: string | null
+  trigger_entity_type: string | null
+  trigger_entity_id: string | null
 }
 
 interface AppShellProps {
   children: React.ReactNode
   userEmail?: string
+  userName?: string
+  roles?: string[]
   impersonating?: { orgName: string } | null
 }
 
-export function AppShell({ children, userEmail, impersonating }: AppShellProps) {
+const ENTITY_ROUTES: Record<string, string> = {
+  incident: '/incidents',
+  hazard_report: '/hazards',
+  risk: '/risks',
+  action: '/actions',
+  inspection: '/inspections',
+  audit: '/audits',
+  permit: '/permits',
+  investigation: '/investigations',
+  hire: '/hiring',
+  document: '/documents',
+  training_record: '/training/records',
+}
+
+export function AppShell({ children, userEmail, userName, roles = [], impersonating }: AppShellProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const audience = audienceFor(roles)
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(true)
   const [isHeaderPanelOpen, setIsHeaderPanelOpen] = useState(false)
   const [isNotifOpen, setIsNotifOpen] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isReportOpen, setIsReportOpen] = useState(false)
+  const [notifications, setNotifications] = useState<NotificationRow[]>([])
   const [notifLoading, setNotifLoading] = useState(false)
 
   const fetchNotifications = useCallback(async () => {
     setNotifLoading(true)
-    try {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('notifications')
-        .select('id, message, notification_type, is_read, created_at, related_entity_type, related_entity_id')
-        .order('created_at', { ascending: false })
-        .limit(20)
-      setNotifications(data ?? [])
-    } catch {
-      // notifications table may not exist; silently ignore
-    } finally {
-      setNotifLoading(false)
-    }
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('notifications')
+      .select('id, title, body, is_read, created_at, trigger_entity_type, trigger_entity_id')
+      .order('created_at', { ascending: false })
+      .limit(20)
+    setNotifications(data ?? [])
+    setNotifLoading(false)
   }, [])
 
+  // Load once so the unread badge is right before the panel is opened
+  useEffect(() => { fetchNotifications() }, [fetchNotifications])
+
+  // Close the report menu whenever the page changes
+  useEffect(() => { setIsReportOpen(false) }, [pathname])
+
   async function markAllRead() {
-    const supabase = createClient()
     const unreadIds = notifications.filter((n) => !n.is_read).map((n) => n.id)
     if (unreadIds.length === 0) return
-    await supabase.from('notifications').update({ is_read: true }).in('id', unreadIds)
+    const supabase = createClient()
+    await supabase.rpc('mark_notifications_read', { p_notification_ids: unreadIds })
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
   }
 
@@ -110,45 +108,49 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
     router.refresh()
   }
 
-  function isActive(path: string) {
-    return pathname === path || pathname.startsWith(path + '/')
-  }
-
-  const unreadCount = notifications.filter((n) => !n.is_read).length
-
-  function notifLink(n: Notification): string {
-    if (!n.related_entity_type || !n.related_entity_id) return '#'
-    const typeMap: Record<string, string> = {
-      incident: '/incidents',
-      hazard_report: '/hazards',
-      risk: '/risks',
-      action: '/actions',
-      inspection: '/inspections',
-      audit: '/audits',
-      permit: '/permits',
-      investigation: '/investigations',
-      hire: '/hiring',
-    }
-    const base = typeMap[n.related_entity_type]
-    return base ? `${base}/${n.related_entity_id}` : '#'
-  }
-
-  function formatNotifDate(iso: string) {
-    const d = new Date(iso)
-    const now = new Date()
-    const diffMs = now.getTime() - d.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    const diffHrs = Math.floor(diffMins / 60)
-    if (diffHrs < 24) return `${diffHrs}h ago`
-    return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
-  }
-
   async function handleExitImpersonation() {
     await fetch('/api/admin/exit-impersonation', { method: 'POST' })
     router.push('/admin/organisations')
     router.refresh()
+  }
+
+  // Sections and pages this user's role can see
+  const sections = useMemo(
+    () =>
+      NAV.filter((s) => canSee(audience, s.audience))
+        .map((s) => ({ ...s, pages: s.pages?.filter((p) => canSee(audience, p.audience)) }))
+        .filter((s) => s.href || (s.pages && s.pages.length > 0)),
+    [audience],
+  )
+
+  // The most specific nav entry that contains the current path is the active one,
+  // so /training/records highlights "Training records", not "Overview"
+  const activeHref = useMemo(() => {
+    const hrefs = sections.flatMap((s) => [
+      ...(s.href ? [s.href] : []),
+      ...(s.pages ?? []).flatMap((p) => [p.href, ...(p.children ?? []).map((c) => c.href)]),
+    ])
+    return hrefs.filter((h) => isUnder(pathname, h)).sort((a, b) => b.length - a.length)[0]
+  }, [sections, pathname])
+
+  const pageIsOpen = (p: NavPage) =>
+    isUnder(pathname, p.href) || (p.children ?? []).some((c) => isUnder(pathname, c.href))
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length
+  const roleLabel = { admin: 'Administrator', manager: 'Health & Safety', supervisor: 'Supervisor', everyone: 'Team member' }[audience]
+
+  function notifLink(n: NotificationRow): string {
+    const base = n.trigger_entity_type ? ENTITY_ROUTES[n.trigger_entity_type] : undefined
+    return base && n.trigger_entity_id ? `${base}/${n.trigger_entity_id}` : '#'
+  }
+
+  function formatNotifDate(iso: string) {
+    const diffMins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000)
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    const diffHrs = Math.floor(diffMins / 60)
+    if (diffHrs < 24) return `${diffHrs}h ago`
+    return new Date(iso).toLocaleDateString('en-CA', { day: 'numeric', month: 'short' })
   }
 
   return (
@@ -197,20 +199,10 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
               <Notification size={20} />
               {unreadCount > 0 && (
                 <span style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
-                  background: '#da1e28',
-                  color: '#fff',
-                  borderRadius: '50%',
-                  width: '16px',
-                  height: '16px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  lineHeight: 1,
+                  position: 'absolute', top: '-6px', right: '-6px',
+                  background: '#da1e28', color: '#fff', borderRadius: '50%',
+                  width: '16px', height: '16px', fontSize: '10px', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
                 }}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
@@ -227,23 +219,12 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
           </HeaderGlobalAction>
         </HeaderGlobalBar>
 
-        {/* Notification dropdown */}
         {isNotifOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              top: '3rem',
-              right: '3rem',
-              width: '20rem',
-              maxHeight: '28rem',
-              backgroundColor: '#fff',
-              border: '1px solid #e0e0e0',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-              zIndex: 9999,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+          <div style={{
+            position: 'fixed', top: '3rem', right: '3rem', width: '22rem', maxHeight: '28rem',
+            backgroundColor: '#fff', border: '1px solid #e0e0e0', boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+            zIndex: 9999, display: 'flex', flexDirection: 'column',
+          }}>
             <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>Notifications</p>
               {unreadCount > 0 && (
@@ -257,7 +238,7 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
                 <div style={{ padding: '2rem 1rem', textAlign: 'center', fontSize: '0.875rem', color: '#6f6f6f' }}>Loading…</div>
               ) : notifications.length === 0 ? (
                 <div style={{ padding: '2rem 1rem', textAlign: 'center', fontSize: '0.875rem', color: '#6f6f6f' }}>
-                  No notifications
+                  You&apos;re all caught up
                 </div>
               ) : (
                 notifications.map((n) => (
@@ -266,14 +247,13 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
                     href={notifLink(n)}
                     onClick={() => setIsNotifOpen(false)}
                     style={{
-                      display: 'block',
-                      padding: '0.75rem 1rem',
-                      borderBottom: '1px solid #f4f4f4',
-                      textDecoration: 'none',
-                      backgroundColor: n.is_read ? '#fff' : '#edf5ff',
+                      display: 'block', padding: '0.75rem 1rem', borderBottom: '1px solid #f4f4f4',
+                      textDecoration: 'none', backgroundColor: n.is_read ? '#fff' : '#edf5ff',
                     }}
                   >
-                    <p style={{ fontSize: '0.875rem', color: '#161616', marginBottom: '0.25rem', lineHeight: 1.4 }}>{n.message}</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616', lineHeight: 1.4 }}>{n.title}</p>
+                    <p style={{ fontSize: '0.8125rem', color: '#525252', margin: '0.125rem 0 0.25rem', lineHeight: 1.4,
+                      overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{n.body}</p>
                     <p style={{ fontSize: '0.75rem', color: '#6f6f6f' }}>{formatNotifDate(n.created_at)}</p>
                   </a>
                 ))
@@ -282,25 +262,14 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
           </div>
         )}
 
-        <HeaderPanel
-          expanded={isHeaderPanelOpen}
-          aria-label="User panel"
-        >
+        <HeaderPanel expanded={isHeaderPanelOpen} aria-label="User panel">
           <div style={{ padding: '1rem' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>
-              {userEmail ?? 'User'}
-            </p>
+            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>{userName || userEmail || 'User'}</p>
+            {userName && <p style={{ fontSize: '0.75rem', color: '#6f6f6f', marginTop: '0.125rem' }}>{userEmail}</p>}
+            <p style={{ fontSize: '0.75rem', color: '#6f6f6f', marginTop: '0.25rem' }}>{roleLabel}</p>
             <button
               onClick={handleSignOut}
-              style={{
-                marginTop: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#0f62fe',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-              }}
+              style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#0f62fe', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
               Sign out
             </button>
@@ -308,313 +277,93 @@ export function AppShell({ children, userEmail, impersonating }: AppShellProps) 
         </HeaderPanel>
       </Header>
 
-      <SideNav
-        aria-label="Side navigation"
-        expanded={isSideNavExpanded}
-        isPersistent
-      >
+      <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent>
         <SideNavItems>
-          <SideNavLink
-            href="/dashboard"
-            renderIcon={Dashboard}
-            isActive={isActive('/dashboard')}
-            element={Link}
-          >
-            Dashboard
-          </SideNavLink>
+          {/* The one thing anyone may need to do in a hurry */}
+          <li style={{ padding: '1rem 1rem 0.5rem', listStyle: 'none', position: 'relative' }}>
+            <button
+              onClick={() => setIsReportOpen(!isReportOpen)}
+              aria-expanded={isReportOpen}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                padding: '0.75rem 1rem', background: '#da1e28', color: '#fff', border: 'none',
+                fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              <Add size={16} /> Report something
+            </button>
+            {isReportOpen && (
+              <div style={{ marginTop: '0.25rem', border: '1px solid #e0e0e0', background: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                {REPORT_OPTIONS.map((o) => (
+                  <Link key={o.href} href={o.href} style={{ display: 'block', padding: '0.625rem 0.875rem', textDecoration: 'none', borderBottom: '1px solid #f4f4f4' }}>
+                    <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>{o.label}</span>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#6f6f6f' }}>{o.description}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </li>
 
-          <SideNavMenu title="Safety" renderIcon={WarningAlt} defaultExpanded>
-            <SideNavMenuItem
-              href="/incidents"
-              isActive={isActive('/incidents')}
-              element={Link}
-            >
-              Incidents
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/hazards"
-              isActive={isActive('/hazards')}
-              element={Link}
-            >
-              Hazard Reports
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/risks"
-              isActive={pathname === '/risks'}
-              element={Link}
-            >
-              Risk Register
-            </SideNavMenuItem>
-            <SideNavMenuItem href="/risks/templates" isActive={isActive('/risks/templates')} element={Link}>Risk Templates</SideNavMenuItem>
-            <SideNavMenuItem
-              href="/actions"
-              isActive={isActive('/actions')}
-              element={Link}
-            >
-              Actions
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/investigations"
-              isActive={isActive('/investigations')}
-              element={Link}
-            >
-              Investigations
-            </SideNavMenuItem>
-            <SideNavMenuItem href="/jsa" isActive={isActive('/jsa')} element={Link}>JSA / JHA</SideNavMenuItem>
-            <SideNavMenuItem href="/toolbox" isActive={isActive('/toolbox')} element={Link}>Toolbox Talks</SideNavMenuItem>
-            <SideNavMenuItem href="/speak-up" isActive={isActive('/speak-up')} element={Link}>Speak-Up Reports</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu title="Compliance" renderIcon={Certificate} defaultExpanded>
-            <SideNavMenuItem
-              href="/inspections"
-              isActive={isActive('/inspections')}
-              element={Link}
-            >
-              Inspections
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/audits"
-              isActive={isActive('/audits')}
-              element={Link}
-            >
-              Audits
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/permits"
-              isActive={isActive('/permits')}
-              element={Link}
-            >
-              Permits to Work
-            </SideNavMenuItem>
-            <SideNavMenuItem href="/compliance-calendar" isActive={isActive('/compliance-calendar')} element={Link}>Compliance Calendar</SideNavMenuItem>
-            <SideNavMenuItem href="/regulatory" isActive={isActive('/regulatory')} element={Link}>Regulatory Library</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Assets"
-            renderIcon={Asset}
-            isActive={isActive('/assets') || isActive('/maintenance')}
-            defaultExpanded={isActive('/assets') || isActive('/maintenance')}
-          >
-            <SideNavMenuItem
-              href="/assets"
-              isActive={isActive('/assets')}
-              element={Link}
-            >
-              Asset Register
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/maintenance"
-              isActive={isActive('/maintenance')}
-              element={Link}
-            >
-              Maintenance
-            </SideNavMenuItem>
-            <SideNavMenuItem href="/loto" isActive={isActive('/loto')} element={Link}>LOTO Procedures</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Workforce"
-            renderIcon={Activity}
-            isActive={isActive('/health') || isActive('/workers') || isActive('/ppe') || isActive('/fatigue') || isActive('/wellbeing')}
-            defaultExpanded={isActive('/health') || isActive('/workers') || isActive('/ppe') || isActive('/fatigue') || isActive('/wellbeing')}
-          >
-            <SideNavMenuItem
-              href="/health"
-              isActive={isActive('/health')}
-              element={Link}
-            >
-              Health Surveillance
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/workers"
-              isActive={isActive('/workers')}
-              element={Link}
-            >
-              Worker Profiles
-            </SideNavMenuItem>
-            <SideNavMenuItem href="/ppe" isActive={isActive('/ppe')} element={Link}>PPE Issuance</SideNavMenuItem>
-            <SideNavMenuItem href="/fatigue" isActive={isActive('/fatigue')} element={Link}>Fatigue Monitoring</SideNavMenuItem>
-            <SideNavMenuItem href="/wellbeing" isActive={isActive('/wellbeing')} element={Link}>Wellbeing</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Hiring"
-            renderIcon={Collaborate}
-            isActive={isActive('/hiring')}
-            defaultExpanded={isActive('/hiring')}
-          >
-            <SideNavMenuItem href="/hiring" isActive={pathname === '/hiring'} element={Link}>Overview</SideNavMenuItem>
-            <SideNavMenuItem href="/hiring/new" isActive={isActive('/hiring/new')} element={Link}>New Hire</SideNavMenuItem>
-            <SideNavMenuItem href="/hiring/templates" isActive={isActive('/hiring/templates')} element={Link}>Document Templates</SideNavMenuItem>
-            <SideNavMenuItem href="/hiring/onboarding" isActive={isActive('/hiring/onboarding') && !isActive('/hiring/onboarding/templates')} element={Link}>Onboarding</SideNavMenuItem>
-            <SideNavMenuItem href="/hiring/onboarding/templates" isActive={isActive('/hiring/onboarding/templates')} element={Link}>Onboarding Templates</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Background Checks"
-            renderIcon={Security}
-            isActive={isActive('/background-checks')}
-            defaultExpanded={isActive('/background-checks')}
-          >
-            <SideNavMenuItem href="/background-checks" isActive={pathname === '/background-checks'} element={Link}>Overview</SideNavMenuItem>
-            <SideNavMenuItem href="/background-checks/packages" isActive={isActive('/background-checks/packages')} element={Link}>Packages</SideNavMenuItem>
-            <SideNavMenuItem href="/background-checks/reference-checks" isActive={isActive('/background-checks/reference-checks')} element={Link}>References</SideNavMenuItem>
-            <SideNavMenuItem href="/background-checks/licences" isActive={isActive('/background-checks/licences')} element={Link}>Licences</SideNavMenuItem>
-            <SideNavMenuItem href="/background-checks/settings" isActive={isActive('/background-checks/settings')} element={Link}>Settings</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Training"
-            renderIcon={Education}
-            isActive={isActive('/training')}
-            defaultExpanded={isActive('/training')}
-          >
-            <SideNavMenuItem href="/training" isActive={pathname === '/training'} element={Link}>Overview</SideNavMenuItem>
-            <SideNavMenuItem href="/training/courses" isActive={isActive('/training/courses')} element={Link}>Course Library</SideNavMenuItem>
-            <SideNavMenuItem href="/training/records" isActive={isActive('/training/records')} element={Link}>Training Records</SideNavMenuItem>
-            <SideNavMenuItem href="/training/inductions" isActive={isActive('/training/inductions')} element={Link}>Induction Programs</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Environment"
-            renderIcon={Earth}
-            isActive={isActive('/environment') || isActive('/env-reporting')}
-            defaultExpanded={isActive('/environment') || isActive('/env-reporting')}
-          >
-            <SideNavMenuItem
-              href="/environment"
-              isActive={isActive('/environment')}
-              element={Link}
-            >
-              Monitoring
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/env-reporting"
-              isActive={isActive('/env-reporting')}
-              element={Link}
-            >
-              Reporting
-            </SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Contractors"
-            renderIcon={Construction}
-            isActive={isActive('/contractors')}
-            defaultExpanded={isActive('/contractors')}
-          >
-            <SideNavMenuItem
-              href="/contractors"
-              isActive={pathname === '/contractors'}
-              element={Link}
-            >
-              Companies
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/contractors/workers"
-              isActive={isActive('/contractors/workers')}
-              element={Link}
-            >
-              Workers
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/contractors/access-log"
-              isActive={isActive('/contractors/access-log')}
-              element={Link}
-            >
-              Site Access Log
-            </SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavLink
-            href="/chemicals"
-            renderIcon={Chemistry}
-            isActive={isActive('/chemicals')}
-            element={Link}
-          >
-            Chemicals
-          </SideNavLink>
-
-          <SideNavMenu
-            title="Documents"
-            renderIcon={Document}
-            isActive={isActive('/documents')}
-            defaultExpanded={isActive('/documents')}
-          >
-            <SideNavMenuItem href="/documents" isActive={pathname === '/documents'} element={Link}>All Documents</SideNavMenuItem>
-            <SideNavMenuItem href="/documents/workflows" isActive={isActive('/documents/workflows')} element={Link}>Review Workflows</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Emergency"
-            renderIcon={Alarm}
-            isActive={isActive('/emergency')}
-            defaultExpanded={isActive('/emergency')}
-          >
-            <SideNavMenuItem href="/emergency" isActive={pathname === '/emergency'} element={Link}>Overview</SideNavMenuItem>
-            <SideNavMenuItem href="/emergency/plans" isActive={isActive('/emergency/plans')} element={Link}>Response Plans</SideNavMenuItem>
-            <SideNavMenuItem href="/emergency/drills" isActive={isActive('/emergency/drills')} element={Link}>Drills</SideNavMenuItem>
-            <SideNavMenuItem href="/emergency/wardens" isActive={isActive('/emergency/wardens')} element={Link}>Wardens</SideNavMenuItem>
-            <SideNavMenuItem href="/emergency/muster-points" isActive={isActive('/emergency/muster-points')} element={Link}>Muster Points</SideNavMenuItem>
-            <SideNavMenuItem href="/emergency/activations" isActive={isActive('/emergency/activations')} element={Link}>Activations</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu title="Reports & KPIs" renderIcon={Analytics} isActive={isActive('/reports')} defaultExpanded={isActive('/reports')}>
-            <SideNavMenuItem href="/reports" isActive={pathname === '/reports'} element={Link}>KPI Dashboard</SideNavMenuItem>
-            <SideNavMenuItem href="/reports/builder" isActive={isActive('/reports/builder')} element={Link}>Report Builder</SideNavMenuItem>
-          </SideNavMenu>
-
-          <SideNavMenu
-            title="Administration"
-            renderIcon={Settings}
-            isActive={isActive('/settings')}
-            defaultExpanded={isActive('/settings')}
-          >
-            <SideNavMenuItem
-              href="/settings/organisation"
-              isActive={isActive('/settings/organisation')}
-              element={Link}
-            >
-              Organisation
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/settings/sites"
-              isActive={isActive('/settings/sites')}
-              element={Link}
-            >
-              Sites &amp; Departments
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/settings/users"
-              isActive={isActive('/settings/users')}
-              element={Link}
-            >
-              Users &amp; Roles
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/settings/integrations"
-              isActive={isActive('/settings/integrations')}
-              element={Link}
-            >
-              Integrations
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/settings/documents"
-              isActive={isActive('/settings/documents')}
-              element={Link}
-            >
-              Document Settings
-            </SideNavMenuItem>
-            <SideNavMenuItem
-              href="/settings/notifications"
-              isActive={isActive('/settings/notifications')}
-              element={Link}
-            >
-              Notifications
-            </SideNavMenuItem>
-          </SideNavMenu>
+          {sections.map((section) => {
+            const openTool = section.launcher ? section.pages?.find(pageIsOpen) : undefined
+            if (section.launcher && openTool) {
+              return (
+                <SideNavMenu key={section.label} title={section.label} renderIcon={section.icon} isActive defaultExpanded>
+                  <SideNavMenuItem href={section.href} isActive={activeHref === section.href} element={Link}>
+                    All tools
+                  </SideNavMenuItem>
+                  <SideNavMenuItem href={openTool.href} isActive={activeHref === openTool.href} element={Link}>
+                    {openTool.label}
+                  </SideNavMenuItem>
+                  {(openTool.children ?? []).map((child) => (
+                    <SideNavMenuItem
+                      key={child.href}
+                      href={child.href}
+                      isActive={activeHref === child.href}
+                      element={Link}
+                    >
+                      <span style={{ paddingLeft: '1rem', fontSize: '0.8125rem' }}>{child.label}</span>
+                    </SideNavMenuItem>
+                  ))}
+                </SideNavMenu>
+              )
+            }
+            return !section.pages || section.launcher ? (
+              <SideNavLink
+                key={section.label}
+                href={section.href!}
+                renderIcon={section.icon}
+                isActive={activeHref === section.href}
+                element={Link}
+              >
+                {section.label}
+              </SideNavLink>
+            ) : (
+              <SideNavMenu
+                key={section.label}
+                title={section.label}
+                renderIcon={section.icon}
+                isActive={section.pages.some(pageIsOpen)}
+                defaultExpanded={!section.collapsed || section.pages.some(pageIsOpen)}
+              >
+                {section.pages.flatMap((page) => [
+                  <SideNavMenuItem key={page.href} href={page.href} isActive={activeHref === page.href} element={Link}>
+                    {page.label}
+                  </SideNavMenuItem>,
+                  ...(pageIsOpen(page) ? page.children ?? [] : []).map((child) => (
+                    <SideNavMenuItem
+                      key={child.href}
+                      href={child.href}
+                      isActive={activeHref === child.href}
+                      element={Link}
+                    >
+                      <span style={{ paddingLeft: '1rem', fontSize: '0.8125rem' }}>{child.label}</span>
+                    </SideNavMenuItem>
+                  )),
+                ])}
+              </SideNavMenu>
+            )
+          })}
         </SideNavItems>
       </SideNav>
 

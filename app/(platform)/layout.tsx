@@ -25,6 +25,16 @@ export default async function PlatformLayout({ children }: { children: React.Rea
 
   if (!org?.onboarding_completed_at) redirect('/onboarding')
 
+  // Navigation adapts to the user's roles
+  const { data: roleRows } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', user.id)
+    .eq('is_active', true)
+  const roles = (roleRows ?? [])
+    .map((r) => (r.roles as unknown as { name: string } | null)?.name)
+    .filter((name): name is string => !!name)
+
   // Detect active impersonation session (set by super admin panel)
   const cookieStore = await cookies()
   const impersonatingCookie = cookieStore.get('exxio_impersonating')?.value
@@ -40,6 +50,8 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   return (
     <AppShell
       userEmail={profile.email ?? user.email ?? ''}
+      userName={[profile.first_name, profile.last_name].filter(Boolean).join(' ')}
+      roles={roles}
       impersonating={impersonating}
     >
       {children}
