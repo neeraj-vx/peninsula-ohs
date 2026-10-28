@@ -173,6 +173,9 @@ export default function MarketingHomePage() {
             <Link href="/how-it-works" style={{ color: '#fff', alignSelf: 'center', fontWeight: 600, textDecoration: 'underline' }}>
               How it works
             </Link>
+            <Link href="/contact" style={{ color: '#fff', alignSelf: 'center', fontWeight: 600, textDecoration: 'underline' }}>
+              Talk to us
+            </Link>
           </div>
         </div>
       </section>

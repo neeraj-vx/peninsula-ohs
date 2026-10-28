@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
   if (isTokenRoute) return supabaseResponse
 
   // Public marketing pages; signed-in users opening / go to their dashboard
-  const isMarketingRoute = pathname === '/' || pathname === '/how-it-works'
+  const isMarketingRoute = pathname === '/' || pathname === '/how-it-works' || pathname === '/pricing' || pathname === '/contact'
   if (isMarketingRoute) {
     return user && pathname === '/'
       ? NextResponse.redirect(new URL('/dashboard', request.url))

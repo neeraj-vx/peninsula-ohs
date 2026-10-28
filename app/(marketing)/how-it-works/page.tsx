@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { ArrowRight, CheckmarkFilled } from '@carbon/icons-react'
 import { BLUE, RED, INK, MUTED, CtaLink, Section } from '@/components/marketing/parts'
 
@@ -181,7 +182,12 @@ export default function HowItWorksPage() {
           <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 300, color: '#fff', lineHeight: 1.2, maxWidth: '36rem' }}>
             Ready to set up your workplace?
           </h2>
-          <CtaLink href="/register" variant="inverse">Get started</CtaLink>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <CtaLink href="/register" variant="inverse">Get started</CtaLink>
+            <Link href="/contact" style={{ color: '#fff', alignSelf: 'center', fontWeight: 600, textDecoration: 'underline' }}>
+              Talk to us
+            </Link>
+          </div>
         </div>
       </section>
     </>

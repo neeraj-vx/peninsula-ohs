@@ -50,6 +50,7 @@ const NAV_LINKS = [
   { href: '/how-it-works', label: 'How it works' },
   { href: '/#features', label: 'Features' },
   { href: '/#canada', label: 'Built for Canada' },
+  { href: '/pricing', label: 'Pricing' },
 ]
 
 export function MarketingHeader() {
@@ -94,7 +95,7 @@ export function MarketingFooter() {
         </div>
         <div>
           <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.75rem' }}>Product</p>
-          {[['/how-it-works', 'How it works'], ['/#features', 'Features'], ['/#canada', 'Built for Canada'], ['/#security', 'Security']].map(([href, label]) => (
+          {[['/how-it-works', 'How it works'], ['/#features', 'Features'], ['/#canada', 'Built for Canada'], ['/#security', 'Security'], ['/pricing', 'Pricing'], ['/contact', 'Contact']].map(([href, label]) => (
             <Link key={href} href={href} style={{ display: 'block', color: '#c6c6c6', textDecoration: 'none', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{label}</Link>
           ))}
         </div>
