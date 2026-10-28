@@ -10,7 +10,9 @@ describe('RLS smoke: every role can query every table', () => {
 
   beforeAll(async () => {
     org = await createTestOrg('smoke')
-    tables = (await securityReport()).tables
+    // Service-role-only tables have no grant for signed-in users by design
+    const privateTables = new Set(['marketing_leads'])
+    tables = (await securityReport()).tables.filter((t) => !privateTables.has(t))
   })
 
   afterAll(async () => {

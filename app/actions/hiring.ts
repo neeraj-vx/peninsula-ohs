@@ -35,34 +35,6 @@ export interface PreStartTask {
   display_order: number
 }
 
-// ─── Jurisdiction helpers ──────────────────────────────────────────────────────
-
-export async function getJurisdictionRules(province: string) {
-  const supabase = await createClient()
-  const orgId = await getOrgId()
-
-  const today = new Date().toISOString().slice(0, 10)
-  const { data } = await supabase
-    .from('employment_jurisdiction_rules')
-    .select('*')
-    .eq('province_code', province)
-    .eq('is_active', true)
-    .or(`expiry_date.is.null,expiry_date.gte.${today}`)
-    .or(`organisation_id.is.null,organisation_id.eq.${orgId}`)
-    .order('rule_type')
-    .order('effective_date', { ascending: false, nullsFirst: false })
-
-  // Keep only the rule in force today per rule_key (organisation overrides first),
-  // so a future-dated change such as next October's minimum wage isn't applied early
-  const inForce = new Map<string, NonNullable<typeof data>[number]>()
-  for (const rule of data ?? []) {
-    if (rule.effective_date && rule.effective_date > today) continue
-    const existing = inForce.get(rule.rule_key)
-    if (!existing || (rule.organisation_id && !existing.organisation_id)) inForce.set(rule.rule_key, rule)
-  }
-  return [...inForce.values()]
-}
-
 // ─── Template helpers ──────────────────────────────────────────────────────────
 
 export async function getHrTemplates() {
@@ -214,150 +186,21 @@ export async function runComplianceCheck(
   const orgId = await getOrgId()
   if (!orgId) return { results: [], passed: false, error: 'No organisation found' }
 
-  // Fetch the hire with site → org province
   const { data: hire } = await supabase
     .from('hires')
-    .select('*, sites(organisations(province))')
+    .select('id')
     .eq('id', hireId)
     .eq('organisation_id', orgId)
     .single()
-
   if (!hire) return { results: [], passed: false, error: 'Hire not found' }
 
-  // Resolve province
-  const siteOrg = hire.sites as { organisations: { province: string | null } } | null
-  const province: string | null =
-    (Array.isArray(siteOrg)
-      ? (siteOrg[0] as { organisations: { province: string | null } } | undefined)
-      : siteOrg
-    )?.organisations?.province ?? await getOrgProvince()
-
-  if (!province) {
-    return {
-      results: [{
-        rule_key: 'no_province',
-        rule_label: 'Province Not Set',
-        severity: 'warning',
-        passed: false,
-        message: 'No province is set for this site or organisation. Set a province in Organisation Settings to enable compliance checks.',
-      }],
-      passed: true,
-    }
-  }
-
-  const rules = await getJurisdictionRules(province)
-  const results: ComplianceCheckResult[] = []
-
-  const PROVINCE_NAMES: Record<string, string> = {
-    ON: 'Ontario', BC: 'British Columbia', AB: 'Alberta', QC: 'Quebec',
-    SK: 'Saskatchewan', MB: 'Manitoba', NS: 'Nova Scotia', NB: 'New Brunswick',
-    PE: 'Prince Edward Island', NL: 'Newfoundland & Labrador',
-  }
-  const provinceName = PROVINCE_NAMES[province] ?? province
-
-  // ── Check 1: Minimum wage ──
-  const minWageRule = rules.find(r => r.rule_type === 'minimum_wage' && r.rule_key === 'min_wage_general')
-  if (minWageRule && hire.pay_frequency === 'hourly') {
-    if (hire.hourly_rate == null) {
-      results.push({
-        rule_key: 'min_wage_general',
-        rule_label: minWageRule.rule_label,
-        severity: 'warning',
-        passed: false,
-        message: `Could not verify minimum wage compliance — hourly rate not specified. ${provinceName} minimum wage is $${minWageRule.rule_value}.`,
-      })
-    } else if (hire.hourly_rate < (minWageRule.rule_value_numeric ?? 0)) {
-      results.push({
-        rule_key: 'min_wage_general',
-        rule_label: minWageRule.rule_label,
-        severity: 'error',
-        passed: false,
-        message: `Hourly rate ($${hire.hourly_rate}) is below the ${provinceName} minimum wage ($${minWageRule.rule_value} effective ${minWageRule.effective_date}).`,
-      })
-    } else {
-      results.push({
-        rule_key: 'min_wage_general',
-        rule_label: minWageRule.rule_label,
-        severity: 'info',
-        passed: true,
-        message: `Hourly rate ($${hire.hourly_rate}) meets the ${provinceName} minimum wage ($${minWageRule.rule_value}).`,
-      })
-    }
-  }
-
-  // ── Check 2: Probation vs the no-notice period ──
-  // Employment standards don't cap probation; they set an initial period
-  // (rule_type 'probation_max_days', e.g. 3 months in ON) after which
-  // termination notice is owed even if the employee is still on probation.
-  const noticeFreeRule = rules.find(r => r.rule_type === 'probation_max_days')
-  if (noticeFreeRule && hire.probation_period_days != null) {
-    const noticeFreeDays = noticeFreeRule.rule_value_numeric ?? 90
-    if (hire.probation_period_days > noticeFreeDays) {
-      results.push({
-        rule_key: 'notice_free_period',
-        rule_label: noticeFreeRule.rule_label,
-        severity: 'warning',
-        passed: false,
-        message: `Probation of ${hire.probation_period_days} days runs past the first ${noticeFreeDays} days. In ${provinceName}, termination notice (or pay instead) is owed after that point even during probation.`,
-      })
-    } else {
-      results.push({
-        rule_key: 'notice_free_period',
-        rule_label: noticeFreeRule.rule_label,
-        severity: 'info',
-        passed: true,
-        message: `Probation of ${hire.probation_period_days} days is within the first ${noticeFreeDays} days, when no statutory termination notice is owed in ${provinceName}.`,
-      })
-    }
-  }
-
-  // ── Check 3: Fixed-term end date ──
-  if (hire.is_fixed_term) {
-    if (!hire.contract_end_date) {
-      results.push({
-        rule_key: 'fixed_term_end_date',
-        rule_label: 'Fixed-Term Contract End Date',
-        severity: 'error',
-        passed: false,
-        message: `Fixed-term contracts in ${provinceName} require a specified end date.`,
-      })
-    } else {
-      results.push({
-        rule_key: 'fixed_term_end_date',
-        rule_label: 'Fixed-Term Contract End Date',
-        severity: 'info',
-        passed: true,
-        message: `Fixed-term contract end date is set: ${hire.contract_end_date}.`,
-      })
-    }
-  }
-
-  // ── Check 4: Required documents (informational) ──
-  const requiredDocRules = rules.filter(r => r.rule_type === 'required_doc')
-  for (const rule of requiredDocRules) {
-    results.push({
-      rule_key: rule.rule_key,
-      rule_label: rule.rule_label,
-      severity: 'info',
-      passed: true,
-      message: `${provinceName} requires: ${rule.rule_label}${rule.notes ? ' — ' + rule.notes : ''}`,
-    })
-  }
-
-  // ── Check 5: Minimum vacation pay (applies to every employee) ──
-  // rule_type 'stat_holiday_pay_pct' holds the minimum vacation pay percentage
-  const vacationRule = rules.find(r => r.rule_type === 'stat_holiday_pay_pct')
-  if (vacationRule) {
-    results.push({
-      rule_key: 'vacation_pay',
-      rule_label: vacationRule.rule_label,
-      severity: 'info',
-      passed: true,
-      message: `${provinceName} requires at least ${vacationRule.rule_value}% vacation pay on earnings${vacationRule.notes ? ` (${vacationRule.notes.replace(/ Corrected \d{4}-\d{2}-\d{2}.*$/, '')})` : ''}.`,
-    })
-  }
-
+  // Rules engine: evaluated in the database against the rules in force on
+  // the hire's start date (see docs/rules-engine-design.md)
+  const { data, error } = await supabase.rpc('evaluate_hire_rules', { p_hire_id: hireId })
+  if (error) return { results: [], passed: false, error: error.message }
+  const results = (data ?? []) as ComplianceCheckResult[]
   const passed = !results.some(r => r.severity === 'error')
+  const province = await getOrgProvince()
 
   // Store results in the hire record
   await supabase
