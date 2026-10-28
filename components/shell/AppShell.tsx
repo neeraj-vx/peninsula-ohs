@@ -273,6 +273,13 @@ export function AppShell({ children, userEmail, userName, roles = [], impersonat
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>{userName || userEmail || 'User'}</p>
             {userName && <p style={{ fontSize: '0.75rem', color: '#6f6f6f', marginTop: '0.125rem' }}>{userEmail}</p>}
             <p style={{ fontSize: '0.75rem', color: '#6f6f6f', marginTop: '0.25rem' }}>{roleLabel}</p>
+            <Link
+              href="/account/security"
+              onClick={() => setIsHeaderPanelOpen(false)}
+              style={{ display: 'block', marginTop: '0.75rem', fontSize: '0.875rem', color: '#0f62fe', textDecoration: 'none' }}
+            >
+              Security &amp; sign-in
+            </Link>
             <button
               onClick={handleSignOut}
               style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#0f62fe', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
