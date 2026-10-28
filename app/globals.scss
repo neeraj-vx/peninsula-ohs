@@ -5,6 +5,23 @@ body {
   font-family: var(--font-ibm-plex-sans), 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
+// Centre button labels. Carbon left-aligns the label and pins the icon to the
+// right edge with extra right padding; here the label and icon sit together in
+// the middle with even padding. Icon-only buttons keep Carbon's layout.
+// The doubled class outranks Carbon's kind- and size-specific selectors.
+.cds--btn.cds--btn:not(.cds--btn--icon-only) {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-inline: calc(1rem - 1px);
+
+  .cds--btn__icon {
+    position: static;
+    margin-block: 0;
+    margin-inline: 0.5rem 0;
+  }
+}
+
 // Full-width button utility
 .btn-full-width {
   width: 100%;
