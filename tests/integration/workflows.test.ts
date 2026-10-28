@@ -34,6 +34,19 @@ describe('core workflows under RLS', () => {
     expect(otherOrg.record_number).toBe(`TRN-${year}-00001`)
   })
 
+  it('training changes are written to the audit log and visible to the HSE Officer (D15)', async () => {
+    const rec = must(
+      await a.users.hse.client.from('training_records').insert({
+        organisation_id: a.id, worker_id: a.users.worker.id, course_id: courseId, completed_date: `${year}-03-01`,
+      }).select('id').single(),
+      'audited record',
+    )
+    const asHse = await a.users.hse.client.from('audit_logs').select('action, changed_by').eq('table_name', 'training_records').eq('record_id', rec.id)
+    expect(asHse.data).toEqual([{ action: 'INSERT', changed_by: a.users.hse.id }])
+    const asWorker = await a.users.worker.client.from('audit_logs').select('id').eq('record_id', rec.id)
+    expect(asWorker.data ?? []).toEqual([])
+  })
+
   it('a worker can log their own training record but not someone else\'s', async () => {
     const own = await a.users.worker.client.from('training_records').insert({
       organisation_id: a.id, worker_id: a.users.worker.id, course_id: courseId, completed_date: `${year}-02-01`,
