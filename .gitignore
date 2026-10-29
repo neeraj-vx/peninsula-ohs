@@ -31,3 +31,6 @@ dev-clean.txt
 dev-fresh.txt
 dev-output.txt
 check-console.mjs
+.vercel
+.env*
+!.env.example
