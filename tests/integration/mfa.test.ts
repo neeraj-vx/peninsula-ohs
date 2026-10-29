@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createHmac } from 'node:crypto'
+import { createClient } from '@supabase/supabase-js'
 import { createTestOrg, deleteTestOrg, ROLE_IDS, type TestOrg } from './helpers'
 
-// Two-factor sign-in for System Admins: admin-only writes need an aal2 session
+// Optional two-step sign-in: once an admin turns it on, admin-only writes need an aal2 session
 function base32Decode(input: string): Buffer {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
   let bits = ''
@@ -22,7 +23,7 @@ export function totp(secret: string, at = Date.now()): string {
   return code.toString().padStart(6, '0')
 }
 
-describe('admin two-factor sign-in', () => {
+describe('optional two-step sign-in', () => {
   let org: TestOrg
 
   beforeAll(async () => {
@@ -33,37 +34,33 @@ describe('admin two-factor sign-in', () => {
     await deleteTestOrg(org)
   })
 
-  it('an admin without two-factor cannot grant roles', async () => {
+  it('an admin without an authenticator is not blocked', async () => {
     const { error } = await org.users.admin.client.from('user_roles').insert({
       user_id: org.users.worker.id, role_id: ROLE_IDS.supervisor, organisation_id: org.id,
-    })
-    expect(error?.code).toBe('42501')
-  })
-
-  it('other roles are not affected', async () => {
-    // HSE Officers may assign sites without two-factor
-    const { error } = await org.users.hse.client.from('user_site_assignments').insert({
-      user_id: org.users.worker.id, site_id: org.siteId, organisation_id: org.id,
     })
     expect(error).toBeNull()
   })
 
-  it('after enrolling and verifying a TOTP code, the admin can grant roles', async () => {
+  it('once an admin sets one up, a session without the code cannot make admin changes', async () => {
     const client = org.users.admin.client
     const enrolled = await client.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Test authenticator' })
     expect(enrolled.error).toBeNull()
     const factorId = enrolled.data!.id
     const secret = enrolled.data!.totp.secret
+    expect((await client.auth.mfa.challengeAndVerify({ factorId, code: totp(secret) })).error).toBeNull()
 
-    const verified = await client.auth.mfa.challengeAndVerify({ factorId, code: totp(secret) })
-    expect(verified.error).toBeNull()
-
-    const aal = await client.auth.mfa.getAuthenticatorAssuranceLevel()
-    expect(aal.data?.currentLevel).toBe('aal2')
-
-    const { error } = await client.from('user_roles').insert({
-      user_id: org.users.worker.id, role_id: ROLE_IDS.supervisor, organisation_id: org.id,
+    // A fresh password-only sign-in (aal1) now owes a code
+    const fresh = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } })
+    await fresh.auth.signInWithPassword({ email: org.users.admin.email, password: org.users.admin.password! })
+    const blocked = await fresh.from('user_roles').insert({
+      user_id: org.users.worker.id, role_id: ROLE_IDS.hse, organisation_id: org.id,
     })
-    expect(error).toBeNull()
+    expect(blocked.error?.code).toBe('42501')
+
+    expect((await fresh.auth.mfa.challengeAndVerify({ factorId, code: totp(secret) })).error).toBeNull()
+    const allowed = await fresh.from('user_roles').insert({
+      user_id: org.users.worker.id, role_id: ROLE_IDS.hse, organisation_id: org.id,
+    })
+    expect(allowed.error).toBeNull()
   })
 })

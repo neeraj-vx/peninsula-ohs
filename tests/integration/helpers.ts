@@ -28,6 +28,7 @@ export type RoleKey = keyof typeof ROLE_IDS
 export interface TestUser {
   id: string
   email: string
+  password?: string
   client: SupabaseClient
 }
 
@@ -79,7 +80,7 @@ export async function createTestOrg(label: string): Promise<TestOrg> {
     const client = createClient(url!, anonKey!, noSession)
     const { error } = await client.auth.signInWithPassword({ email, password })
     if (error) throw new Error(`sign in ${role}: ${error.message}`)
-    users[role] = { id: userId, email, client }
+    users[role] = { id: userId, email, password, client }
   }
 
   return { id: org.id, name, siteId: site.id, users }

@@ -1,24 +1,11 @@
-import { InlineNotification } from '@carbon/react'
 import { createClient } from '@/lib/supabase/server'
 import { TwoFactorSettings } from './TwoFactorSettings'
 
-export default async function SecurityPage({ searchParams }: { searchParams: Promise<{ required?: string }> }) {
-  const { required } = await searchParams
+export default async function SecurityPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
-  const [{ data: factors }, { data: adminRole }] = await Promise.all([
-    supabase.auth.mfa.listFactors(),
-    supabase
-      .from('user_roles')
-      .select('id, roles!inner(name)')
-      .eq('user_id', user?.id ?? '')
-      .eq('is_active', true)
-      .eq('roles.name', 'System Admin')
-      .limit(1),
-  ])
+  const { data: factors } = await supabase.auth.mfa.listFactors()
   const verified = (factors?.totp ?? []).filter((f) => f.status === 'verified')
-  const isAdmin = (adminRole ?? []).length > 0
 
   return (
     <div style={{ padding: '2rem', maxWidth: '44rem' }}>
@@ -28,20 +15,8 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
         Authenticator or 1Password) as well as your password.
       </p>
 
-      {required === '1' && verified.length === 0 && (
-        <InlineNotification
-          kind="warning"
-          lowContrast
-          hideCloseButton
-          title="Set up two-step sign-in to continue."
-          subtitle="Administrators can change users, roles and settings, so EXXIO requires a second sign-in step for this account."
-          style={{ maxWidth: '100%', marginBottom: '1.5rem' }}
-        />
-      )}
-
       <TwoFactorSettings
         factors={verified.map((f) => ({ id: f.id, name: f.friendly_name ?? 'Authenticator app', createdAt: f.created_at }))}
-        isAdmin={isAdmin}
       />
     </div>
   )

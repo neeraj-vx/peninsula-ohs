@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Factor { id: string; name: string; createdAt: string }
 
-export function TwoFactorSettings({ factors, isAdmin }: { factors: Factor[]; isAdmin: boolean }) {
+export function TwoFactorSettings({ factors }: { factors: Factor[] }) {
   const router = useRouter()
   const [enrolment, setEnrolment] = useState<{ factorId: string; qr: string; secret: string } | null>(null)
   const [code, setCode] = useState('')
@@ -66,20 +66,18 @@ export function TwoFactorSettings({ factors, isAdmin }: { factors: Factor[]; isA
     router.refresh()
   }
 
-  const canRemove = !isAdmin || factors.length > 1
-
   return (
     <Tile>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Two-step sign-in</h2>
           <p style={{ fontSize: '0.875rem', color: '#525252', marginTop: '0.25rem' }}>
-            {isAdmin ? 'Required for administrators.' : 'Recommended for everyone.'}
+            Optional, and recommended for administrators.
           </p>
         </div>
         {factors.length > 0
           ? <Tag type="green">On</Tag>
-          : <Tag type={isAdmin ? 'red' : 'gray'}>Off</Tag>}
+          : <Tag type="gray">Off</Tag>}
       </div>
 
       {factors.map((f) => (
@@ -89,9 +87,7 @@ export function TwoFactorSettings({ factors, isAdmin }: { factors: Factor[]; isA
             {f.name}
             <span style={{ color: '#6f6f6f' }}>· added {new Date(f.createdAt).toLocaleDateString('en-CA')}</span>
           </span>
-          {canRemove && (
-            <Button kind="ghost" size="sm" disabled={busy} onClick={() => remove(f.id)}>Remove</Button>
-          )}
+          <Button kind="ghost" size="sm" disabled={busy} onClick={() => remove(f.id)}>Remove</Button>
         </div>
       ))}
 
