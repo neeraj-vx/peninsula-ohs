@@ -13,6 +13,15 @@ import {
 } from '@carbon/react'
 import { createClient } from '@/lib/supabase/client'
 
+const DEMO_PASSWORD = 'DemoPass123!'
+const DEMO_ACCOUNTS = [
+  { email: 'sarah@peninsula.health', name: 'Sarah Chen',     role: 'System Admin' },
+  { email: 'david@peninsula.health', name: 'David Patel',    role: 'Executive' },
+  { email: 'james@peninsula.health', name: 'James Nguyen',   role: 'HSE Officer' },
+  { email: 'michael@peninsula.health', name: 'Michael Torres', role: 'Supervisor' },
+  { email: 'emma@peninsula.health', name: 'Emma Wilson',    role: 'Worker' },
+]
+
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -20,13 +29,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function signIn(loginEmail: string, loginPassword: string) {
     setLoading(true)
     setError(null)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword })
 
     if (error) {
       setError(error.message)
@@ -36,6 +44,11 @@ export default function LoginPage() {
 
     router.push('/dashboard')
     router.refresh()
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await signIn(email, password)
   }
 
   return (
@@ -123,6 +136,29 @@ export default function LoginPage() {
               </p>
             </Stack>
           </Form>
+        </Tile>
+
+        <Tile style={{ padding: '1.5rem', marginTop: '1rem' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: '#161616', marginBottom: '0.25rem' }}>
+            Explore the demo
+          </h2>
+          <p style={{ fontSize: '0.8125rem', color: '#525252', marginBottom: '1rem' }}>
+            Sign in to a sample company with realistic data. Pick a role to see what that person sees.
+          </p>
+          <Stack gap={3}>
+            {DEMO_ACCOUNTS.map((a) => (
+              <Button
+                key={a.email}
+                kind="tertiary"
+                size="md"
+                disabled={loading}
+                onClick={() => signIn(a.email, DEMO_PASSWORD)}
+                style={{ width: '100%', maxWidth: '100%' }}
+              >
+                {a.role} — {a.name}
+              </Button>
+            ))}
+          </Stack>
         </Tile>
 
         <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.875rem', color: '#525252' }}>

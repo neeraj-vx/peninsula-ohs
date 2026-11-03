@@ -290,23 +290,19 @@ export function AppShell({ children, userEmail, userName, roles = [], impersonat
         </HeaderPanel>
       </Header>
 
-      <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent>
+      <SideNav className="exx-sidenav" aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent>
         <SideNavItems>
           {/* The one thing anyone may need to do in a hurry */}
-          <li style={{ padding: '1rem 1rem 0.5rem', listStyle: 'none', position: 'relative' }}>
+          <li className="exx-report" style={{ listStyle: 'none', position: 'relative' }}>
             <button
               onClick={() => setIsReportOpen(!isReportOpen)}
               aria-expanded={isReportOpen}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                padding: '0.75rem 1rem', background: '#da1e28', color: '#fff', border: 'none',
-                fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
-              }}
+              className="exx-report-btn"
             >
               <Add size={16} /> Report something
             </button>
             {isReportOpen && (
-              <div style={{ marginTop: '0.25rem', border: '1px solid #e0e0e0', background: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+              <div style={{ marginTop: '0.375rem', border: '1px solid #e0e0e0', overflow: 'hidden', background: '#fff', boxShadow: '0 6px 16px rgba(0,0,0,0.08)' }}>
                 {REPORT_OPTIONS.map((o) => (
                   <Link key={o.href} href={o.href} style={{ display: 'block', padding: '0.625rem 0.875rem', textDecoration: 'none', borderBottom: '1px solid #f4f4f4' }}>
                     <span style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#161616' }}>{o.label}</span>

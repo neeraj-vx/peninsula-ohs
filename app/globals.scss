@@ -1,4 +1,5 @@
-@use '@carbon/react/index.scss';
+// Fonts come from next/font in app/layout.tsx, so Carbon's own copies are off
+@use '@carbon/react/index.scss' with ($css--font-face: false);
 
 // Override Carbon font with next/font variable
 body {
@@ -40,4 +41,233 @@ body {
 // Sidebar active link highlight
 .cds--side-nav__link--current {
   background-color: var(--cds-layer-selected, #e0e0e0);
+}
+
+// ── App side navigation ─────────────────────────────────────────────
+.cds--side-nav.exx-sidenav {
+  background: #fafafa;
+  border-right: 1px solid #e8e8e8;
+  box-shadow: none;
+
+  .cds--side-nav__items { padding: 0 0.75rem 1rem; }
+
+  .exx-report {
+    padding: 1rem 0 0.75rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #ececec;
+  }
+
+  .exx-report-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.7rem 1rem; border: none; cursor: pointer;
+    background: #da1e28; color: #fff; font-size: 0.875rem; font-weight: 600;
+    box-shadow: 0 1px 2px rgba(218, 30, 40, 0.25);
+    transition: background 120ms ease, box-shadow 120ms ease;
+    &:hover { background: #b81922; box-shadow: 0 3px 8px rgba(218, 30, 40, 0.3); }
+    &:focus-visible { outline: 2px solid #0f62fe; outline-offset: 2px; }
+  }
+
+  // Top-level links and menu headers
+  .cds--side-nav__link,
+  .cds--side-nav__submenu {
+    min-height: 2.5rem; height: 2.5rem;
+    padding: 0 0.75rem; margin: 1px 0;
+   
+    font-size: 0.875rem; font-weight: 500;
+    color: #393939;
+    transition: background 100ms ease, color 100ms ease;
+    &:hover { background: #efefef; color: #161616; }
+  }
+
+  .cds--side-nav__icon { margin-right: 0.75rem; svg { fill: #6f6f6f; } }
+
+  .cds--side-nav__link-text,
+  .cds--side-nav__submenu-title { font-size: 0.875rem; font-weight: 500; color: inherit; }
+
+  // Remove Carbon's left accent bar; use a soft pill instead
+  .cds--side-nav__link::before,
+  .cds--side-nav__submenu::before,
+  .cds--side-nav__link--current::before { display: none; }
+
+  .cds--side-nav__link--current,
+  a.cds--side-nav__link[aria-current='page'] {
+    background: #e8f0fe;
+    color: #0043ce;
+    font-weight: 600;
+    .cds--side-nav__link-text { color: #0043ce; font-weight: 600; }
+    .cds--side-nav__icon svg { fill: #0f62fe; }
+  }
+
+  .cds--side-nav__item--active > .cds--side-nav__submenu {
+    color: #161616;
+    .cds--side-nav__icon svg { fill: #161616; }
+  }
+
+  // Sub-items: indented under a thin guide line
+  .cds--side-nav__menu {
+    margin: 2px 0 6px 1.45rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid #e0e0e0;
+  }
+
+  .cds--side-nav__menu .cds--side-nav__link {
+    height: 2.125rem; min-height: 2.125rem;
+    padding-left: 0.75rem !important;
+    .cds--side-nav__link-text { font-weight: 400; color: #525252; }
+    &:hover .cds--side-nav__link-text { color: #161616; }
+  }
+
+  .cds--side-nav__menu .cds--side-nav__link--current,
+  .cds--side-nav__menu a.cds--side-nav__link[aria-current='page'] {
+    .cds--side-nav__link-text { color: #0043ce; font-weight: 600; }
+  }
+}
+
+// ── Form fields ─────────────────────────────────────────────────────
+// Carbon's default fields are grey with only a bottom line, so they vanish
+// on grey tiles. Give them a white fill, full border and focus ring.
+.cds--text-input,
+.cds--text-area,
+.cds--select-input,
+.cds--date-picker__input,
+.cds--number input[type='number'],
+.cds--search-input,
+.cds--combo-box .cds--text-input,
+.cds--dropdown,
+.cds--multi-select {
+  background-color: #fff !important;
+  border: 1px solid #c6c6c6 !important;
+ 
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+
+  &:hover:not(:disabled) { border-color: #8d8d8d !important; }
+
+  &:focus,
+  &:focus-within,
+  &.cds--dropdown--focused {
+    outline: none !important;
+    border-color: #0f62fe !important;
+    box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15);
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: #f4f4f4 !important;
+    border-color: #e0e0e0 !important;
+    box-shadow: none;
+  }
+}
+
+.cds--text-input,
+.cds--select-input,
+.cds--date-picker__input { height: 2.75rem; padding-left: 0.875rem; }
+
+.cds--text-area { padding: 0.75rem 0.875rem; }
+
+// Invalid state keeps the red border instead of Carbon's outline
+.cds--text-input--invalid,
+.cds--text-area--invalid,
+.cds--select--invalid .cds--select-input,
+[data-invalid] .cds--text-input {
+  border-color: #da1e28 !important;
+  box-shadow: 0 0 0 3px rgba(218, 30, 40, 0.12) !important;
+}
+
+// Labels and helper text: a bit stronger and closer to the field
+.cds--label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #393939;
+  margin-bottom: 0.375rem;
+}
+
+.cds--form__helper-text { color: #6f6f6f; margin-top: 0.375rem; }
+
+// Select chevron sits inside the bordered box
+.cds--select__arrow { right: 0.875rem; }
+
+// ── Page intro modal ────────────────────────────────────────────────
+.cds--modal.exx-intro {
+  .cds--modal-container {
+    background: #fff;
+   
+    overflow: hidden;
+    max-width: 32rem;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+  }
+  .cds--modal-header { position: absolute; top: 0; right: 0; padding: 0; margin: 0; z-index: 2; }
+  .cds--modal-close { margin: 0.5rem; }
+  .cds--modal-content { padding: 0; margin: 0; }
+}
+
+.exx-intro__hero {
+  display: flex; justify-content: center; align-items: center;
+  padding: 2rem 1.5rem 1.75rem;
+  background: #f4f4f4;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.exx-intro__body { padding: 1.5rem 1.75rem 0.5rem; }
+
+.exx-intro__eyebrow {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #6f6f6f; margin-bottom: 0.25rem;
+}
+
+.exx-intro__title { font-size: 1.5rem; font-weight: 600; line-height: 1.25; color: #161616; margin-bottom: 0.625rem; }
+
+.exx-intro__desc { font-size: 0.9375rem; line-height: 1.55; color: #393939; margin-bottom: 1.25rem; }
+
+.exx-intro__points {
+  background: #f7f8fa; border: 1px solid #eceef1; padding: 0.875rem 1rem;
+
+  ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+  li { display: flex; gap: 0.625rem; align-items: flex-start; font-size: 0.875rem; line-height: 1.4; color: #161616; }
+  svg { flex-shrink: 0; margin-top: 0.1rem; }
+}
+
+.exx-intro__points-label {
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #6f6f6f; margin-bottom: 0.625rem;
+}
+
+.exx-intro__footer {
+  display: flex; justify-content: flex-end;
+  padding: 1.25rem 1.75rem 1.5rem;
+
+  .cds--btn { min-width: 7rem; justify-content: center; padding-right: 1rem; }
+}
+
+// Grids nested inside tiles: line fields up with the tile heading
+// instead of Carbon's negative subgrid gutter pulling them outward.
+.cds--tile .cds--subgrid,
+.cds--tile .cds--css-grid {
+  margin-inline: 0;
+  padding-inline: 0;
+  column-gap: 1rem;
+}
+.cds--tile .cds--subgrid > .cds--css-grid-column,
+.cds--tile .cds--css-grid > .cds--css-grid-column { margin-inline: 0; }
+
+// Notifications fill their column
+.cds--inline-notification { max-width: none; }
+
+// Grids nested inside tiles: spans count against the full breakpoint grid
+// (4 / 8 / 16), not the parent column's width. Without this, a half-width
+// field (lg=8) inside a 12-column tile takes 8/12 and fields stack.
+.cds--tile .cds--subgrid { --cds-grid-columns: 4; }
+@media (min-width: 42rem) { .cds--tile .cds--subgrid { --cds-grid-columns: 8; } }
+@media (min-width: 66rem) { .cds--tile .cds--subgrid { --cds-grid-columns: 16; } }
+
+// Page-level grids: Carbon adds outer padding plus per-column gutters, which
+// pushes grid content right of headings/notices outside the grid, and the
+// condensed variant leaves cards touching with a 1px seam. Use one model:
+// no outer offset, columns flush, a real 1rem gap between them.
+.cds--content .cds--css-grid:not(.cds--subgrid) {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+  column-gap: 1rem;
+  > .cds--css-grid-column { margin-inline: 0; }
 }

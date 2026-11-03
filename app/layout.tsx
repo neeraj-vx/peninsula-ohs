@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister'
 import { InstallPrompt } from '@/components/pwa/InstallPrompt'
+import { Suspense } from 'react'
+import { TopLoadingBar } from '@/components/progress/TopLoadingBar'
 import './globals.scss'
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -42,6 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <body>
+        <Suspense fallback={null}>
+          <TopLoadingBar />
+        </Suspense>
         {children}
         <ServiceWorkerRegister />
         <InstallPrompt />

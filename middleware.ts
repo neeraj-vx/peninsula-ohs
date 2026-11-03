@@ -47,7 +47,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Checks the session token locally (no round trip to Supabase Auth when the
+  // project uses asymmetric signing keys); pages still confirm with getUser()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const user = claimsData?.claims?.sub ? { id: claimsData.claims.sub } : null
 
   const isAuthRoute =
     pathname.startsWith('/login') ||

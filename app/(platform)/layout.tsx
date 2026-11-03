@@ -8,29 +8,26 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('organisation_id, first_name, last_name, email')
-    .eq('id', user.id)
-    .maybeSingle()
+  // Profile (with its organisation) and roles load together
+  const [{ data: profile }, { data: roleRows }] = await Promise.all([
+    supabase
+      .from('user_profiles')
+      .select('organisation_id, first_name, last_name, email, organisations!organisation_id(onboarding_completed_at)')
+      .eq('id', user.id)
+      .maybeSingle(),
+    // Navigation adapts to the user's roles
+    supabase
+      .from('user_roles')
+      .select('roles(name)')
+      .eq('user_id', user.id)
+      .eq('is_active', true),
+  ])
 
   if (!profile) redirect('/register')
 
   // Hard-block: redirect to onboarding until setup is complete
-  const { data: org } = await supabase
-    .from('organisations')
-    .select('onboarding_completed_at')
-    .eq('id', profile.organisation_id)
-    .single()
-
+  const org = profile.organisations as unknown as { onboarding_completed_at: string | null } | null
   if (!org?.onboarding_completed_at) redirect('/onboarding')
-
-  // Navigation adapts to the user's roles
-  const { data: roleRows } = await supabase
-    .from('user_roles')
-    .select('roles(name)')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
   const roles = (roleRows ?? [])
     .map((r) => (r.roles as unknown as { name: string } | null)?.name)
     .filter((name): name is string => !!name)

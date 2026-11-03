@@ -71,31 +71,33 @@ export function SpeakUpForm({ categories, sites }: Props) {
 
   return (
     <div style={{ paddingBottom: '2rem' }}>
-      {/* Anonymity notice */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <InlineNotification
-          kind="info"
-          title="Anonymous submission"
-          subtitle="This report is submitted anonymously. No personally identifiable information is collected or stored. You do not need to be logged in to submit a report."
-          lowContrast
-          hideCloseButton
-        />
-      </div>
-
-      {error && (
-        <div style={{ marginBottom: '1.5rem' }}>
-          <InlineNotification
-            kind="error"
-            title="Error"
-            subtitle={error}
-            onCloseButtonClick={() => setError(null)}
-            lowContrast
-          />
-        </div>
-      )}
-
       <Form onSubmit={handleSubmit}>
         <Grid>
+          <Column sm={4} md={8} lg={12}>
+            {/* Anonymity notice */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <InlineNotification
+                kind="info"
+                title="Anonymous submission"
+                subtitle="This report is submitted anonymously. No personally identifiable information is collected or stored. You do not need to be logged in to submit a report."
+                lowContrast
+                hideCloseButton
+              />
+            </div>
+
+            {error && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <InlineNotification
+                  kind="error"
+                  title="Error"
+                  subtitle={error}
+                  onCloseButtonClick={() => setError(null)}
+                  lowContrast
+                />
+              </div>
+            )}
+          </Column>
+
           {/* Classification */}
           <Column sm={4} md={8} lg={12}>
             <Tile style={{ padding: 0, marginBottom: '1rem' }}>

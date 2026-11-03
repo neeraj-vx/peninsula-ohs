@@ -61,29 +61,37 @@ export function PageIntro({ screen }: { screen: string }) {
         open={open}
         passiveModal
         size="sm"
-        modalLabel="About this page"
-        modalHeading={intro.title}
+        className="exx-intro"
+        aria-label={intro.title}
         onRequestClose={close}
         closeButtonLabel="Close"
       >
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+        <div
+          className="exx-intro__hero"
+          style={{ ['--accent' as string]: intro.accent ?? '#0f62fe' }}
+        >
           <IntroPreview kind={intro.preview} accent={intro.accent} />
         </div>
-        <p style={{ fontSize: '0.875rem', lineHeight: 1.5, color: '#161616', marginBottom: '1rem' }}>
-          {intro.description}
-        </p>
-        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#525252', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-          You can
-        </p>
-        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {intro.points.map((point) => (
-            <li key={point} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', fontSize: '0.875rem', lineHeight: 1.4, color: '#161616' }}>
-              <CheckmarkFilled size={16} style={{ fill: intro.accent ?? '#0f62fe', flexShrink: 0, marginTop: '0.1rem' }} />
-              <span>{point}</span>
-            </li>
-          ))}
-        </ul>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+
+        <div className="exx-intro__body">
+          <p className="exx-intro__eyebrow">About this page</p>
+          <h2 className="exx-intro__title">{intro.title}</h2>
+          <p className="exx-intro__desc">{intro.description}</p>
+
+          <div className="exx-intro__points">
+            <p className="exx-intro__points-label">You can</p>
+            <ul>
+              {intro.points.map((point) => (
+                <li key={point}>
+                  <CheckmarkFilled size={16} style={{ fill: intro.accent ?? '#0f62fe' }} />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="exx-intro__footer">
           <Button kind="primary" size="md" onClick={close} data-modal-primary-focus>
             Got it
           </Button>

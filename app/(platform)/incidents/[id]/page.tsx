@@ -214,7 +214,7 @@ export default async function IncidentDetailPage({ params }: PageProps) {
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <Button kind="ghost" href={`/incidents/${id}/edit`} size="sm">
+          <Button kind="tertiary" href={`/incidents/${id}/edit`} size="md">
             Edit
           </Button>
           {canClose && (
@@ -224,7 +224,7 @@ export default async function IncidentDetailPage({ params }: PageProps) {
                 name="closure_notes"
                 value="Closed via incident detail page."
               />
-              <Button kind="danger--ghost" type="submit" size="sm">
+              <Button kind="danger--tertiary" type="submit" size="md">
                 Close Incident
               </Button>
             </form>

@@ -15,7 +15,7 @@ BEGIN;
 --    org). The first record of that kind in any second organisation
 --    failed with a duplicate key. Uniqueness becomes per org.
 --    The old keys are stricter, so existing rows can't violate the
---    new ones.
+--    new ones.clau
 -- -------------------------------------------------------------
 
 DO $$

@@ -41,7 +41,7 @@ export function ContractorForm() {
               </div>
               <div style={{ padding: '1.5rem' }}>
                 <Grid condensed>
-                  <Column sm={4} md={8} lg={12} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={8} lg={16} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="company_name"
                       name="company_name"
@@ -49,7 +49,7 @@ export function ContractorForm() {
                       required
                     />
                   </Column>
-                  <Column sm={4} md={4} lg={6} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="business_number"
                       name="business_number"
@@ -57,7 +57,7 @@ export function ContractorForm() {
                       helperText="CRA Business Number, e.g. 123456789 RT0001"
                     />
                   </Column>
-                  <Column sm={4} md={8} lg={12} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={8} lg={16} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="address"
                       name="address"
@@ -74,14 +74,14 @@ export function ContractorForm() {
               </div>
               <div style={{ padding: '1.5rem' }}>
                 <Grid condensed>
-                  <Column sm={4} md={4} lg={6} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="primary_contact_name"
                       name="primary_contact_name"
                       labelText="Contact Name"
                     />
                   </Column>
-                  <Column sm={4} md={4} lg={6} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="primary_contact_email"
                       name="primary_contact_email"
@@ -89,7 +89,7 @@ export function ContractorForm() {
                       type="email"
                     />
                   </Column>
-                  <Column sm={4} md={4} lg={6} style={{ marginBottom: '1rem' }}>
+                  <Column sm={4} md={4} lg={8} style={{ marginBottom: '1rem' }}>
                     <TextInput
                       id="primary_contact_phone"
                       name="primary_contact_phone"

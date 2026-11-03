@@ -1,6 +1,8 @@
+import { cache } from 'react'
 import { createClient } from './server'
 
-export async function getOrgId(): Promise<string | null> {
+// Cached per request: layouts, pages and actions often all ask for it
+export const getOrgId = cache(async (): Promise<string | null> => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -11,4 +13,4 @@ export async function getOrgId(): Promise<string | null> {
     .eq('id', user.id)
     .single()
   return profile?.organisation_id ?? null
-}
+})
