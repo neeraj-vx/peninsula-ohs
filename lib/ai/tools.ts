@@ -3,6 +3,10 @@ import { z } from 'zod'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { TABLES, TABLE_NAMES } from './catalogue'
 import type { AssistantContext } from './context'
+import { FILE_SOURCES, readRecordFile, type FileReadResult } from './files'
+import { textToPdf } from './pdf'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { getStoragePath } from '@/lib/storage/paths'
 
 const MAX_ROWS = 100
 
@@ -70,6 +74,8 @@ export function buildTools(supabase: SupabaseClient, ctx: AssistantContext) {
         limit: z.number().int().min(1).max(MAX_ROWS).optional().describe('Default 25, max 100.'),
       }),
       execute: async ({ table, select, filters, orderBy, ascending, limit }) => {
+        // _link is added to results, not a real column
+        select = select?.split(',').map((c) => c.trim()).filter((c) => c && c !== '_link').join(',') || undefined
         if (select && !SELECT_RE.test(select)) return { error: 'Invalid select string.' }
         if (orderBy && !COLUMN_RE.test(orderBy)) return { error: 'Invalid orderBy column.' }
         try {
@@ -283,6 +289,86 @@ export function buildTools(supabase: SupabaseClient, ctx: AssistantContext) {
       },
     }),
 
+    readFile: tool({
+      description:
+        'Open and read the file uploaded to a record: documents (policies, procedures, SOPs, plans — PDF, Word, PowerPoint, Excel, text, images), chemical safety data sheets, training certificates, hazard evidence photos, emergency plans and toolbox talk photos. Find the record id first with queryRecords. Use this whenever the user asks what a document says, to summarise it, compare it, or check it against regulations.',
+      inputSchema: z.object({
+        table: z.enum(Object.keys(FILE_SOURCES) as [keyof typeof FILE_SOURCES, ...(keyof typeof FILE_SOURCES)[]]),
+        id: z.string().uuid(),
+      }),
+      execute: async ({ table, id }) => readRecordFile(supabase, table, id),
+      toModelOutput: ({ output }) => {
+        const o = output as FileReadResult
+        const { attachments, text, ...meta } = o
+        const parts: ({ type: 'text'; text: string } | { type: 'file'; mediaType: string; data: { type: 'data'; data: string } })[] = [
+          { type: 'text', text: JSON.stringify(meta) },
+        ]
+        if (text) parts.push({ type: 'text', text: `--- File content${o.truncated ? ' (truncated)' : ''} ---\n${text}` })
+        for (const a of attachments ?? []) parts.push({ type: 'file', mediaType: a.mediaType, data: { type: 'data', data: a.data } })
+        return { type: 'content', value: parts }
+      },
+    }),
+
+    createDocument: tool({
+      description:
+        'Create a new document in the document register (policy, procedure, SWP, SOP, plan, form, etc.). Write the full document body yourself in markdown (headings, bullets) — it is saved as an attached PDF. Look up document_type_id from document_types first when the type is clear. Saved as a draft. The user is asked to approve before it is saved.',
+      inputSchema: z.object({
+        title: z.string().min(3),
+        description: z.string().optional().describe('One or two sentence summary.'),
+        content: z.string().min(20).describe('Full document body in markdown.'),
+        document_type_id: z.string().uuid().optional(),
+        category: z.string().optional(),
+        owner_id: z.string().uuid().optional().describe('Defaults to the current user.'),
+        version_number: z.string().default('1.0'),
+        review_due_date: z.string().optional().describe('YYYY-MM-DD'),
+        expiry_date: z.string().optional().describe('YYYY-MM-DD'),
+        requires_acknowledgement: z.boolean().default(false),
+      }),
+      execute: async ({ content, version_number, owner_id, ...input }) => {
+        const { data: draft } = await supabase.from('document_statuses').select('id').eq('code', 'draft').maybeSingle()
+        const { data: doc, error } = await supabase
+          .from('documents')
+          .insert({
+            ...input,
+            organisation_id: ctx.organisationId,
+            status_id: draft?.id ?? null,
+            owner_id: owner_id ?? ctx.userId,
+            version: version_number,
+            version_number,
+            created_by: ctx.userId,
+          })
+          .select('id, document_number')
+          .single()
+        if (error) return { error: error.message }
+
+        // Attach the drafted body as a PDF, the same way the upload form stores files
+        let attached = false
+        try {
+          const pdf = textToPdf(input.title, content, `Version ${version_number} · Draft · ${new Date().toISOString().slice(0, 10)}`)
+          const fileName = `${input.title.replace(/[^a-zA-Z0-9 _-]/g, '').trim().slice(0, 80) || 'document'}.pdf`
+          const path = getStoragePath(ctx.organisationId, 'documents', doc.id, fileName)
+          const up = await supabaseAdmin.storage.from('documents').upload(path, pdf, { contentType: 'application/pdf' })
+          if (!up.error) {
+            const { data: pub } = supabaseAdmin.storage.from('documents').getPublicUrl(path)
+            await supabase
+              .from('documents')
+              .update({ file_url: pub.publicUrl, file_name: fileName, file_size_bytes: pdf.length, file_mime_type: 'application/pdf' })
+              .eq('id', doc.id)
+            attached = true
+          }
+        } catch {
+          // The record still exists; the user can attach a file on its page
+        }
+        return {
+          created: true,
+          id: doc.id,
+          documentNumber: doc.document_number,
+          fileAttached: attached,
+          _link: `/documents/${doc.id}`,
+        }
+      },
+    }),
+
     markNotificationsRead: tool({
       description: "Mark the current user's notifications as read (all, or specific ids).",
       inputSchema: z.object({ ids: z.array(z.string().uuid()).optional() }),
@@ -299,4 +385,4 @@ export function buildTools(supabase: SupabaseClient, ctx: AssistantContext) {
 export type AssistantTools = ReturnType<typeof buildTools>
 
 /** Tools that change data and need the user to approve each call */
-export const WRITE_TOOLS = ['createHazardReport', 'createIncident', 'createAction', 'updateActionStatus'] as const
+export const WRITE_TOOLS = ['createHazardReport', 'createIncident', 'createAction', 'updateActionStatus', 'createDocument'] as const

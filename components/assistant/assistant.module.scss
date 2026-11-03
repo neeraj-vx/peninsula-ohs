@@ -672,3 +672,15 @@ $bg: #ffffff;
   .composerWrap { padding: 0.5rem 0.75rem 0.75rem; }
   .userBubble { max-width: 90%; }
 }
+
+/* Sidebar card while the chat title is being generated */
+.naming {
+  color: $subtle;
+  font-style: italic;
+  animation: namingPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes namingPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}

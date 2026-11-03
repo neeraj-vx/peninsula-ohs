@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 
 function safeNext(next: string | null) {
   // Only same-site paths
-  return next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard'
+  return next && next.startsWith('/') && !next.startsWith('//') ? next : '/assistant'
 }
 
 function MfaForm() {

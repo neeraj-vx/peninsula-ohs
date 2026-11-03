@@ -191,7 +191,7 @@ export function AppShell({ children, userEmail, userName, roles = [], impersonat
           onClick={() => setIsSideNavExpanded(!isSideNavExpanded)}
           isActive={isSideNavExpanded}
         />
-        <HeaderName href="/dashboard" prefix="">
+        <HeaderName href="/assistant" prefix="">
           EXXIO
         </HeaderName>
         <HeaderGlobalBar>

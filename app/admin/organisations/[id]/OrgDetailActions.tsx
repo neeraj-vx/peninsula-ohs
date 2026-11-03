@@ -44,7 +44,7 @@ export default function OrgDetailActions({ orgId, orgName, isActive }: Props) {
 
     if (!res.ok) return setError(json.error ?? 'Impersonation failed')
 
-    // Follow the magic link — it completes the sign-in and lands on /dashboard
+    // Follow the magic link — it completes the sign-in and lands on /assistant
     window.location.href = json.actionLink
   }
 

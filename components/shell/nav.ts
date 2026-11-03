@@ -121,9 +121,9 @@ export const TOOL_GROUPS: ToolGroup[] = [
 ]
 
 export const NAV: NavSection[] = [
+  { label: 'Assistant', icon: Chat, href: '/assistant' },
   { label: 'Home', icon: Home, href: '/dashboard' },
   { label: 'My tasks', icon: TaskComplete, href: '/actions' },
-  { label: 'Assistant', icon: Chat, href: '/assistant' },
   {
     label: 'Safety',
     icon: WarningAlt,

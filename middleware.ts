@@ -66,11 +66,11 @@ export async function middleware(request: NextRequest) {
 
   if (isTokenRoute) return supabaseResponse
 
-  // Public marketing pages; signed-in users opening / go to their dashboard
+  // Public marketing pages; signed-in users opening / go to the assistant
   const isMarketingRoute = pathname === '/' || pathname === '/how-it-works' || pathname === '/pricing' || pathname === '/contact'
   if (isMarketingRoute) {
     return user && pathname === '/'
-      ? NextResponse.redirect(new URL('/dashboard', request.url))
+      ? NextResponse.redirect(new URL('/assistant', request.url))
       : supabaseResponse
   }
 
@@ -89,12 +89,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
     if (!codeOwed && isMfaPage) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/assistant', request.url))
     }
   }
 
   if (isAuthRoute) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/assistant', request.url))
   }
 
   return supabaseResponse

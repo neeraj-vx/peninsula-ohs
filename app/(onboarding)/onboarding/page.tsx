@@ -21,7 +21,7 @@ export default async function OnboardingPage() {
     .eq('id', profile.organisation_id)
     .single()
 
-  if (org?.onboarding_completed_at) redirect('/dashboard')
+  if (org?.onboarding_completed_at) redirect('/assistant')
 
   // Load roles for invite step
   const { data: roles } = await supabase

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'magiclink',
     email: adminUser.email,
-    options: { redirectTo: '/dashboard' },
+    options: { redirectTo: '/assistant' },
   })
 
   if (linkError || !linkData) {

@@ -2,18 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Button,
-  Form,
-  Stack,
-  TextInput,
-  Select,
-  SelectItem,
-  Tile,
-  InlineNotification,
-  Tag,
-  Checkbox,
-} from '@carbon/react'
+import { Button, Form, Stack, TextInput, Tile, InlineNotification, Tag } from '@carbon/react'
+import { Select, SelectItem, Checkbox } from '@/components/ui/controls'
 import { ArrowRight, Checkmark, CheckmarkFilled, Add, TrashCan } from '@carbon/icons-react'
 import {
   onboardingCreateSite,
@@ -162,7 +152,7 @@ export default function OnboardingWizard({ roles }: { roles: Role[] }) {
   async function handleFinish() {
     setLoading(true)
     await onboardingComplete()
-    router.push('/dashboard')
+    router.push('/assistant')
     router.refresh()
   }
 

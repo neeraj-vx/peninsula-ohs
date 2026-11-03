@@ -70,6 +70,8 @@ const TOOL_LABELS: Record<string, { running: string; done: string }> = {
   createAction: { running: 'Creating action', done: 'Action' },
   updateActionStatus: { running: 'Updating action', done: 'Action update' },
   markNotificationsRead: { running: 'Updating notifications', done: 'Marked notifications read' },
+  readFile: { running: 'Reading file', done: 'Read file' },
+  createDocument: { running: 'Creating document', done: 'Document' },
 }
 
 const WRITE_TITLES: Record<string, string> = {
@@ -77,6 +79,7 @@ const WRITE_TITLES: Record<string, string> = {
   createIncident: 'Submit this incident?',
   createAction: 'Create this action?',
   updateActionStatus: 'Update this action?',
+  createDocument: 'Create this document?',
 }
 
 function humanise(key: string) {
@@ -145,7 +148,7 @@ function ToolActivity({ part }: { part: AnyToolPart }) {
       </button>
       {open && (
         <pre className={styles.toolBody}>
-          {JSON.stringify({ input: part.input, output: part.output ?? part.errorText }, null, 2)}
+          {JSON.stringify({ input: part.input, output: part.output ?? part.errorText }, (k, v) => (k === 'data' && typeof v === 'string' && v.length > 200 ? `[${Math.round(v.length / 1365)} KB file]` : k === 'text' && typeof v === 'string' && v.length > 1500 ? v.slice(0, 1500) + '…' : v), 2)}
         </pre>
       )}
     </div>
@@ -227,9 +230,16 @@ export function AssistantChat({ sessionId, initialMessages = [], sessions: initi
     transport: new DefaultChatTransport({ api: '/api/ai/chat' }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onFinish: () => {
-      // The server saves (and titles) the chat just after the stream closes
-      setTimeout(async () => setSessions(await listChatSessions()), 1500)
-      setTimeout(async () => setSessions(await listChatSessions()), 5000)
+      // The server saves (and titles) the chat just after the stream closes;
+      // poll until the title arrives (up to ~15s)
+      let tries = 0
+      const poll = async () => {
+        const list = await listChatSessions()
+        setSessions(list)
+        const mine = list.find((s) => s.id === chatId)
+        if (mine?.title === 'New chat' && ++tries < 10) setTimeout(poll, 1500)
+      }
+      setTimeout(poll, 800)
     },
   })
 
@@ -349,8 +359,17 @@ export function AssistantChat({ sessionId, initialMessages = [], sessions: initi
                   ) : (
                     <>
                       <Link href={`/assistant/${s.id}`} className={styles.sessionLink} title={s.title}>
-                        <Chat size={14} />
-                        <span>{s.title}</span>
+                        {s.title === 'New chat' && s.id === chatId ? (
+                          <>
+                            <span className={styles.spinner} />
+                            <span className={styles.naming}>Naming chat…</span>
+                          </>
+                        ) : (
+                          <>
+                            <Chat size={14} />
+                            <span>{s.title}</span>
+                          </>
+                        )}
                       </Link>
                       <div className={styles.sessionActions}>
                         <button type="button" aria-label="Rename" onClick={() => { setRenaming(s.id); setRenameValue(s.title) }}>

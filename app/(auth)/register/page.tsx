@@ -2,17 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Button,
-  Form,
-  Stack,
-  TextInput,
-  PasswordInput,
-  Select,
-  SelectItem,
-  InlineNotification,
-  Tile,
-} from '@carbon/react'
+import { Button, Form, Stack, TextInput, PasswordInput, InlineNotification, Tile } from '@carbon/react'
+import { Select, SelectItem } from '@/components/ui/controls'
 import { ArrowRight, ArrowLeft, Checkmark, CheckmarkFilled, WarningFilled } from '@carbon/icons-react'
 import { createClient } from '@/lib/supabase/client'
 import { registerUser } from '@/app/actions/auth'
@@ -144,7 +135,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.replace('/dashboard')
+      if (user) router.replace('/assistant')
       else setCheckingSession(false)
     })
   }, [])
