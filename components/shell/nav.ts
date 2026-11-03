@@ -8,6 +8,7 @@ import {
   Document,
   Apps,
   Settings,
+  Chat,
 } from '@carbon/icons-react'
 
 // Who sees what. Roles come from user_roles → roles.name.
@@ -122,6 +123,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
 export const NAV: NavSection[] = [
   { label: 'Home', icon: Home, href: '/dashboard' },
   { label: 'My tasks', icon: TaskComplete, href: '/actions' },
+  { label: 'Assistant', icon: Chat, href: '/assistant' },
   {
     label: 'Safety',
     icon: WarningAlt,
