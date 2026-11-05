@@ -2,19 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Tile, Tag, Button } from '@carbon/react'
 import { DataTableClient, type ColDef } from '@/components/table/DataTableClient'
 import { PageIntro } from '@/components/page-intro/PageIntro'
-
-type TagType = 'blue' | 'green' | 'gray' | 'purple' | 'teal' | 'red'
-
-function statusTagType(status: string): TagType {
-  const map: Record<string, TagType> = {
-    open: 'blue',
-    in_progress: 'purple',
-    completed: 'teal',
-    closed: 'green',
-    cancelled: 'gray',
-  }
-  return map[status] ?? 'gray'
-}
+import { INVESTIGATION_STATUS_TAGS } from './status'
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
@@ -29,12 +17,12 @@ const columns: ColDef[] = [
     header: 'Status',
     cellConfig: {
       as: 'tag',
-      map: { open: 'blue', in_progress: 'purple', completed: 'teal', closed: 'green', cancelled: 'gray' },
+      map: INVESTIGATION_STATUS_TAGS,
       transform: true,
     },
   },
   { key: 'investigator_name', header: 'Investigator' },
-  { key: 'due_date', header: 'Due Date' },
+  { key: 'target_completion_date', header: 'Target Completion' },
   { key: 'view', header: '', cellConfig: { as: 'view_link', prefix: '/investigations/' } },
 ]
 
@@ -44,7 +32,7 @@ export default async function InvestigationsPage() {
   const { data: investigations } = await supabase
     .from('investigations')
     .select(`
-      id, investigation_number, status, due_date,
+      id, investigation_number, status, target_completion_date,
       incidents!incident_id(title),
       user_profiles!investigator_id(first_name, last_name)
     `)
@@ -61,7 +49,7 @@ export default async function InvestigationsPage() {
       incident_title: incident?.title ?? '—',
       status: inv.status,
       investigator_name: prof ? `${prof.first_name} ${prof.last_name}` : '—',
-      due_date: formatDate(inv.due_date),
+      target_completion_date: formatDate(inv.target_completion_date),
     }
   })
 

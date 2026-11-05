@@ -18,7 +18,7 @@ import {
   TableContainer,
 } from '@carbon/react'
 import { closeIncident } from '@/app/actions/incidents'
-import { createInvestigation } from '@/app/actions/investigations'
+import { StartInvestigationButton } from './StartInvestigationButton'
 
 type TagType =
   | 'gray'
@@ -435,22 +435,7 @@ export default async function IncidentDetailPage({ params }: PageProps) {
               {!investigation ? (
                 <div>
                   <p style={{ fontSize: '0.875rem', color: '#6f6f6f', marginBottom: '1rem' }}>No investigation started</p>
-                  <form action={async () => { 'use server'; await createInvestigation(id) }}>
-                    <button
-                      type="submit"
-                      style={{
-                        fontSize: '0.875rem',
-                        color: '#0f62fe',
-                        background: 'none',
-                        border: '1px solid #0f62fe',
-                        borderRadius: '2px',
-                        padding: '0.375rem 0.75rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Start Investigation
-                    </button>
-                  </form>
+                  <StartInvestigationButton incidentId={id} />
                 </div>
               ) : (
                 <div>

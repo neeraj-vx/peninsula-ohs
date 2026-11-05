@@ -12,7 +12,7 @@ export default async function EditInvestigationPage({ params }: PageProps) {
   const [{ data: inv }, { data: workers }] = await Promise.all([
     supabase
       .from('investigations')
-      .select('status, due_date, investigation_summary, findings, root_cause')
+      .select('status, investigator_id, rca_method, start_date, target_completion_date, actual_completion_date, background, contributing_factors, investigation_summary, lessons_learned')
       .eq('id', id)
       .single(),
     supabase.from('user_profiles').select('id, first_name, last_name').eq('is_active', true).order('last_name'),
