@@ -100,6 +100,12 @@ export function MarketingFooter() {
           ))}
         </div>
         <div>
+          <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.75rem' }}>Legal</p>
+          {[['/legal/terms', 'Terms of Service'], ['/legal/privacy', 'Privacy Policy'], ['/legal/data-processing', 'Data Processing Addendum'], ['/legal/subprocessors', 'Subprocessors'], ['/legal/cookies', 'Cookies'], ['/legal/accessibility', 'Accessibility'], ['/legal', 'All legal documents']].map(([href, label]) => (
+            <Link key={href} href={href} style={{ display: 'block', color: '#c6c6c6', textDecoration: 'none', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{label}</Link>
+          ))}
+        </div>
+        <div>
           <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.75rem' }}>Account</p>
           {[['/register', 'Create an account'], ['/login', 'Sign in']].map(([href, label]) => (
             <Link key={href} href={href} style={{ display: 'block', color: '#c6c6c6', textDecoration: 'none', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{label}</Link>
@@ -107,8 +113,9 @@ export function MarketingFooter() {
         </div>
       </div>
       <div style={{ maxWidth: '76rem', margin: '0 auto', padding: '1.5rem 1rem 2rem', borderTop: '1px solid #393939', fontSize: '0.75rem', lineHeight: 1.6 }}>
-        EXXIO helps you organise and evidence your health and safety program. It does not replace legal advice;
-        confirm your obligations with your provincial regulator or a qualified advisor.
+        EXXIO helps you organize and evidence your health and safety program. It does not replace legal advice;
+        confirm your obligations with your provincial regulator or a qualified advisor.{' '}
+        <Link href="/legal/disclaimer" style={{ color: '#c6c6c6' }}>Read our disclaimer</Link>.
         <br />© {new Date().getFullYear()} EXXIO. All rights reserved.
       </div>
     </footer>

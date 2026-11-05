@@ -271,3 +271,17 @@ body {
   column-gap: 1rem;
   > .cds--css-grid-column { margin-inline: 0; }
 }
+
+// Legal pages (components/marketing/legal.tsx): readable long-form text
+.legal-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #161616;
+  p { margin: 0 0 0.875rem; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+  ul { list-style: square; }
+  ol { list-style: decimal; }
+  li { margin-bottom: 0.375rem; }
+  strong { font-weight: 600; }
+  a { color: #0f62fe; }
+}

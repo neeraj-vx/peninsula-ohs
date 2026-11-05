@@ -344,6 +344,12 @@ export default function RegisterPage() {
                 <Select id="timezone" labelText="Timezone" value={timezone} onChange={e => setTimezone(e.target.value)}>
                   {TIMEZONES.map(tz => <SelectItem key={tz.value} value={tz.value} text={tz.label} />)}
                 </Select>
+                <p style={{ fontSize: '0.875rem', color: '#525252', lineHeight: 1.5 }}>
+                  By creating an account, you agree to the{' '}
+                  <a href="/legal/terms" target="_blank" rel="noreferrer" style={{ color: '#0f62fe' }}>Terms of Service</a>{' '}
+                  on behalf of your organization, and acknowledge the{' '}
+                  <a href="/legal/privacy" target="_blank" rel="noreferrer" style={{ color: '#0f62fe' }}>Privacy Policy</a>.
+                </p>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <Button kind="ghost" renderIcon={ArrowLeft} onClick={() => { setStep('account'); setError(null) }} disabled={loading}>
                     Back

@@ -67,7 +67,8 @@ export async function middleware(request: NextRequest) {
   if (isTokenRoute) return supabaseResponse
 
   // Public marketing pages; signed-in users opening / go to the assistant
-  const isMarketingRoute = pathname === '/' || pathname === '/how-it-works' || pathname === '/pricing' || pathname === '/contact'
+  const isMarketingRoute = pathname === '/' || pathname === '/how-it-works' || pathname === '/pricing' || pathname === '/contact' ||
+    pathname === '/legal' || pathname.startsWith('/legal/')
   if (isMarketingRoute) {
     return user && pathname === '/'
       ? NextResponse.redirect(new URL('/assistant', request.url))

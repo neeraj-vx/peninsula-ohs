@@ -153,6 +153,9 @@ export function ContactForm({ defaultInterest = '' }: { defaultInterest?: string
       {loading
         ? <InlineLoading description="Sending…" />
         : <Button kind="primary" type="submit">Send message</Button>}
+      <p style={{ fontSize: '0.8125rem', color: '#525252', lineHeight: 1.5, marginTop: '1rem' }}>
+        We use these details only to reply to you. See our <a href="/legal/privacy" style={{ color: '#0f62fe' }}>Privacy Policy</a>.
+      </p>
     </form>
   )
 }
